@@ -201,25 +201,25 @@
     50% { background-image: radial-gradient(circle, #ffffff 35%, #888888 38%, transparent 42%); filter: drop-shadow(0 0 4px #fff); }
   }
 
-  /* ROSE ARCADE — bright neon blue, neon-tube flicker */
+  /* ROSE ARCADE — bright neon red, neon-tube flicker */
   .chrome {
     font-family: 'Press Start 2P', monospace;
     font-size: clamp(13px, 3.6vw, 25px);
-    color: #00cfff;
+    color: #ff1a1a;
     text-shadow:
-      0 0 7px #00cfff,
-      0 0 16px #00cfff,
-      0 0 32px rgba(0,207,255,0.65),
-      0 0 60px rgba(0,207,255,0.25);
+      0 0 7px #ff1a1a,
+      0 0 16px #ff1a1a,
+      0 0 32px rgba(255,26,26,0.65),
+      0 0 60px rgba(255,26,26,0.25);
     letter-spacing: 4px;
     animation: neonFlicker 4s ease-in-out infinite;
   }
   @keyframes neonFlicker {
     0%,89%,91%,93%,100% {
-      text-shadow: 0 0 7px #00cfff, 0 0 16px #00cfff, 0 0 32px rgba(0,207,255,0.65), 0 0 60px rgba(0,207,255,0.25);
+      text-shadow: 0 0 7px #ff1a1a, 0 0 16px #ff1a1a, 0 0 32px rgba(255,26,26,0.65), 0 0 60px rgba(255,26,26,0.25);
     }
     90%,92% {
-      text-shadow: 0 0 3px #00cfff, 0 0 6px rgba(0,207,255,0.4);
+      text-shadow: 0 0 3px #ff1a1a, 0 0 6px rgba(255,26,26,0.4);
     }
   }
   .marquee .sub {
