@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>2048 - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  .grid { --cell: min(100px, 19vmin); display:grid; grid-template-columns:repeat(4,var(--cell)); grid-template-rows:repeat(4,var(--cell)); gap:8px; padding:12px; touch-action:none; }
+  .tile { display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); font-family:'Press Start 2P',monospace; font-size:calc(var(--cell)*0.24); background:rgba(255,255,255,0.05); border:2px solid rgba(255,166,77,0.2); transition:all .15s; }
+  .tile[data-v="2"]{background:rgba(255,225,77,0.15);border-color:#ffe14d;color:#ffe14d;text-shadow:0 0 8px #ffe14d;box-shadow:0 0 10px #ffe14d}
+  .tile[data-v="4"]{background:rgba(255,166,77,0.15);border-color:#ffa64d;color:#ffa64d;text-shadow:0 0 8px #ffa64d;box-shadow:0 0 10px #ffa64d}
+  .tile[data-v="8"]{background:rgba(255,61,240,0.15);border-color:#ff3df0;color:#ff3df0;text-shadow:0 0 8px #ff3df0;box-shadow:0 0 10px #ff3df0}
+  .tile[data-v="16"]{background:rgba(255,109,134,0.2);border-color:#ff6d86;color:#ff6d86;text-shadow:0 0 10px #ff6d86;box-shadow:0 0 12px #ff6d86}
+  .tile[data-v="32"]{background:rgba(77,240,255,0.2);border-color:#4df0ff;color:#4df0ff;text-shadow:0 0 10px #4df0ff;box-shadow:0 0 14px #4df0ff}
+  .tile[data-v="64"]{background:rgba(93,255,138,0.2);border-color:#5dff8a;color:#5dff8a;text-shadow:0 0 10px #5dff8a;box-shadow:0 0 14px #5dff8a}
+  .tile[data-v="128"]{background:rgba(196,109,255,0.25);border-color:#c46dff;color:#c46dff;text-shadow:0 0 12px #c46dff;box-shadow:0 0 16px #c46dff;font-size:calc(var(--cell)*0.22)}
+  .tile[data-v="256"]{background:rgba(255,225,77,0.3);border-color:#ffe14d;color:#ffe14d;text-shadow:0 0 14px #ffe14d;box-shadow:0 0 20px #ffe14d;font-size:calc(var(--cell)*0.22)}
+  .tile[data-v="512"]{background:rgba(255,61,240,0.3);border-color:#ff3df0;color:#ff3df0;text-shadow:0 0 16px #ff3df0;box-shadow:0 0 22px #ff3df0;font-size:calc(var(--cell)*0.2)}
+  .tile[data-v="1024"]{background:rgba(77,240,255,0.4);border-color:#4df0ff;color:#4df0ff;text-shadow:0 0 18px #4df0ff;box-shadow:0 0 24px #4df0ff;font-size:calc(var(--cell)*0.18)}
+  .tile[data-v="2048"]{background:rgba(93,255,138,0.4);border-color:#5dff8a;color:#5dff8a;text-shadow:0 0 20px #5dff8a;box-shadow:0 0 30px #5dff8a;font-size:calc(var(--cell)*0.18);animation:pulse 1s infinite}
+  @keyframes pulse{50%{transform:scale(1.05)}}
+</style>
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🔢 2048</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">SCORE: <b id="score">0</b></div>
+      <div class="score-chip">BEST: <b id="best">0</b></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <div class="grid game-board" id="grid"></div>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">SWIPE / ARROWS / WASD</div>
+      <button class="btn" id="reset">NEW GAME</button>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script>
+let board, score, dead = false;
+let best = gamelib.bestScore('2048');
+document.getElementById('best').textContent = best;
+const gridEl = document.getElementById('grid');
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>init() });
+
+function init(){
+  board = Array.from({length:4},()=>Array(4).fill(0));
+  score=0; dead=false;
+  document.getElementById('score').textContent=0;
+  document.getElementById('msg').textContent='SWIPE / ARROWS / WASD';
+  add(); add(); render();
+}
+function add(){
+  const empty = [];
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(!board[r][c]) empty.push([r,c]);
+  if(!empty.length) return;
+  const [r,c] = empty[Math.random()*empty.length|0];
+  board[r][c] = Math.random()<0.9?2:4;
+}
+function render(){
+  gridEl.innerHTML='';
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+    const v = board[r][c];
+    const t = document.createElement('div');
+    t.className='tile';
+    if(v){ t.dataset.v=v; t.textContent=v; }
+    gridEl.appendChild(t);
+  }
+}
+let merged = false;
+function slide(row){
+  let r = row.filter(v=>v);
+  for(let i=0;i<r.length-1;i++){ if(r[i]===r[i+1]){ r[i]*=2; score+=r[i]; r.splice(i+1,1); merged=true; } }
+  while(r.length<4) r.push(0);
+  return r;
+}
+function move(dir){
+  if(dead || gamelib.isPaused()) return;
+  const before = JSON.stringify(board);
+  merged = false;
+  if(dir==='l') board = board.map(slide);
+  if(dir==='r') board = board.map(row=>slide(row.slice().reverse()).reverse());
+  if(dir==='u'){ for(let c=0;c<4;c++){ const col=slide([board[0][c],board[1][c],board[2][c],board[3][c]]); for(let r=0;r<4;r++) board[r][c]=col[r]; } }
+  if(dir==='d'){ for(let c=0;c<4;c++){ const col=slide([board[0][c],board[1][c],board[2][c],board[3][c]].reverse()).reverse(); for(let r=0;r<4;r++) board[r][c]=col[r]; } }
+  if(JSON.stringify(board)!==before){
+    add();
+    document.getElementById('score').textContent=score;
+    if(merged){ sfx.merge(); gamelib.popup(gridEl, '+', { color:'#5dff8a' }); if(navigator.vibrate) navigator.vibrate(8); }
+    else sfx.blip();
+    if(score>best){ best=score; document.getElementById('best').textContent=best; }
+    gamelib.setBestIfHigher('2048', score);
+    render();
+    if(!canMove()){
+      dead = true;
+      sfx.lose(); gamelib.shake(gridEl, 10, 350);
+      if(score > 0){ gamelib.unlock('first_win'); gamelib.addCoins(Math.min(20, Math.ceil(score/100)), '2048'); }
+      gamelib.trackPlayed('2048');
+      setTimeout(() => {
+        gamelib.gameOver({
+          title:'GAME OVER',
+          subtitle: gamelib.bestScore('2048') === score ? '🏆 NEW HIGH SCORE' : '',
+          stats: [
+            { label:'SCORE', value: score },
+            { label:'BEST',  value: gamelib.bestScore('2048') },
+            { label:'BIGGEST', value: Math.max(...board.flat()) },
+          ],
+          onRestart: () => init()
+        });
+      }, 400);
+    } else if(board.flat().includes(2048)){
+      document.getElementById('msg').textContent='YOU WIN! KEEP GOING';
+      sfx.win();
+      gamelib.popup(gridEl, '2048!', { color:'#5dff8a' });
+    }
+  }
+}
+function canMove(){
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+    if(!board[r][c]) return true;
+    if(c<3 && board[r][c]===board[r][c+1]) return true;
+    if(r<3 && board[r][c]===board[r+1][c]) return true;
+  }
+  return false;
+}
+document.addEventListener('keydown', e => {
+  const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a'){ move('l'); e.preventDefault(); }
+  if(k==='arrowright'||k==='d'){ move('r'); e.preventDefault(); }
+  if(k==='arrowup'||k==='w'){ move('u'); e.preventDefault(); }
+  if(k==='arrowdown'||k==='s'){ move('d'); e.preventDefault(); }
+});
+document.getElementById('reset').onclick=()=>{ sfx.click(); init(); };
+let tStart = null;
+gridEl.addEventListener('touchstart', e=>{ tStart = e.touches[0]; }, {passive:true});
+gridEl.addEventListener('touchend', e=>{
+  if(!tStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - tStart.clientX, dy = t.clientY - tStart.clientY;
+  if(Math.abs(dx)<25 && Math.abs(dy)<25) return;
+  if(Math.abs(dx) > Math.abs(dy)) move(dx>0?'r':'l');
+  else move(dy>0?'d':'u');
+  tStart = null;
+}, {passive:true});
+init();
+</script>
+</body>
+</html>

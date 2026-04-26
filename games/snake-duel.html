@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SNAKE DUEL - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🐍🐍 SNAKE DUEL</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div id="p1chip"></div>
+      <div id="p2chip"></div>
+      <div class="score-chip">WINS: <b id="ws">0 – 0</b></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <canvas id="game" class="game-canvas"></canvas>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">PRESS SPACE TO START</div>
+      <div class="controls-hint kbd-only">P1: WASD &nbsp;·&nbsp; P2: ↑ ↓ ← →</div>
+      <div class="dual-pads" id="dpads">
+        <div class="pad-block">
+          <div class="pad-label" style="color:#5dff8a">P1</div>
+          <div class="touch-pad" data-p="1">
+            <button class="up" data-d="u" style="border-color:#5dff8a;color:#5dff8a">▲</button>
+            <button class="left" data-d="l" style="border-color:#5dff8a;color:#5dff8a">◄</button>
+            <button class="center"></button>
+            <button class="right" data-d="r" style="border-color:#5dff8a;color:#5dff8a">►</button>
+            <button class="down" data-d="d" style="border-color:#5dff8a;color:#5dff8a">▼</button>
+          </div>
+        </div>
+        <div class="pad-block">
+          <div class="pad-label" style="color:#ff3df0">P2</div>
+          <div class="touch-pad" data-p="2">
+            <button class="up" data-d="u" style="border-color:#ff3df0;color:#ff3df0">▲</button>
+            <button class="left" data-d="l" style="border-color:#ff3df0;color:#ff3df0">◄</button>
+            <button class="center"></button>
+            <button class="right" data-d="r" style="border-color:#ff3df0;color:#ff3df0">►</button>
+            <button class="down" data-d="d" style="border-color:#ff3df0;color:#ff3df0">▼</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script>
+const c = document.getElementById('game'), ctx = c.getContext('2d');
+const COLS = 25;
+let SIZE = 20;
+let s1, s2, d1, d2, n1, n2, food, sc1, sc2, w1=0, w2=0, alive1, alive2, started, gameOver;
+let particles = [];
+
+const p1chip = gamelib.playerChip('p1', '#5dff8a'); document.getElementById('p1chip').replaceWith(p1chip);
+const p2chip = gamelib.playerChip('p2', '#ff3df0'); document.getElementById('p2chip').replaceWith(p2chip);
+
+function fitCanvas(){
+  const r = document.getElementById('playArea').getBoundingClientRect();
+  const target = Math.max(280, Math.min(r.width-8, r.height-8, 700));
+  const px = Math.floor(target/COLS) * COLS;
+  c.width = px; c.height = px;
+  SIZE = px / COLS;
+  if(s1) draw();
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,100));
+
+function reset(){
+  s1 = [{x:5,y:12},{x:4,y:12},{x:3,y:12}];
+  s2 = [{x:COLS-6,y:12},{x:COLS-5,y:12},{x:COLS-4,y:12}];
+  d1 = {x:1,y:0}; n1 = {x:1,y:0};
+  d2 = {x:-1,y:0}; n2 = {x:-1,y:0};
+  sc1=0; sc2=0; alive1=true; alive2=true; started=false; gameOver=false; particles=[];
+  placeFood();
+  p1chip.update(0); p2chip.update(0);
+  document.getElementById('msg').textContent = 'PRESS SPACE TO START';
+  draw();
+}
+function placeFood(){
+  while(true){
+    food = {x:(Math.random()*COLS)|0, y:(Math.random()*COLS)|0};
+    if(!s1.some(s=>s.x===food.x&&s.y===food.y) && !s2.some(s=>s.x===food.x&&s.y===food.y)) break;
+  }
+}
+function tick(){
+  if(!started || gameOver || gamelib.isPaused()) return;
+  d1 = n1; d2 = n2;
+  let h1 = alive1 ? {x:s1[0].x+d1.x, y:s1[0].y+d1.y} : null;
+  let h2 = alive2 ? {x:s2[0].x+d2.x, y:s2[0].y+d2.y} : null;
+  function dies(h, self, other){
+    if(!h) return false;
+    if(h.x<0||h.y<0||h.x>=COLS||h.y>=COLS) return true;
+    if(self.some(s=>s.x===h.x&&s.y===h.y)) return true;
+    if(other.some(s=>s.x===h.x&&s.y===h.y)) return true;
+    return false;
+  }
+  const die1 = alive1 && dies(h1, s1, s2);
+  const die2 = alive2 && dies(h2, s2, s1);
+  if(alive1 && alive2 && h1 && h2 && h1.x===h2.x && h1.y===h2.y){
+    alive1=false; alive2=false; sfx.explode();
+    gamelib.spawnParticles(particles, h1.x*SIZE, h1.y*SIZE, {color:'#fff', count:30, speed:6});
+    gamelib.shake(c, 14, 400);
+  } else {
+    if(die1){ alive1=false; sfx.explode(); gamelib.spawnParticles(particles, h1.x*SIZE, h1.y*SIZE, {color:'#5dff8a', count:20, speed:5}); gamelib.shake(c, 10, 300); }
+    if(die2){ alive2=false; sfx.explode(); gamelib.spawnParticles(particles, h2.x*SIZE, h2.y*SIZE, {color:'#ff3df0', count:20, speed:5}); gamelib.shake(c, 10, 300); }
+  }
+  if(alive1){
+    s1.unshift(h1);
+    if(h1.x===food.x && h1.y===food.y){ sc1++; p1chip.update(sc1); sfx.coin(); gamelib.spawnParticles(particles, food.x*SIZE+SIZE/2, food.y*SIZE+SIZE/2, {color:'#ffe14d', count:12, speed:3}); placeFood(); }
+    else s1.pop();
+  }
+  if(alive2){
+    s2.unshift(h2);
+    if(h2.x===food.x && h2.y===food.y){ sc2++; p2chip.update(sc2); sfx.coin(); gamelib.spawnParticles(particles, food.x*SIZE+SIZE/2, food.y*SIZE+SIZE/2, {color:'#ffe14d', count:12, speed:3}); placeFood(); }
+    else s2.pop();
+  }
+  if(!alive1 || !alive2){
+    gameOver = true;
+    let winner, msg;
+    if(!alive1 && !alive2){
+      if(sc1>sc2){ w1++; winner = arcadeAvatars.get('p1').n; msg='P1 WINS BY SCORE'; }
+      else if(sc2>sc1){ w2++; winner = arcadeAvatars.get('p2').n; msg='P2 WINS BY SCORE'; }
+      else { winner = 'DRAW'; msg='DRAW!'; }
+    } else if(!alive1){ w2++; winner = arcadeAvatars.get('p2').n; msg='P2 WINS!'; }
+    else { w1++; winner = arcadeAvatars.get('p1').n; msg='P1 WINS!'; }
+    document.getElementById('ws').textContent = w1+' – '+w2;
+    sfx.win();
+    gamelib.unlock('first_win');
+    gamelib.addCoins(5, 'snake-duel');
+    gamelib.trackPlayed('snake-duel');
+    setTimeout(() => {
+      gamelib.gameOver({
+        title: winner === 'DRAW' ? 'DRAW!' : winner + ' WINS!',
+        subtitle: msg,
+        stats: [
+          { label:arcadeAvatars.get('p1').n, value: sc1 },
+          { label:arcadeAvatars.get('p2').n, value: sc2 },
+          { label:'WINS', value: w1+' – '+w2 },
+        ],
+        onRestart: () => reset()
+      });
+    }, 400);
+  }
+}
+function draw(){
+  ctx.fillStyle='rgba(0,0,20,0.95)';
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='rgba(77,240,255,0.06)';
+  for(let i=0;i<=COLS;i++){
+    ctx.beginPath(); ctx.moveTo(i*SIZE,0); ctx.lineTo(i*SIZE,c.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*SIZE); ctx.lineTo(c.width,i*SIZE); ctx.stroke();
+  }
+  ctx.fillStyle='#ffe14d'; ctx.shadowColor='#ffe14d'; ctx.shadowBlur=15;
+  ctx.fillRect(food.x*SIZE+2, food.y*SIZE+2, SIZE-4, SIZE-4);
+  s1.forEach((s,i)=>{ ctx.fillStyle=i===0?'#5dff8a':'#3acc60'; ctx.shadowColor='#5dff8a'; ctx.shadowBlur=12; ctx.fillRect(s.x*SIZE+1, s.y*SIZE+1, SIZE-2, SIZE-2); });
+  s2.forEach((s,i)=>{ ctx.fillStyle=i===0?'#ff3df0':'#cc11aa'; ctx.shadowColor='#ff3df0'; ctx.shadowBlur=12; ctx.fillRect(s.x*SIZE+1, s.y*SIZE+1, SIZE-2, SIZE-2); });
+  ctx.shadowBlur=0;
+  gamelib.drawParticles(ctx, particles);
+}
+function rafLoop(){ gamelib.stepParticles(particles); draw(); requestAnimationFrame(rafLoop); }
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>reset() });
+
+document.addEventListener('keydown', e => {
+  if(gamelib.isPaused()) return;
+  const k = e.key.toLowerCase();
+  if(k===' '){ if(gameOver) reset(); if(!started){ started=true; document.getElementById('msg').textContent=''; sfx.countdown(); } e.preventDefault(); }
+  if(k==='w' && d1.y===0) n1={x:0,y:-1};
+  if(k==='s' && d1.y===0) n1={x:0,y:1};
+  if(k==='a' && d1.x===0) n1={x:-1,y:0};
+  if(k==='d' && d1.x===0) n1={x:1,y:0};
+  if(k==='arrowup' && d2.y===0) n2={x:0,y:-1};
+  if(k==='arrowdown' && d2.y===0) n2={x:0,y:1};
+  if(k==='arrowleft' && d2.x===0) n2={x:-1,y:0};
+  if(k==='arrowright' && d2.x===0) n2={x:1,y:0};
+  if(['arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
+});
+
+document.querySelectorAll('#dpads button[data-d]').forEach(b => {
+  const press = e => {
+    e.preventDefault(); if(gameOver) return;
+    if(!started){ started=true; document.getElementById('msg').textContent=''; sfx.countdown(); }
+    const p = b.parentElement.dataset.p, d = b.dataset.d;
+    if(p==='1'){
+      if(d==='u' && d1.y===0) n1={x:0,y:-1};
+      if(d==='d' && d1.y===0) n1={x:0,y:1};
+      if(d==='l' && d1.x===0) n1={x:-1,y:0};
+      if(d==='r' && d1.x===0) n1={x:1,y:0};
+    } else {
+      if(d==='u' && d2.y===0) n2={x:0,y:-1};
+      if(d==='d' && d2.y===0) n2={x:0,y:1};
+      if(d==='l' && d2.x===0) n2={x:-1,y:0};
+      if(d==='r' && d2.x===0) n2={x:1,y:0};
+    }
+  };
+  b.addEventListener('touchstart', press, {passive:false});
+  b.addEventListener('mousedown', press);
+});
+
+fitCanvas(); reset();
+setInterval(tick, 100);
+requestAnimationFrame(rafLoop);
+</script>
+</body>
+</html>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ROSE ARCADE</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { overflow: hidden; height: 100dvh; background: #000; }
+
+  /* ============================================================
+     DARK ARCADE BACKGROUND
+  ============================================================ */
+  .rose-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background:
+      radial-gradient(ellipse 70% 35% at 50% 0%, rgba(20,80,10,0.18) 0%, transparent 60%),
+      linear-gradient(180deg, #050805 0%, #020202 100%);
+  }
+  .rose-glow {
+    position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
+    animation: glowPulse 7s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%,100% { opacity: 0.18; } 50% { opacity: 0.35; } }
+
+  /* Falling petals */
+  .petal {
+    position: absolute; pointer-events: none; user-select: none;
+    opacity: 0;
+    animation: petalFall linear infinite;
+  }
+  @keyframes petalFall {
+    0%   { transform: translateY(-50px) rotate(0deg) scale(0.9); opacity: 0; }
+    6%   { opacity: 0.65; }
+    88%  { opacity: 0.35; }
+    100% { transform: translateY(108vh) rotate(640deg) scale(0.55); opacity: 0; }
+  }
+
+  /* ============================================================
+     HUB SHELL
+  ============================================================ */
+  .hub {
+    position: relative; z-index: 5;
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 6px;
+    padding: 8px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     TOP ROW
+  ============================================================ */
+  .top-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .corner-btn {
+    background: linear-gradient(180deg, #111 0%, #060606 100%);
+    border: 2px solid rgba(57,255,20,0.4);
+    color: #39ff14;
+    font-size: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    text-shadow: 0 0 6px #39ff14;
+    box-shadow: 0 0 7px rgba(57,255,20,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+    transition: all .2s var(--ease);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .corner-btn:hover { transform: scale(1.1); box-shadow: 0 0 16px rgba(57,255,20,0.55); }
+  .corner-btn:active { transform: scale(0.92); }
+
+  /* ============================================================
+     AVATAR PLAYER BAR
+  ============================================================ */
+  .player-bar {
+    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(12,12,12,0.96) 0%, rgba(5,5,5,0.98) 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    max-width: 460px; margin: 0 auto;
+    box-shadow: 0 0 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .pslot { display: flex; align-items: center; gap: 8px; cursor: pointer; transition: transform .2s var(--ease); }
+  .pslot:hover { transform: scale(1.05); }
+  .pslot .pe {
+    font-size: 22px; width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--c);
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.82) 70%);
+    box-shadow: 0 0 10px var(--c);
+  }
+  .pslot .pl { font-family:'Press Start 2P',monospace; font-size: 7px; color: var(--c); text-shadow: 0 0 4px var(--c); letter-spacing: 1px; }
+  .pslot .pn { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); letter-spacing: 1px; }
+
+  /* ============================================================
+     MAIN GRID: CABINET + LEADERBOARD
+  ============================================================ */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+  @media (min-width: 950px) { .main-grid { grid-template-columns: 1fr 248px; } }
+
+  /* ============================================================
+     3-D CABINET
+  ============================================================ */
+  .scene {
+    perspective: 1100px;
+    perspective-origin: 50% 30%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .cabinet {
+    flex: 1; min-height: 0;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+
+  /* MAIN FRONT BODY */
+  .cab-body {
+    position: relative;
+    background: linear-gradient(160deg, #0e0e0e 0%, #080808 55%, #030303 100%);
+    border: 3px solid #2a2a2a;
+    border-top-color: #404040;
+    border-bottom-color: #111;
+    border-radius: 16px 16px 18px 18px;
+    padding: 6px 8px 8px;
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+    gap: 6px;
+    /* depth via stacked box-shadows */
+    box-shadow:
+      9px 8px 0 #0a0a0a,
+      13px 13px 0 #000,
+      0 0 28px rgba(57,255,20,0.08),
+      inset 0 -6px 14px rgba(0,0,0,0.7),
+      inset 0 2px 3px rgba(255,255,255,0.04),
+      0 22px 50px rgba(0,0,0,0.9),
+      0 26px 0 #050505;
+  }
+  /* TOP NEON TRIM — bright green */
+  .cab-body::before {
+    content: '';
+    position: absolute;
+    top: -11px; left: 9%; right: 9%;
+    height: 11px;
+    background: linear-gradient(180deg, #39ff14 0%, #1a8800 100%);
+    border-radius: 9px 9px 0 0;
+    box-shadow: 0 0 16px #39ff14, 0 0 32px rgba(57,255,20,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+  }
+  /* RIGHT-SIDE DEPTH STRIP */
+  .cab-body::after {
+    content: '';
+    position: absolute;
+    top: 0; right: -13px; bottom: -14px;
+    width: 13px;
+    background: linear-gradient(90deg, #0a0a0a 0%, #030303 100%);
+    border-radius: 0 5px 5px 0;
+    border: 1px solid #1a1a1a;
+    border-left: none;
+  }
+
+  /* ============================================================
+     MARQUEE (tilted toward viewer)
+  ============================================================ */
+  .marquee {
+    position: relative;
+    background: linear-gradient(180deg, #040a04 0%, #020502 100%);
+    border-radius: 8px;
+    padding: 12px 22px;
+    text-align: center;
+    border: 2px solid #1a3a1a;
+    box-shadow: inset 0 0 22px rgba(57,255,20,0.12), 0 0 12px rgba(57,255,20,0.1);
+    transform: perspective(550px) rotateX(-7deg);
+    transform-origin: center bottom;
+    flex-shrink: 0;
+  }
+  /* Bulb lights — green + white alternating */
+  .marquee::before, .marquee::after {
+    content:'';
+    position: absolute; left: 5px; right: 5px; height: 7px;
+    background-image: radial-gradient(circle, #39ff14 35%, #116600 38%, transparent 42%);
+    background-size: 13px 7px; background-repeat: repeat-x; background-position: center;
+    filter: drop-shadow(0 0 4px #39ff14);
+    animation: bulbs 1.2s steps(2) infinite;
+  }
+  .marquee::before { top: -3px; }
+  .marquee::after  { bottom: -3px; animation-delay: .6s; }
+  @keyframes bulbs {
+    0%  { background-image: radial-gradient(circle, #39ff14 35%, #116600 38%, transparent 42%); filter: drop-shadow(0 0 4px #39ff14); }
+    50% { background-image: radial-gradient(circle, #ffffff 35%, #888888 38%, transparent 42%); filter: drop-shadow(0 0 4px #fff); }
+  }
+
+  /* ROSE ARCADE — bright neon green, neon-tube flicker */
+  .chrome {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(13px, 3.6vw, 25px);
+    color: #39ff14;
+    text-shadow:
+      0 0 7px #39ff14,
+      0 0 16px #39ff14,
+      0 0 32px rgba(57,255,20,0.65),
+      0 0 60px rgba(57,255,20,0.25);
+    letter-spacing: 4px;
+    animation: neonFlicker 4s ease-in-out infinite;
+  }
+  @keyframes neonFlicker {
+    0%,89%,91%,93%,100% {
+      text-shadow: 0 0 7px #39ff14, 0 0 16px #39ff14, 0 0 32px rgba(57,255,20,0.65), 0 0 60px rgba(57,255,20,0.25);
+    }
+    90%,92% {
+      text-shadow: 0 0 3px #39ff14, 0 0 6px rgba(57,255,20,0.4);
+    }
+  }
+  .marquee .sub {
+    font-family:'VT323', monospace; font-size: 12px;
+    color: rgba(57,255,20,0.5); margin-top: 3px; letter-spacing: 2px;
+  }
+
+  /* ============================================================
+     SCREEN BEZEL
+  ============================================================ */
+  .screen-shell {
+    position: relative;
+    background: linear-gradient(180deg, #111 0%, #040404 100%);
+    border: 4px solid #2a2a2a;
+    border-top-color: #383838;
+    border-bottom-color: #111;
+    border-radius: 13px;
+    padding: 7px;
+    flex: 1; min-height: 0;
+    box-shadow:
+      inset 0 0 30px rgba(0,0,0,0.98),
+      0 0 10px rgba(0,0,0,0.8);
+    margin: 0 2px;
+  }
+  .screw { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ccc, #555 70%, #222); box-shadow: 0 1px 1px rgba(0,0,0,0.6); }
+  .screen-shell .screw.tl { top: 4px; left: 4px; }
+  .screen-shell .screw.tr { top: 4px; right: 4px; }
+  .screen-shell .screw.bl { bottom: 4px; left: 4px; }
+  .screen-shell .screw.br { bottom: 4px; right: 4px; }
+
+  .screen {
+    position: relative; height: 100%;
+    background: #000;
+    border-radius: 7px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.98);
+  }
+  .screen::after {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80% 22% at 50% 0%, rgba(255,255,255,0.09) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 30% at 50% 100%, rgba(0,0,0,0.5) 0%, transparent 60%);
+    pointer-events:none; border-radius:7px;
+  }
+
+  /* Game preview cards */
+  .preview {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; opacity: 0; transform: scale(0.85);
+    transition: opacity .4s, transform .4s;
+    pointer-events: none; text-align: center;
+  }
+  .preview.active { opacity: 1; transform: scale(1); pointer-events: auto; }
+  .preview-icon { font-size: clamp(34px, 9vh, 76px); filter: drop-shadow(0 0 16px var(--c, var(--neon-pink))); }
+  .preview-name { font-family:'Press Start 2P',monospace; font-size: clamp(10px, 2.4vw, 17px); color: var(--c, var(--neon-pink)); text-shadow: 0 0 10px var(--c, var(--neon-pink)); letter-spacing: 2px; }
+  .preview-tag  { font-family:'VT323',monospace; font-size: 14px; color: var(--neon-yellow); text-shadow: 0 0 6px var(--neon-yellow); letter-spacing: 1.5px; }
+  .preview-best { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-green); text-shadow: 0 0 6px var(--neon-green); letter-spacing: 1px; margin-top: 2px; }
+
+  /* Preview animations */
+  .anim-snake  { animation: slither 2s ease-in-out infinite; }
+  @keyframes slither { 0%,100%{transform:translateX(-22%) rotate(-8deg)} 50%{transform:translateX(22%) rotate(8deg)} }
+  .anim-bounce { animation: bounce 1s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+  .anim-spin   { animation: spin 4s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .anim-pulse  { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+  .anim-shake  { animation: shakey .6s ease-in-out infinite; }
+  @keyframes shakey { 0%,100%{transform:rotate(-15deg)} 50%{transform:rotate(15deg)} }
+  .anim-float  { animation: floatAnim 2.5s ease-in-out infinite; }
+  @keyframes floatAnim { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
+  .anim-fall   { animation: fallAnim 1.5s ease-in-out infinite; }
+  @keyframes fallAnim { 0%,100%{transform:translateY(-12px) rotate(-10deg)} 50%{transform:translateY(12px) rotate(10deg)} }
+  .anim-shoot  { animation: shoot 1.5s ease-in-out infinite; }
+  @keyframes shoot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px) scaleY(1.1)} }
+
+  /* ============================================================
+     CONTROL DECK (angled toward viewer)
+  ============================================================ */
+  .control-deck {
+    background: linear-gradient(180deg, #101010 0%, #050505 100%);
+    border: 2px solid #222;
+    border-radius: 0 0 14px 14px;
+    padding: 10px 12px 13px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    box-shadow: inset 0 -5px 12px rgba(0,0,0,0.8), inset 0 2px 0 rgba(255,255,255,0.03);
+    transform: perspective(480px) rotateX(17deg);
+    transform-origin: center top;
+    flex-shrink: 0;
+  }
+
+  /* Joystick */
+  .joystick { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+  .joystick .base { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:40px; height:15px; background:radial-gradient(ellipse at top,#333,#0a0a0a); border-radius:50%; box-shadow:inset 0 -2px 5px rgba(0,0,0,0.9); }
+  .joystick .stick { position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:5px; height:21px; background:linear-gradient(180deg,#777 0%,#333 100%); border-radius:3px; }
+  .joystick .ball { position:absolute; top:0; left:50%; transform:translateX(-50%); width:19px; height:19px; border-radius:50%; background:radial-gradient(circle at 30% 30%,#ff6644 0%,#cc1100 55%,#660000 100%); box-shadow:0 3px 0 rgba(0,0,0,0.6),0 0 14px rgba(204,17,0,0.8); animation:stickWob 3s ease-in-out infinite; transform-origin:50% 100%; }
+  @keyframes stickWob { 0%,100%{transform:translateX(-50%) rotate(0deg)} 25%{transform:translateX(-60%) rotate(-8deg)} 75%{transform:translateX(-40%) rotate(8deg)} }
+
+  /* PLAY button — bright arcade red */
+  .play-area-deck { text-align: center; }
+  .play-btn {
+    font-family: 'Press Start 2P', monospace;
+    background: radial-gradient(circle at 35% 30%, #ff5533 0%, #cc1100 55%, #880000 100%);
+    border: 3px solid #ff7755;
+    color: #fff;
+    font-size: clamp(10px, 2.3vw, 13px);
+    padding: 11px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow:
+      0 0 22px #cc1100,
+      0 0 44px rgba(200,17,0,0.4),
+      0 5px 0 #440000,
+      inset 0 -3px 5px rgba(0,0,0,0.4),
+      inset 0 3px 5px rgba(255,120,80,0.4);
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px #fff, 0 1px 0 rgba(0,0,0,0.5);
+    animation: playPulse 1.6s ease-in-out infinite;
+    transition: transform .1s;
+    white-space: nowrap;
+  }
+  @keyframes playPulse {
+    0%,100% { box-shadow: 0 0 22px #cc1100, 0 0 44px rgba(200,17,0,0.4), 0 5px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
+    50%      { box-shadow: 0 0 40px #cc1100, 0 0 70px rgba(200,17,0,0.6), 0 0 100px rgba(200,17,0,0.2), 0 5px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
+  }
+  .play-btn:active { transform: translateY(4px); box-shadow: 0 0 22px #cc1100, 0 1px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
+
+  /* Nav buttons */
+  .nav-cluster { display: flex; gap: 6px; align-items: center; }
+  .arcade-btn {
+    width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+    border: 3px solid rgba(0,0,0,0.4);
+    font-family: 'Press Start 2P', monospace; font-size: 13px;
+    color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+    flex-shrink: 0; transition: transform .08s; position: relative;
+  }
+  .arcade-btn::before { content:''; position:absolute; top:4px; left:7px; right:17px; height:23%; background:rgba(255,255,255,0.22); border-radius:50%; pointer-events:none; }
+  /* ◄ PREV — electric blue */
+  .arcade-btn.rose { background:radial-gradient(circle at 30% 30%,#88ccff,#1166ee 70%); box-shadow:0 5px 0 #001166,0 0 16px rgba(20,80,255,0.85),0 0 32px rgba(20,80,255,0.3); }
+  /* ► NEXT — bright green */
+  .arcade-btn.gold { background:radial-gradient(circle at 30% 30%,#88ff88,#11cc11 70%); box-shadow:0 5px 0 #003a00,0 0 16px rgba(57,255,20,0.85),0 0 32px rgba(57,255,20,0.3); }
+  .arcade-btn:active { transform: translateY(4px); }
+  .arcade-btn.rose:active { box-shadow: 0 1px 0 #001166, 0 0 16px rgba(20,80,255,0.85); }
+  .arcade-btn.gold:active { box-shadow: 0 1px 0 #003a00, 0 0 16px rgba(57,255,20,0.85); }
+
+  /* ============================================================
+     LEADERBOARD PANEL
+  ============================================================ */
+  .leaderboard {
+    background: linear-gradient(180deg, #0a0a0a 0%, #040404 100%);
+    border: 2px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 0 14px rgba(57,255,20,0.07), inset 0 -3px 8px rgba(0,0,0,0.7);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .leaderboard-title { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-yellow); text-shadow: 0 0 6px var(--neon-yellow); letter-spacing: 2px; text-align:center; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,210,80,0.22); }
+  .lb-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; min-height: 0; }
+  .lb-row { display:flex; justify-content:space-between; align-items:center; padding:5px 8px; background:rgba(0,0,0,0.4); border:1px solid color-mix(in srgb,var(--c) 28%,transparent); border-radius:6px; font-family:'Press Start 2P',monospace; font-size:7px; letter-spacing:1px; color:var(--c); text-shadow:0 0 4px var(--c); cursor:pointer; transition:background .15s; }
+  .lb-row:hover { background: rgba(0,0,0,0.62); }
+  .lb-row .lb-icon { font-size: 13px; }
+  .lb-row .lb-game { flex:1; padding:0 6px; font-size:6px; }
+  .lb-row .lb-best { color:var(--neon-yellow); text-shadow:0 0 4px var(--neon-yellow); font-size:8px; }
+  .lb-row .lb-best.empty { color:#2a2a2a; text-shadow:none; }
+
+  @media (max-width: 950px) {
+    .leaderboard { display: none; }
+    .leaderboard.show-mobile { display:flex; position:fixed; inset:60px 10px 10px; z-index:50; box-shadow:var(--shadow-deep); }
+  }
+
+  /* ============================================================
+     THEME MODAL
+  ============================================================ */
+  .theme-modal { position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); z-index:300; display:none; align-items:center; justify-content:center; padding:20px; }
+  .theme-modal.open { display:flex; animation:fadeIn .25s var(--ease); }
+  .theme-modal-inner { background:linear-gradient(180deg,rgba(30,5,15,0.97) 0%,rgba(10,0,8,0.99) 100%); border:2px solid var(--neon-pink); border-radius:var(--radius-lg); padding:22px; max-width:400px; width:100%; box-shadow:0 0 40px color-mix(in srgb,var(--neon-pink) 50%,transparent); }
+  .theme-modal-title { font-family:'Press Start 2P',monospace; font-size:12px; color:var(--neon-pink); text-shadow:0 0 8px var(--neon-pink); margin-bottom:16px; text-align:center; letter-spacing:2px; }
+  .theme-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-bottom:14px; }
+  .theme-opt { padding:12px 8px; border:2px solid; border-radius:var(--radius); cursor:pointer; text-align:center; font-family:'Press Start 2P',monospace; font-size:9px; letter-spacing:2px; transition:all .2s var(--ease); }
+  .theme-opt:hover { transform:scale(1.05); }
+  .theme-opt.active { box-shadow:0 0 16px currentColor; }
+  .theme-swatches { display:flex; gap:4px; justify-content:center; margin-top:5px; }
+  .theme-sw { width:10px; height:10px; border-radius:50%; box-shadow:0 0 4px currentColor; }
+
+  /* Attract */
+  .attract-banner { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Press Start 2P',monospace; font-size:clamp(15px,3.2vw,22px); color:#39ff14; text-shadow:0 0 12px #39ff14,0 0 24px rgba(57,255,20,0.6); letter-spacing:4px; pointer-events:none; opacity:0; transition:opacity .3s; z-index:5; animation:attractBlink 1s steps(2) infinite; }
+  .attract-banner.show { opacity:1; }
+  @keyframes attractBlink { 50%{opacity:0.25} }
+
+  /* Footer */
+  .footer-hint { text-align:center; font-size:11px; color:rgba(57,255,20,0.28); padding:0 4px; font-family:'VT323',monospace; letter-spacing:1px; flex-shrink:0; }
+</style>
+</head>
+<body class="crt">
+
+  <!-- BOOT SEQUENCE -->
+  <div class="boot-overlay" id="boot">
+    <div class="boot-line"></div>
+    <div class="boot-dot"></div>
+    <div class="boot-flash"></div>
+    <pre class="boot-text" id="bootText"></pre>
+    <div class="boot-ready">READY PLAYER ONE</div>
+  </div>
+
+  <!-- ROSE VELVET BACKGROUND -->
+  <div class="rose-bg" id="roseBg">
+    <div class="rose-glow" style="width:500px;height:300px;background:radial-gradient(circle,rgba(30,100,10,0.22),transparent);top:-120px;left:10%;"></div>
+    <div class="rose-glow" style="width:300px;height:300px;background:radial-gradient(circle,rgba(10,40,5,0.15),transparent);bottom:-80px;right:5%;animation-delay:3.5s;"></div>
+  </div>
+
+  <div class="scanlines"></div>
+
+  <div class="hub">
+
+    <!-- TOP ROW -->
+    <div class="top-row">
+      <div style="display:flex;gap:6px">
+        <button class="corner-btn" id="themeBtn" title="Theme">🎨</button>
+        <button class="corner-btn" id="achBtn"   title="Achievements">🏅</button>
+      </div>
+
+      <div class="player-bar">
+        <div class="pslot" id="slot-p1" style="--c:var(--neon-pink)">
+          <span class="pe" id="p1e">🎮</span>
+          <div>
+            <div class="pl">P1 ▼</div>
+            <div class="pn" id="p1n">P1</div>
+          </div>
+        </div>
+        <div class="pslot" id="slot-p2" style="--c:var(--neon-green)">
+          <span class="pe" id="p2e">👾</span>
+          <div>
+            <div class="pl">P2 ▼</div>
+            <div class="pn" id="p2n">P2</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="coin-chip" id="coinChip"><span class="coin-icon">🪙</span><span id="coinCount">5</span></div>
+        <button class="corner-btn" id="lbBtn" title="Leaderboard">🏆</button>
+      </div>
+    </div>
+
+    <!-- TICKER -->
+    <div class="ticker" id="ticker">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- MAIN: 3D CABINET + LEADERBOARD -->
+    <div class="main-grid">
+
+      <!-- CABINET -->
+      <div class="scene">
+        <div class="cabinet">
+          <div class="cab-body">
+
+            <!-- MARQUEE -->
+            <div class="marquee">
+              <div class="chrome">ROSE ARCADE</div>
+              <div class="sub">// INSERT COIN //</div>
+            </div>
+
+            <!-- SCREEN -->
+            <div class="screen-shell">
+              <span class="screw tl"></span><span class="screw tr"></span>
+              <span class="screw bl"></span><span class="screw br"></span>
+              <div class="screen" id="screen">
+                <div class="attract-banner" id="attractBanner">► DEMO ◄</div>
+              </div>
+            </div>
+
+            <!-- CONTROL DECK -->
+            <div class="control-deck">
+              <div class="joystick" aria-hidden="true">
+                <div class="base"></div>
+                <div class="stick"></div>
+                <div class="ball"></div>
+              </div>
+              <div class="play-area-deck">
+                <button class="play-btn" id="playBtn">▶ PRESS START</button>
+              </div>
+              <div class="nav-cluster">
+                <button class="arcade-btn rose" id="prevBtn" aria-label="Prev">◄</button>
+                <button class="arcade-btn gold" id="nextBtn" aria-label="Next">►</button>
+              </div>
+            </div>
+
+          </div><!-- /cab-body -->
+        </div><!-- /cabinet -->
+      </div><!-- /scene -->
+
+      <!-- LEADERBOARD -->
+      <div class="leaderboard" id="leaderboard">
+        <div class="leaderboard-title">🏆 HIGH SCORES</div>
+        <div class="lb-list" id="lbList"></div>
+      </div>
+
+    </div><!-- /main-grid -->
+
+    <div class="footer-hint">◄ ► · SWIPE TO BROWSE · ENTER TO PLAY</div>
+
+  </div><!-- /hub -->
+
+  <!-- Achievement modal -->
+  <div class="ach-modal" id="achModal">
+    <div class="ach-modal-inner">
+      <div class="ach-modal-title">🏅 ACHIEVEMENTS</div>
+      <div class="ach-list" id="achList"></div>
+      <div style="text-align:center"><button class="btn btn-secondary" id="achClose">DONE</button></div>
+    </div>
+  </div>
+
+  <!-- Theme modal -->
+  <div class="theme-modal" id="themeModal">
+    <div class="theme-modal-inner">
+      <div class="theme-modal-title">SELECT THEME</div>
+      <div class="theme-grid" id="themeGrid"></div>
+      <div style="text-align:center"><button class="btn btn-secondary" id="themeClose">DONE</button></div>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="themes.js"></script>
+  <script src="avatars.js"></script>
+  <script src="gamelib.js"></script>
+  <script>
+
+  // ──────────────────────────────────────
+  // BOOT
+  // ──────────────────────────────────────
+  const boot = document.getElementById('boot');
+  if(sessionStorage.getItem('arcade_booted')){
+    boot.remove();
+  } else {
+    sessionStorage.setItem('arcade_booted','1');
+    const bootText = document.getElementById('bootText');
+    const lines = [
+      'ROSE-ARCADE OS v2.0.0',
+      'Booting CRT subsystem...   [ OK ]',
+      'Loading rose palette...    [ OK ]',
+      'Mounting cartridge slot... [ OK ]',
+      'Calibrating joystick...    [ OK ]',
+      'Initializing audio dsp...  [ OK ]',
+      '',
+      '> SYSTEM READY',
+    ];
+    let acc='', i=0;
+    function typeNext(){
+      if(i>=lines.length) return;
+      const line = lines[i]+'\n'; let j=0;
+      const t = setInterval(()=>{ acc+=line[j]; bootText.textContent=acc; j++; if(j>=line.length){clearInterval(t);i++;setTimeout(typeNext,60);} },18);
+    }
+    setTimeout(typeNext, 1100);
+    setTimeout(()=>{
+      boot.classList.add('scan-out');
+      setTimeout(()=>{ boot.classList.add('gone'); setTimeout(()=>boot.remove(),500); },500);
+    }, 3300);
+  }
+
+  // ──────────────────────────────────────
+  // GAMES LIST
+  // ──────────────────────────────────────
+  const games = [
+    { id:'snake',       name:'SNAKE',              tag:'CLASSIC',     href:'games/snake.html',       icon:'🐍',   c:'#5dff8a', anim:'anim-snake' },
+    { id:'snake-duel',  name:'SNAKE DUEL',         tag:'2P VS',       href:'games/snake-duel.html',  icon:'🐍🐍', c:'#00ff88', anim:'anim-snake',  mp:true },
+    { id:'tictactoe',   name:'TIC-TAC-TOE',        tag:'CPU OR 2P',   href:'games/tictactoe.html',   icon:'⭕',   c:'#ff3d80', anim:'anim-spin',   mp:true },
+    { id:'pong',        name:'PONG',               tag:'CPU OR 2P',   href:'games/pong.html',        icon:'🏓',   c:'#4df0ff', anim:'anim-bounce', mp:true },
+    { id:'memory',      name:'MEMORY',             tag:'MATCH PAIRS', href:'games/memory.html',      icon:'🧠',   c:'#ffd166', anim:'anim-pulse' },
+    { id:'2048',        name:'2048',               tag:'PUZZLE',      href:'games/2048.html',        icon:'🔢',   c:'#ffa64d', anim:'anim-pulse' },
+    { id:'whackamole',  name:'WHACK-A-MOLE',       tag:'REACTION',    href:'games/whackamole.html',  icon:'🔨',   c:'#ff6688', anim:'anim-shake' },
+    { id:'rps',         name:'ROCK PAPER SCISSORS',tag:'CPU OR 2P',   href:'games/rps.html',         icon:'✊',   c:'#c46dff', anim:'anim-float',  mp:true },
+    { id:'minesweeper', name:'MINESWEEPER',        tag:'LOGIC',       href:'games/minesweeper.html', icon:'💣',   c:'#44ddff', anim:'anim-float' },
+    { id:'tetris',      name:'TETRIS',             tag:'CLASSIC',     href:'games/tetris.html',      icon:'🟦',   c:'#66ccff', anim:'anim-fall' },
+    { id:'breakout',    name:'BREAKOUT',           tag:'CLASSIC',     href:'games/breakout.html',    icon:'🧱',   c:'#ff8866', anim:'anim-bounce' },
+    { id:'invaders',    name:'INVADERS',           tag:'SHOOTER',     href:'games/invaders.html',    icon:'👾',   c:'#88ff66', anim:'anim-shoot' },
+    { id:'flappy',      name:'FLAPPY',             tag:'TAP TIMING',  href:'games/flappy.html',      icon:'🐦',   c:'#ffcc44', anim:'anim-bounce' },
+  ];
+  let idx = 0;
+
+  // Build preview cards
+  const screen = document.getElementById('screen');
+  games.forEach(g => {
+    const p = document.createElement('div');
+    p.className = 'preview';
+    p.style.setProperty('--c', g.c);
+    const best = gamelib.bestScore(g.id);
+    p.innerHTML = `
+      <div class="preview-icon ${g.anim}">${g.icon}</div>
+      <div class="preview-name">${g.name}</div>
+      <div class="preview-tag">${g.tag}${g.mp?' · 2P':''}</div>
+      ${best>0
+        ? `<div class="preview-best">BEST: ${best}</div>`
+        : `<div class="preview-best" style="opacity:.3">NO HIGH SCORE</div>`}
+    `;
+    screen.appendChild(p);
+  });
+
+  function setIdx(i, sound=false){
+    idx = (i + games.length) % games.length;
+    document.querySelectorAll('.preview').forEach((p,k) => p.classList.toggle('active', k===idx));
+    if(sound) sfx.blip();
+  }
+
+  document.getElementById('prevBtn').onclick = () => setIdx(idx-1, true);
+  document.getElementById('nextBtn').onclick = () => setIdx(idx+1, true);
+
+  function startGame(){
+    gamelib.insertCoin(() => { location.href = games[idx].href; });
+  }
+  document.getElementById('playBtn').onclick = startGame;
+
+  document.addEventListener('keydown', e => {
+    if(e.key==='ArrowLeft'  || e.key==='a') { setIdx(idx-1, true); e.preventDefault(); }
+    else if(e.key==='ArrowRight' || e.key==='d') { setIdx(idx+1, true); e.preventDefault(); }
+    else if(e.key==='Enter' || e.key===' ') { startGame(); e.preventDefault(); }
+  });
+
+  // Swipe on screen
+  let tx = null;
+  screen.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+  screen.addEventListener('touchend', e => {
+    if(tx===null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if(Math.abs(dx)>40) setIdx(idx+(dx<0?1:-1), true);
+    tx = null;
+  }, {passive:true});
+
+  // ──────────────────────────────────────
+  // AVATARS
+  // ──────────────────────────────────────
+  function refreshAvatars(){
+    const p1=arcadeAvatars.get('p1'), p2=arcadeAvatars.get('p2');
+    arcadeAvatars.renderInto(document.getElementById('p1e'), p1);
+    arcadeAvatars.renderInto(document.getElementById('p2e'), p2);
+    document.getElementById('p1n').textContent = p1.n;
+    document.getElementById('p2n').textContent = p2.n;
+  }
+  refreshAvatars();
+  document.addEventListener('avatarchange', refreshAvatars);
+  document.getElementById('slot-p1').onclick = () => arcadeAvatars.open('p1');
+  document.getElementById('slot-p2').onclick = () => arcadeAvatars.open('p2');
+
+  // ──────────────────────────────────────
+  // LEADERBOARD
+  // ──────────────────────────────────────
+  const lbList = document.getElementById('lbList');
+  function refreshLb(){
+    lbList.innerHTML='';
+    games.forEach(g => {
+      const best = gamelib.bestScore(g.id);
+      const row = document.createElement('div');
+      row.className='lb-row'; row.style.setProperty('--c', g.c);
+      row.innerHTML=`<span class="lb-icon">${g.icon}</span><span class="lb-game">${g.name}</span><span class="lb-best ${best===0?'empty':''}">${best||'--'}</span>`;
+      row.onclick=()=>setIdx(games.indexOf(g), true);
+      lbList.appendChild(row);
+    });
+  }
+  refreshLb();
+  document.getElementById('lbBtn').onclick=()=>{ sfx.click(); document.getElementById('leaderboard').classList.toggle('show-mobile'); };
+
+  // ──────────────────────────────────────
+  // THEMES
+  // ──────────────────────────────────────
+  const themeModal = document.getElementById('themeModal');
+  function refreshThemeGrid(){
+    const grid = document.getElementById('themeGrid');
+    grid.innerHTML='';
+    const cur = arcadeThemes.current();
+    arcadeThemes.list().forEach(t => {
+      const o = document.createElement('div');
+      o.className='theme-opt'+(t.key===cur?' active':'');
+      o.style.color=t.pink; o.style.borderColor=t.pink;
+      o.innerHTML=`${t.name}<div class="theme-swatches"><span class="theme-sw" style="background:${t.pink}"></span><span class="theme-sw" style="background:${t.cyan}"></span><span class="theme-sw" style="background:${t.yellow}"></span><span class="theme-sw" style="background:${t.green}"></span></div>`;
+      o.onclick=()=>{ arcadeThemes.apply(t.key); sfx.coin(); refreshThemeGrid(); };
+      grid.appendChild(o);
+    });
+  }
+  document.getElementById('themeBtn').onclick=()=>{ sfx.click(); themeModal.classList.add('open'); refreshThemeGrid(); };
+  document.getElementById('themeClose').onclick=()=>{ sfx.click(); themeModal.classList.remove('open'); };
+  themeModal.addEventListener('click', e=>{ if(e.target===themeModal) themeModal.classList.remove('open'); });
+
+  // ──────────────────────────────────────
+  // FALLING ROSE PETALS
+  // ──────────────────────────────────────
+  const bgEl = document.getElementById('roseBg');
+  const petalEmojis = ['🌸','🌹','🪷','🌺','🌷'];
+  for(let i=0;i<20;i++){
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalEmojis[i % petalEmojis.length];
+    p.style.left = (Math.random()*100)+'%';
+    p.style.fontSize = (9 + Math.random()*13)+'px';
+    p.style.animationDuration = (9 + Math.random()*13)+'s';
+    p.style.animationDelay   = (-Math.random()*18)+'s';
+    bgEl.appendChild(p);
+  }
+
+  // ──────────────────────────────────────
+  // COIN COUNTER
+  // ──────────────────────────────────────
+  const coinChip  = document.getElementById('coinChip');
+  const coinCount = document.getElementById('coinCount');
+  function refreshCoins(){ coinCount.textContent = gamelib.getCoins(); }
+  refreshCoins();
+  document.addEventListener('coinchange', refreshCoins);
+  document.addEventListener('coinearn', e => {
+    coinChip.classList.remove('bump'); void coinChip.offsetWidth; coinChip.classList.add('bump');
+    const r = coinChip.getBoundingClientRect();
+    gamelib.popup({ getBoundingClientRect:()=>r }, '+'+e.detail.amount, { color:'#ffd166' });
+  });
+  setInterval(()=>{ gamelib.addCoins(1,'idle drip'); }, 120000);
+
+  // ──────────────────────────────────────
+  // TICKER
+  // ──────────────────────────────────────
+  function buildTicker(){
+    const track = document.getElementById('tickerTrack');
+    const parts = [
+      `<span class="hi">✿ WELCOME TO ROSE ARCADE ✿</span>`,
+      `<span>INSERT COIN TO PLAY</span>`,
+    ];
+    games.forEach(g => {
+      const best = gamelib.bestScore(g.id);
+      if(best>0) parts.push(`<span class="ic">${g.icon} ${g.name} HI: ${best}</span>`);
+    });
+    const unlocked = gamelib.unlockedAchievements().length;
+    parts.push(`<span>🏅 ${unlocked}/${gamelib.ACHIEVEMENTS.length} ACHIEVEMENTS UNLOCKED</span>`);
+    parts.push(`<span class="hi">► PRESS START ◄</span>`);
+    track.innerHTML = parts.join('') + parts.join('');
+  }
+  buildTicker();
+  document.addEventListener('coinchange', buildTicker);
+
+  // ──────────────────────────────────────
+  // ACHIEVEMENTS
+  // ──────────────────────────────────────
+  const achModal = document.getElementById('achModal');
+  function refreshAchList(){
+    const list = document.getElementById('achList');
+    list.innerHTML='';
+    const unlocked = new Set(gamelib.unlockedAchievements());
+    gamelib.ACHIEVEMENTS.forEach(a => {
+      const r = document.createElement('div');
+      r.className='ach-row'+(unlocked.has(a.id)?' unlocked':'');
+      r.innerHTML=`
+        <span class="ach-icon">${a.icon}</span>
+        <div class="ach-meta">
+          <div class="ach-name">${unlocked.has(a.id)?a.name:'???'}</div>
+          <div class="ach-desc">${a.desc}</div>
+        </div>
+        <span class="ach-reward">+${a.reward}🪙</span>`;
+      list.appendChild(r);
+    });
+  }
+  document.getElementById('achBtn').onclick=()=>{ sfx.click(); refreshAchList(); achModal.classList.add('open'); };
+  document.getElementById('achClose').onclick=()=>{ sfx.click(); achModal.classList.remove('open'); };
+  achModal.addEventListener('click', e=>{ if(e.target===achModal) achModal.classList.remove('open'); });
+
+  // ──────────────────────────────────────
+  // ATTRACT MODE
+  // ──────────────────────────────────────
+  const attractBanner = document.getElementById('attractBanner');
+  let attractTimer = null;
+  gamelib.attractMode({
+    idleMs: 25000,
+    trigger: ()=>{ attractBanner.classList.add('show'); attractTimer=setInterval(()=>setIdx(idx+1,false),2500); },
+    action:  ()=>{ attractBanner.classList.remove('show'); clearInterval(attractTimer); }
+  });
+  document.addEventListener('attractend', ()=>{ attractBanner.classList.remove('show'); clearInterval(attractTimer); });
+
+  // ──────────────────────────────────────
+  // ACHIEVEMENT TRIGGERS (hub-side)
+  // ──────────────────────────────────────
+  document.addEventListener('avatarchange', ()=>gamelib.unlock('avatar_swap'));
+  document.addEventListener('themechange',  ()=>gamelib.unlock('theme_swap'));
+
+  setIdx(0);
+
+  </script>
+</body>
+</html>

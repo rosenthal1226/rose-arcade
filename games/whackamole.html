@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>WHACK-A-MOLE - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  .holes { --hole: min(130px, 24vmin); display:grid; grid-template-columns:repeat(3,var(--hole)); gap:12px; padding:14px; }
+  .hole { width:var(--hole); height:var(--hole); background:radial-gradient(ellipse at center, #1a0033 0%, #000 70%); border:3px solid #ff6688; border-radius:50%; box-shadow:0 0 12px #ff6688, inset 0 0 20px rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; position:relative; transition: transform .15s; }
+  .hole:active { transform: scale(0.95); }
+  .mole { font-size:calc(var(--hole)*0.55); transform:translateY(120%); transition:transform .15s; filter:drop-shadow(0 0 10px #ff6688); }
+  .hole.active .mole { transform:translateY(0); }
+  .hole.hit .mole { transform:translateY(0) rotate(20deg); filter:drop-shadow(0 0 18px #5dff8a); }
+  .combo { position: absolute; top: 8px; right: 8px; font-family:'Press Start 2P',monospace; font-size: 10px; padding: 4px 9px; border-radius: var(--radius-pill); background: rgba(0,0,0,0.6); border: 2px solid var(--neon-yellow); color: var(--neon-yellow); text-shadow: 0 0 6px var(--neon-yellow); display: none; }
+  .combo.show { display: block; animation: comboBump .3s ease-out; }
+  @keyframes comboBump { 0% { transform: scale(0.6); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+</style>
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🔨 WHACK-A-MOLE</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">SCORE: <b id="score">0</b></div>
+      <div class="score-chip">TIME: <b id="time">30</b></div>
+      <div class="score-chip">HIGH: <b id="high">0</b></div>
+      <div id="diffWrap"></div>
+    </div>
+    <div class="play-area" id="playArea" style="position:relative;">
+      <div class="holes game-board" id="holes"></div>
+      <div class="combo" id="combo">x2 COMBO!</div>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">PRESS START</div>
+      <button class="btn" id="start">START</button>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+const holesEl = document.getElementById('holes');
+const comboEl = document.getElementById('combo');
+let holes = [], score=0, time=30, running=false, popT, tickT, combo=0, comboTimer=null;
+let high = gamelib.bestScore('whackamole');
+document.getElementById('high').textContent = high;
+const DIFFS = { easy:{ms:[500,800], time:30}, normal:{ms:[350,600], time:30}, hard:{ms:[230,420], time:30} };
+let diff = gamelib.getDiff('whackamole','normal');
+
+const diffToggle = arcadeUI.toggle({
+  options: [{value:'easy',label:'EASY'},{value:'normal',label:'NORMAL'},{value:'hard',label:'HARD'}],
+  value: diff,
+  onChange: d => { diff = d; gamelib.setDiff('whackamole', d); }
+});
+document.getElementById('diffWrap').replaceWith(diffToggle.el);
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>{ stop(); start(); } });
+
+for(let i=0;i<9;i++){
+  const h = document.createElement('div'); h.className='hole';
+  h.innerHTML = '<div class="mole">🦔</div>';
+  h.onclick = ()=>whack(i);
+  holesEl.appendChild(h);
+  holes.push(h);
+}
+function showCombo(n){
+  comboEl.textContent = `x${n} COMBO!`;
+  comboEl.classList.remove('show'); void comboEl.offsetWidth;
+  comboEl.classList.add('show');
+  clearTimeout(comboTimer);
+  comboTimer = setTimeout(()=>comboEl.classList.remove('show'), 900);
+}
+function whack(i){
+  if(!running || gamelib.isPaused()) return;
+  const h = holes[i];
+  if(h.classList.contains('active') && !h.classList.contains('hit')){
+    h.classList.add('hit');
+    combo++;
+    const points = combo > 1 ? combo : 1;
+    score += points;
+    sfx.hit();
+    if(navigator.vibrate) navigator.vibrate(15);
+    document.getElementById('score').textContent=score;
+    gamelib.popup(h, '+'+points, { color:'#5dff8a' });
+    gamelib.domBurst(h, { color: '#5dff8a', count: 10 });
+    if(combo>1) showCombo(combo);
+    if(score === 1) gamelib.unlock('first_win');
+    if(combo >= 5) gamelib.unlock('mole_combo');
+    setTimeout(()=>{ h.classList.remove('active','hit'); }, 150);
+  } else { sfx.wall(); combo = 0; }
+}
+function pop(){
+  if(!running || gamelib.isPaused()){ popT = setTimeout(pop, 100); return; }
+  const free = holes.map((h,i)=>h.classList.contains('active')?-1:i).filter(i=>i>=0);
+  if(free.length){
+    const i = free[Math.random()*free.length|0];
+    holes[i].classList.add('active');
+    setTimeout(()=>{
+      if(holes[i].classList.contains('active') && !holes[i].classList.contains('hit')) combo = 0; // missed
+      holes[i].classList.remove('active','hit');
+    }, 700+Math.random()*400);
+  }
+  const [lo, hi] = DIFFS[diff].ms;
+  popT = setTimeout(pop, lo + Math.random()*(hi-lo));
+}
+function stop(){
+  running = false;
+  clearInterval(tickT); clearTimeout(popT);
+  holes.forEach(h => h.classList.remove('active','hit'));
+}
+function start(){
+  if(running) return;
+  score=0; combo=0; time=DIFFS[diff].time; running=true;
+  document.getElementById('score').textContent=0;
+  document.getElementById('time').textContent=time;
+  document.getElementById('msg').textContent='WHACK!';
+  sfx.countdown();
+  pop();
+  tickT = setInterval(()=>{
+    if(gamelib.isPaused()) return;
+    time--;
+    document.getElementById('time').textContent=time;
+    if(time<=3 && time>0) sfx.click();
+    if(time<=0){
+      stop();
+      const isBest = gamelib.setBestIfHigher('whackamole', score);
+      if(isBest){ high = score; document.getElementById('high').textContent = high; }
+      if(score > 0) gamelib.addCoins(Math.min(15, Math.ceil(score/4)), 'whackamole');
+      gamelib.trackPlayed('whackamole');
+      sfx[isBest ? 'win' : 'lose']();
+      setTimeout(() => {
+        gamelib.gameOver({
+          title: "TIME'S UP",
+          subtitle: isBest ? '🏆 NEW HIGH SCORE' : '',
+          stats: [
+            { label:'SCORE', value: score },
+            { label:'HIGH',  value: high },
+            { label:'MODE',  value: diff.toUpperCase() },
+          ],
+          onRestart: ()=>start()
+        });
+      }, 400);
+    }
+  },1000);
+}
+document.getElementById('start').onclick = ()=>{ if(running) return; sfx.click(); start(); };
+</script>
+</body>
+</html>

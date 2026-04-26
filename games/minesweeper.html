@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MINESWEEPER - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  .ms-grid { --cell: min(36px, 7.5vmin); display:grid; padding:10px; gap:2px; }
+  .ms-cell { width:var(--cell); height:var(--cell); background:rgba(68,221,255,0.15); border:1px solid #44ddff; box-shadow:0 0 4px rgba(68,221,255,0.4); display:flex; align-items:center; justify-content:center; font-family:'Press Start 2P',monospace; font-size:calc(var(--cell)*0.4); cursor:pointer; user-select:none; border-radius:3px; transition: all .1s; }
+  .ms-cell:hover { background:rgba(68,221,255,0.3); }
+  .ms-cell.revealed { background:rgba(0,0,30,0.8); cursor:default; }
+  .ms-cell.flagged { background:rgba(255,225,77,0.2); }
+  .ms-cell.mine { background:rgba(255,61,109,0.5); border-color:#ff3d6d; box-shadow:0 0 12px #ff3d6d; }
+  .n1{color:#4df0ff;text-shadow:0 0 6px #4df0ff} .n2{color:#5dff8a;text-shadow:0 0 6px #5dff8a} .n3{color:#ffe14d;text-shadow:0 0 6px #ffe14d} .n4{color:#ffa64d;text-shadow:0 0 6px #ffa64d} .n5{color:#ff3df0;text-shadow:0 0 6px #ff3df0} .n6{color:#c46dff;text-shadow:0 0 6px #c46dff} .n7{color:#ff3d6d;text-shadow:0 0 6px #ff3d6d} .n8{color:#fff;text-shadow:0 0 6px #fff}
+</style>
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">💣 MINESWEEPER</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">MINES: <b id="mines">10</b></div>
+      <div class="score-chip">FLAGS: <b id="flags">0</b></div>
+      <div class="score-chip">TIME: <b id="time">0</b></div>
+      <div class="score-chip">BEST: <b id="best">--</b></div>
+      <div id="diffWrap"></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <div class="ms-grid game-board" id="grid"></div>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">LEFT-CLICK · LONG-PRESS / RIGHT-CLICK FLAGS</div>
+      <button class="btn" id="reset">NEW GAME</button>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+const DIFFS = { easy:{rows:8,cols:8,mines:10}, normal:{rows:10,cols:10,mines:15}, hard:{rows:12,cols:12,mines:30} };
+let diff = gamelib.getDiff('minesweeper','normal');
+let ROWS, COLS, MINES, board, revealed, flagged, over, won, flags, time, timerT, started;
+const gridEl = document.getElementById('grid');
+
+const diffToggle = arcadeUI.toggle({
+  options:[{value:'easy',label:'EASY'},{value:'normal',label:'NORMAL'},{value:'hard',label:'HARD'}],
+  value: diff,
+  onChange: d => { diff = d; gamelib.setDiff('minesweeper', d); init(); }
+});
+document.getElementById('diffWrap').replaceWith(diffToggle.el);
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>init() });
+
+function getBest(){ return parseInt(localStorage.getItem('minesBest_'+diff)||'0') || null; }
+
+function init(){
+  const D = DIFFS[diff];
+  ROWS = D.rows; COLS = D.cols; MINES = D.mines;
+  gridEl.style.gridTemplateColumns = `repeat(${COLS}, var(--cell))`;
+  board = Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  revealed = Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  flagged = Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  let placed=0;
+  while(placed<MINES){
+    const r=Math.random()*ROWS|0, c=Math.random()*COLS|0;
+    if(board[r][c]!==-1){ board[r][c]=-1; placed++; }
+  }
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    if(board[r][c]===-1) continue;
+    let n=0;
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1) n++;
+    }
+    board[r][c]=n;
+  }
+  over=false; won=false; flags=0; time=0; started=false;
+  clearInterval(timerT);
+  document.getElementById('mines').textContent=MINES;
+  document.getElementById('flags').textContent=0;
+  document.getElementById('time').textContent=0;
+  const b = getBest();
+  document.getElementById('best').textContent = b ? b+'s' : '--';
+  document.getElementById('msg').textContent='LEFT-CLICK · LONG-PRESS / RIGHT-CLICK FLAGS';
+  render();
+}
+function render(){
+  gridEl.innerHTML='';
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const cell = document.createElement('div'); cell.className='ms-cell';
+    if(revealed[r][c]){
+      cell.classList.add('revealed');
+      if(board[r][c]===-1){ cell.classList.add('mine'); cell.textContent='💣'; }
+      else if(board[r][c]>0){ cell.classList.add('n'+board[r][c]); cell.textContent=board[r][c]; }
+    } else if(flagged[r][c]){ cell.classList.add('flagged'); cell.textContent='🚩'; }
+    let pressTimer;
+    cell.oncontextmenu = e=>{ e.preventDefault(); flag(r,c); };
+    cell.addEventListener('touchstart', e => {
+      pressTimer = setTimeout(()=>{ flag(r,c); pressTimer = null; }, 350);
+    });
+    cell.addEventListener('touchend', e => { if(pressTimer){ clearTimeout(pressTimer); reveal(r,c); } });
+    cell.addEventListener('touchmove', e => { if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } });
+    cell.onclick = e => { if(!('ontouchstart' in window)) reveal(r,c); };
+    gridEl.appendChild(cell);
+  }
+}
+function startTimer(){ if(started) return; started=true; timerT=setInterval(()=>{ if(gamelib.isPaused()) return; time++; document.getElementById('time').textContent=time; },1000); }
+function reveal(r,c){
+  if(over||revealed[r][c]||flagged[r][c]||gamelib.isPaused()) return;
+  startTimer();
+  revealed[r][c]=true;
+  if(board[r][c]===-1){
+    over=true; clearInterval(timerT);
+    for(let i=0;i<ROWS;i++) for(let j=0;j<COLS;j++) if(board[i][j]===-1) revealed[i][j]=true;
+    document.getElementById('msg').textContent='💥 BOOM';
+    sfx.explode(); gamelib.shake(gridEl, 18, 500);
+    if(navigator.vibrate) navigator.vibrate([60, 40, 80]);
+    render();
+    setTimeout(() => {
+      gamelib.gameOver({
+        title:'BOOM!',
+        subtitle:'YOU HIT A MINE',
+        stats:[
+          { label:'TIME',  value: time + 's' },
+          { label:'MODE',  value: diff.toUpperCase() },
+        ],
+        onRestart:()=>init()
+      });
+    }, 500);
+    return;
+  }
+  if(board[r][c]>0) sfx.blip();
+  if(board[r][c]===0){
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS) reveal(nr,nc);
+    }
+  }
+  checkWin(); render();
+}
+function flag(r,c){
+  if(over||revealed[r][c]) return;
+  flagged[r][c] = !flagged[r][c];
+  flags += flagged[r][c]?1:-1;
+  sfx.flag();
+  document.getElementById('flags').textContent=flags;
+  render();
+}
+function checkWin(){
+  let safe=0;
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(revealed[r][c] && board[r][c]!==-1) safe++;
+  if(safe === ROWS*COLS - MINES){
+    over=true; won=true; clearInterval(timerT);
+    document.getElementById('msg').textContent=`🏆 CLEARED IN ${time}S`;
+    sfx.win();
+    const b = getBest();
+    const isBest = !b || time < b;
+    if(isBest) localStorage.setItem('minesBest_'+diff, String(time));
+    // leaderboard score: higher = better; convert seconds-based (lower = better)
+    const lbScore = Math.max(1, 1000 - time);
+    gamelib.setBestIfHigher('minesweeper', lbScore);
+    gamelib.unlock('first_win');
+    gamelib.unlock('mines_clear');
+    gamelib.addCoins(diff==='hard'?15:diff==='normal'?10:5, 'minesweeper');
+    gamelib.trackPlayed('minesweeper');
+    setTimeout(() => {
+      gamelib.gameOver({
+        title:'CLEARED!',
+        subtitle: isBest ? '🏆 NEW BEST TIME' : '',
+        stats:[
+          { label:'TIME', value: time+'s' },
+          { label:'BEST', value: (isBest?time:b)+'s' },
+          { label:'MODE', value: diff.toUpperCase() },
+        ],
+        onRestart:()=>init()
+      });
+    }, 400);
+  }
+}
+gridEl.oncontextmenu = e=>e.preventDefault();
+document.getElementById('reset').onclick=()=>{ sfx.click(); init(); };
+init();
+</script>
+</body>
+</html>

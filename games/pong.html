@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>PONG - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🏓 PONG</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud" id="hud">
+      <div id="p1chip"></div>
+      <div id="p2chip"></div>
+      <div id="modeWrap"></div>
+      <div id="diffWrap"></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <canvas id="game" class="game-canvas"></canvas>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">PRESS SPACE / TAP TO SERVE</div>
+      <div class="controls-hint kbd-only" id="hint">P1: W/S OR DRAG LEFT · CPU CONTROLS RIGHT</div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+const c = document.getElementById('game'), ctx = c.getContext('2d');
+let PW, PH, p1y, p2y, bx, by, bvx, bvy, ps=0, cs=0, running=false;
+let mode = 'cpu', diff = gamelib.getDiff('pong','normal');
+const DIFFS = { easy:{ cpu: 3.2 }, normal:{ cpu: 4.5 }, hard:{ cpu: 6 } };
+const keys = {};
+let particles = [];
+
+const p1chip = gamelib.playerChip('p1', '#4df0ff'); document.getElementById('p1chip').replaceWith(p1chip);
+const p2chip = gamelib.playerChip('p2', '#ff3df0'); document.getElementById('p2chip').replaceWith(p2chip);
+function rebadgeP2(){
+  if(mode === 'cpu'){
+    p2chip.querySelector('.av').textContent = '🤖';
+    p2chip.querySelector('.pname').textContent = 'CPU';
+  } else { p2chip.refresh(); }
+}
+
+const modeToggle = arcadeUI.toggle({
+  options: [{value:'cpu',label:'VS CPU'},{value:'2p',label:'2 PLAYER'}],
+  value: 'cpu',
+  onChange: m => { mode = m; rebadgeP2(); resetMatch();
+    document.getElementById('hint').textContent = mode==='cpu'
+      ? 'P1: W/S OR DRAG LEFT · CPU CONTROLS RIGHT'
+      : 'P1: W/S OR DRAG LEFT · P2: ↑/↓ OR DRAG RIGHT';
+  }
+});
+document.getElementById('modeWrap').replaceWith(modeToggle.el);
+
+const diffToggle = arcadeUI.toggle({
+  options: [{value:'easy',label:'EASY'},{value:'normal',label:'NORMAL'},{value:'hard',label:'HARD'}],
+  value: diff,
+  onChange: d => { diff = d; gamelib.setDiff('pong', d); }
+});
+document.getElementById('diffWrap').replaceWith(diffToggle.el);
+
+function fitCanvas(){
+  const r = document.getElementById('playArea').getBoundingClientRect();
+  let availW = r.width-8, availH = r.height-8;
+  const aspect = 8/5;
+  let w, h;
+  if(availW/aspect <= availH){ w = availW; h = w/aspect; }
+  else { h = availH; w = h*aspect; }
+  c.width = Math.floor(w); c.height = Math.floor(h);
+  PH = Math.max(40, c.height * 0.2);
+  PW = Math.max(8, c.width * 0.014);
+  if(p1y === undefined){ p1y = c.height/2 - PH/2; p2y = c.height/2 - PH/2; bx = c.width/2; by = c.height/2; }
+  else { p1y = Math.min(p1y, c.height-PH); p2y = Math.min(p2y, c.height-PH); }
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,100));
+
+function resetMatch(){
+  ps = 0; cs = 0;
+  p1chip.update(0); p2chip.update(0);
+  reset('p');
+}
+function reset(scorer){
+  if(scorer==='p'){ ps++; p1chip.update(ps); sfx.coin(); }
+  if(scorer==='c'){ cs++; p2chip.update(cs); sfx.lose(); }
+  bx = c.width/2; by = c.height/2;
+  const speed = c.width / 160;
+  bvx = (scorer==='p'?-1:1) * speed;
+  bvy = (Math.random()*2-1) * speed * 0.6;
+  running = false;
+  if(ps >= 7 || cs >= 7){
+    const winnerName = ps>=7 ? arcadeAvatars.get('p1').n : (mode==='cpu' ? 'CPU' : arcadeAvatars.get('p2').n);
+    document.getElementById('msg').textContent = `${winnerName} WINS - SPACE TO REPLAY`;
+    sfx.win();
+    if(ps >= 7){ gamelib.unlock('first_win'); if(mode==='cpu') gamelib.unlock('pong_win'); gamelib.addCoins(8, 'pong'); }
+    gamelib.trackPlayed('pong');
+    gamelib.gameOver({
+      title: winnerName + ' WINS!',
+      subtitle: '🏆 MATCH OVER',
+      stats: [
+        { label: arcadeAvatars.get('p1').n, value: ps },
+        { label: mode==='cpu' ? 'CPU' : arcadeAvatars.get('p2').n, value: cs },
+      ],
+      onRestart: ()=>resetMatch()
+    });
+  } else document.getElementById('msg').textContent = 'PRESS SPACE / TAP TO SERVE';
+}
+
+const activeTouches = {};
+function canvasY(y){ const r=c.getBoundingClientRect(); return (y-r.top)*(c.height/r.height); }
+function canvasX(x){ const r=c.getBoundingClientRect(); return (x-r.left)*(c.width/r.width); }
+c.addEventListener('touchstart', e => {
+  e.preventDefault();
+  for(const t of e.changedTouches){
+    const x = canvasX(t.clientX), y = canvasY(t.clientY);
+    activeTouches[t.identifier] = x < c.width/2 ? 'p1' : 'p2';
+    if(activeTouches[t.identifier]==='p1') p1y = y - PH/2;
+    else if(mode==='2p') p2y = y - PH/2;
+  }
+  if(!running){ running=true; document.getElementById('msg').textContent=''; sfx.countdown(); }
+}, {passive:false});
+c.addEventListener('touchmove', e => {
+  e.preventDefault();
+  for(const t of e.changedTouches){
+    const which = activeTouches[t.identifier]; if(!which) continue;
+    const y = canvasY(t.clientY);
+    if(which==='p1') p1y = Math.max(0, Math.min(c.height-PH, y - PH/2));
+    else if(mode==='2p') p2y = Math.max(0, Math.min(c.height-PH, y - PH/2));
+  }
+}, {passive:false});
+c.addEventListener('touchend', e => { for(const t of e.changedTouches) delete activeTouches[t.identifier]; }, {passive:true});
+
+function loop(){
+  const ps = c.height / 70;
+  if(keys['w']) p1y = Math.max(0, p1y - 6*ps);
+  if(keys['s']) p1y = Math.min(c.height-PH, p1y + 6*ps);
+  if(mode==='cpu'){
+    const cpuSp = DIFFS[diff].cpu;
+    if(p2y+PH/2 < by-10) p2y += cpuSp*ps;
+    else if(p2y+PH/2 > by+10) p2y -= cpuSp*ps;
+  } else {
+    if(keys['arrowup']) p2y -= 6*ps;
+    if(keys['arrowdown']) p2y += 6*ps;
+  }
+  p2y = Math.max(0, Math.min(c.height-PH, p2y));
+
+  if(running && !gamelib.isPaused()){
+    bx += bvx; by += bvy;
+    if(by<5||by>c.height-5){ bvy = -bvy; sfx.wall(); gamelib.spawnParticles(particles, bx, by, {color:'#4df0ff', count:6, speed:2}); }
+    const lx = 10 + PW, rx = c.width - 10 - PW;
+    if(bx<lx && by>p1y && by<p1y+PH){ bvx=Math.abs(bvx)*1.05; bvy += (by-(p1y+PH/2))*0.08; bx=lx; sfx.paddle(); gamelib.spawnParticles(particles, bx, by, {color:'#4df0ff', count:8, speed:3}); if(navigator.vibrate)navigator.vibrate(8); }
+    if(bx>rx && by>p2y && by<p2y+PH){ bvx=-Math.abs(bvx)*1.05; bvy += (by-(p2y+PH/2))*0.08; bx=rx; sfx.paddle(); gamelib.spawnParticles(particles, bx, by, {color:'#ff3df0', count:8, speed:3}); if(navigator.vibrate)navigator.vibrate(8); }
+    if(bx<0){ gamelib.shake(c, 8, 200); reset('c'); }
+    if(bx>c.width){ gamelib.shake(c, 8, 200); reset('p'); }
+  }
+  gamelib.stepParticles(particles);
+  draw();
+  requestAnimationFrame(loop);
+}
+function draw(){
+  ctx.fillStyle='rgba(0,0,20,0.95)'; ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='rgba(77,240,255,0.4)'; ctx.setLineDash([8,12]); ctx.beginPath();
+  ctx.moveTo(c.width/2,0); ctx.lineTo(c.width/2,c.height); ctx.stroke(); ctx.setLineDash([]);
+  ctx.shadowBlur=15;
+  ctx.fillStyle='#4df0ff'; ctx.shadowColor='#4df0ff'; ctx.fillRect(10,p1y,PW,PH);
+  ctx.fillStyle='#ff3df0'; ctx.shadowColor='#ff3df0'; ctx.fillRect(c.width-10-PW,p2y,PW,PH);
+  ctx.fillStyle='#ffe14d'; ctx.shadowColor='#ffe14d';
+  ctx.beginPath(); ctx.arc(bx,by,Math.max(6, c.width*0.012),0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0;
+  gamelib.drawParticles(ctx, particles);
+}
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>resetMatch() });
+document.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if(e.key===' '){ if(!running){ running=true; document.getElementById('msg').textContent=''; sfx.countdown(); } e.preventDefault(); } });
+document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+fitCanvas(); rebadgeP2(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

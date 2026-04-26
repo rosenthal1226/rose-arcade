@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SNAKE - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🐍 SNAKE</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">SCORE: <b id="score">0</b></div>
+      <div class="score-chip">BEST: <b id="best">0</b></div>
+      <div class="mode-toggle" id="diff" style="font-size:8px;padding:3px;"></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <canvas id="game" class="game-canvas"></canvas>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">PRESS SPACE / TAP TO START</div>
+      <div class="controls-hint kbd-only">↑ ↓ ← → / WASD / SWIPE</div>
+      <div class="touch-pad" id="pad">
+        <button class="up" data-d="u">▲</button>
+        <button class="left" data-d="l">◄</button>
+        <button class="center"></button>
+        <button class="right" data-d="r">►</button>
+        <button class="down" data-d="d">▼</button>
+      </div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+const c = document.getElementById('game'), ctx = c.getContext('2d');
+const COLS = 20;
+let SIZE = 20;
+let snake, dir, nextDir, food, score, alive, started, particles=[], tickMs=110;
+let best = gamelib.bestScore('snake');
+document.getElementById('best').textContent = best;
+
+const DIFFS = { easy:{ms:140}, normal:{ms:110}, hard:{ms:75} };
+let diff = gamelib.getDiff('snake', 'normal');
+const diffToggle = arcadeUI.toggle({
+  options: [{value:'easy',label:'EASY'},{value:'normal',label:'NORMAL'},{value:'hard',label:'HARD'}],
+  value: diff,
+  onChange: d => { diff = d; gamelib.setDiff('snake', d); tickMs = DIFFS[d].ms; }
+});
+document.getElementById('diff').replaceWith(diffToggle.el);
+tickMs = DIFFS[diff].ms;
+
+function fitCanvas(){
+  const r = document.getElementById('playArea').getBoundingClientRect();
+  const target = Math.max(220, Math.min(r.width-8, r.height-8, 600));
+  const px = Math.floor(target / COLS) * COLS;
+  c.width = px; c.height = px;
+  SIZE = px / COLS;
+  draw();
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,100));
+
+function reset(){
+  snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir = {x:1,y:0}; nextDir = {x:1,y:0};
+  placeFood(); score=0; alive=true; started=false; particles=[];
+  document.getElementById('score').textContent = 0;
+  document.getElementById('msg').textContent = 'PRESS SPACE / TAP TO START';
+  draw();
+}
+function placeFood(){
+  while(true){
+    food = { x:(Math.random()*COLS)|0, y:(Math.random()*COLS)|0 };
+    if(!snake.some(s => s.x===food.x && s.y===food.y)) break;
+  }
+}
+let lastTick = 0;
+function loop(now){
+  if(alive && started && !gamelib.isPaused()){
+    if(!lastTick) lastTick = now;
+    if(now - lastTick >= tickMs){ step(); lastTick = now; }
+  }
+  gamelib.stepParticles(particles);
+  draw();
+  requestAnimationFrame(loop);
+}
+function step(){
+  dir = nextDir;
+  const head = { x: snake[0].x+dir.x, y: snake[0].y+dir.y };
+  if(head.x<0||head.y<0||head.x>=COLS||head.y>=COLS||snake.some(s=>s.x===head.x&&s.y===head.y)){
+    alive = false;
+    sfx.explode(); gamelib.shake(c, 14, 400);
+    gamelib.spawnParticles(particles, head.x*SIZE+SIZE/2, head.y*SIZE+SIZE/2, { color:'#ff3d6d', count:24, speed: 5 });
+    if(navigator.vibrate) navigator.vibrate(80);
+    const isBest = gamelib.setBestIfHigher('snake', score);
+    if(isBest){ best=score; document.getElementById('best').textContent=best; }
+    if(score > 0) gamelib.addCoins(Math.min(10, Math.ceil(score/3)), 'snake');
+    setTimeout(()=>{
+      gamelib.gameOver({
+        title: 'GAME OVER',
+        subtitle: isBest ? '🏆 NEW HIGH SCORE' : '',
+        stats: [
+          { label:'SCORE', value: score },
+          { label:'BEST',  value: best },
+          { label:'MODE',  value: diff.toUpperCase() },
+        ],
+        onRestart: ()=>reset()
+      });
+    }, 400);
+    return;
+  }
+  snake.unshift(head);
+  if(head.x===food.x && head.y===food.y){
+    score++;
+    document.getElementById('score').textContent = score;
+    gamelib.spawnParticles(particles, food.x*SIZE+SIZE/2, food.y*SIZE+SIZE/2, { color:'#ff3df0', count:14, speed:3.5 });
+    sfx.coin();
+    gamelib.popup(c, '+1', { color: '#ffe14d' });
+    if(navigator.vibrate) navigator.vibrate(15);
+    if(score === 1) gamelib.unlock('first_win');
+    if(score >= 20) gamelib.unlock('snake_20');
+    placeFood();
+  } else snake.pop();
+}
+function draw(){
+  if(!snake) return;
+  ctx.fillStyle = 'rgba(0,0,20,0.95)';
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle = 'rgba(77,240,255,0.06)';
+  for(let i=0;i<=COLS;i++){
+    ctx.beginPath(); ctx.moveTo(i*SIZE,0); ctx.lineTo(i*SIZE,c.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*SIZE); ctx.lineTo(c.width,i*SIZE); ctx.stroke();
+  }
+  // food
+  ctx.fillStyle = '#ff3df0'; ctx.shadowColor = '#ff3df0'; ctx.shadowBlur = 16;
+  ctx.fillRect(food.x*SIZE+2, food.y*SIZE+2, SIZE-4, SIZE-4);
+  // snake
+  snake.forEach((s,i)=>{
+    ctx.fillStyle = i===0 ? '#5dff8a' : '#3acc60';
+    ctx.shadowColor = '#5dff8a'; ctx.shadowBlur = 12;
+    ctx.fillRect(s.x*SIZE+1, s.y*SIZE+1, SIZE-2, SIZE-2);
+  });
+  ctx.shadowBlur = 0;
+  gamelib.drawParticles(ctx, particles);
+}
+function startIfNeeded(){ if(!started && alive){ started=true; document.getElementById('msg').textContent=''; sfx.countdown(); } }
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>reset() });
+
+document.addEventListener('keydown', e => {
+  if(gamelib.isPaused()) return;
+  const k = e.key.toLowerCase();
+  if(k===' '){ startIfNeeded(); e.preventDefault(); }
+  if((k==='arrowup'||k==='w') && dir.y===0) nextDir={x:0,y:-1};
+  if((k==='arrowdown'||k==='s') && dir.y===0) nextDir={x:0,y:1};
+  if((k==='arrowleft'||k==='a') && dir.x===0) nextDir={x:-1,y:0};
+  if((k==='arrowright'||k==='d') && dir.x===0) nextDir={x:1,y:0};
+});
+
+document.querySelectorAll('#pad button[data-d]').forEach(b => {
+  const press = e => {
+    e.preventDefault(); startIfNeeded();
+    const d = b.dataset.d;
+    if(d==='u' && dir.y===0) nextDir={x:0,y:-1};
+    if(d==='d' && dir.y===0) nextDir={x:0,y:1};
+    if(d==='l' && dir.x===0) nextDir={x:-1,y:0};
+    if(d==='r' && dir.x===0) nextDir={x:1,y:0};
+  };
+  b.addEventListener('touchstart', press, {passive:false});
+  b.addEventListener('mousedown', press);
+});
+
+let tStart = null;
+c.addEventListener('touchstart', e => { tStart = e.touches[0]; }, {passive:true});
+c.addEventListener('touchend', e => {
+  if(!tStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - tStart.clientX, dy = t.clientY - tStart.clientY;
+  if(Math.abs(dx)<20 && Math.abs(dy)<20){ startIfNeeded(); tStart=null; return; }
+  startIfNeeded();
+  if(Math.abs(dx) > Math.abs(dy)){
+    if(dx>0 && dir.x===0) nextDir={x:1,y:0};
+    if(dx<0 && dir.x===0) nextDir={x:-1,y:0};
+  } else {
+    if(dy>0 && dir.y===0) nextDir={x:0,y:1};
+    if(dy<0 && dir.y===0) nextDir={x:0,y:-1};
+  }
+  tStart=null;
+}, {passive:true});
+
+fitCanvas();
+reset();
+gamelib.trackPlayed('snake');
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>RPS - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  .battle { display:flex; gap:30px; align-items:center; padding:18px; flex-wrap:wrap; justify-content:center; }
+  .fighter { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .label { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--neon-cyan); text-shadow:0 0 6px var(--neon-cyan); }
+  .label.cpu { color:var(--neon-pink); text-shadow:0 0 6px var(--neon-pink); }
+  .display { width:min(120px, 26vmin); height:min(120px, 26vmin); border:3px solid var(--neon-cyan); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:min(70px, 14vmin); box-shadow:0 0 18px var(--neon-cyan), inset 0 0 18px rgba(77,240,255,0.1); background:rgba(0,0,30,0.7); }
+  .display.cpu { border-color:var(--neon-pink); box-shadow:0 0 18px var(--neon-pink), inset 0 0 18px rgba(255,61,240,0.1); }
+  .display.locked { border-color:var(--neon-green); box-shadow:0 0 18px var(--neon-green); }
+  .vs { font-family:'Press Start 2P',monospace; font-size:24px; color:var(--neon-yellow); text-shadow:0 0 10px var(--neon-yellow); }
+  .choices { display:flex; gap:14px; }
+  .choice-btn { width:min(80px,18vmin); height:min(80px,18vmin); font-size:min(42px,10vmin); background:rgba(0,0,30,0.7); border:2px solid var(--neon-green); box-shadow:0 0 12px var(--neon-green); border-radius:var(--radius); cursor:pointer; transition:all .2s var(--ease); }
+  .choice-btn:hover { transform:scale(1.1); box-shadow:0 0 22px var(--neon-green); }
+  .choice-btn:active { transform:scale(0.92); }
+  .shake { animation:shake .3s 3; }
+  @keyframes shake { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+</style>
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">✊ RPS</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div id="p1chip"></div>
+      <div id="p2chip"></div>
+      <div class="score-chip">DRAWS: <b id="ds">0</b></div>
+      <div id="modeWrap"></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <div class="battle game-board">
+        <div class="fighter">
+          <div class="label" id="lblp">P1</div>
+          <div class="display" id="pdisp">❓</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="fighter">
+          <div class="label cpu" id="lblc">CPU</div>
+          <div class="display cpu" id="cdisp">❓</div>
+        </div>
+      </div>
+    </div>
+    <footer class="bottom-bar">
+      <div class="choices" id="choices1">
+        <button class="choice-btn" data-c="r">✊</button>
+        <button class="choice-btn" data-c="p">✋</button>
+        <button class="choice-btn" data-c="s">✌️</button>
+      </div>
+      <div class="choices" id="choices2" style="display:none">
+        <button class="choice-btn" data-c="r" style="border-color:var(--neon-pink);box-shadow:0 0 12px var(--neon-pink)">✊</button>
+        <button class="choice-btn" data-c="p" style="border-color:var(--neon-pink);box-shadow:0 0 12px var(--neon-pink)">✋</button>
+        <button class="choice-btn" data-c="s" style="border-color:var(--neon-pink);box-shadow:0 0 12px var(--neon-pink)">✌️</button>
+      </div>
+      <div class="message" id="msg">PICK YOUR WEAPON</div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+const sym = {r:'✊',p:'✋',s:'✌️'};
+const beats = {r:'s', p:'r', s:'p'};
+let ps=0, cs=0, ds=0, mode='cpu', p1pick=null, p2pick=null, locked=false;
+const pd = document.getElementById('pdisp'), cd = document.getElementById('cdisp');
+
+const p1chip = gamelib.playerChip('p1', '#4df0ff'); document.getElementById('p1chip').replaceWith(p1chip);
+const p2chip = gamelib.playerChip('p2', '#ff3df0'); document.getElementById('p2chip').replaceWith(p2chip);
+function rebadge(){
+  if(mode==='cpu'){ p2chip.querySelector('.av').textContent='🤖'; p2chip.querySelector('.pname').textContent='CPU'; }
+  else { p2chip.refresh(); }
+  document.getElementById('lblp').textContent = arcadeAvatars.get('p1').n;
+  document.getElementById('lblc').textContent = mode==='cpu' ? 'CPU' : arcadeAvatars.get('p2').n;
+}
+
+const modeToggle = arcadeUI.toggle({
+  options:[{value:'cpu',label:'VS CPU'},{value:'2p',label:'2 PLAYER'}],
+  value:'cpu',
+  onChange: m => {
+    mode = m; rebadge();
+    document.getElementById('choices2').style.display = mode==='2p' ? 'flex' : 'none';
+    reset();
+  }
+});
+document.getElementById('modeWrap').replaceWith(modeToggle.el);
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>{ ps=0;cs=0;ds=0; p1chip.update(0); p2chip.update(0); document.getElementById('ds').textContent=0; reset(); } });
+
+document.querySelectorAll('#choices1 .choice-btn').forEach(b => {
+  b.onclick = () => {
+    if(locked) return;
+    if(mode==='cpu') play(b.dataset.c);
+    else if(!p1pick){ p1pick = b.dataset.c; pickFeedback(); }
+  };
+});
+document.querySelectorAll('#choices2 .choice-btn').forEach(b => {
+  b.onclick = () => {
+    if(locked) return;
+    if(mode==='2p' && !p2pick){ p2pick = b.dataset.c; pickFeedback(); }
+  };
+});
+function pickFeedback(){
+  sfx.blip();
+  pd.classList.toggle('locked', !!p1pick);
+  cd.classList.toggle('locked', !!p2pick);
+  document.getElementById('msg').textContent = `${arcadeAvatars.get('p1').n} ${p1pick?'✓':'?'} · ${mode==='cpu'?'CPU':arcadeAvatars.get('p2').n} ${p2pick?'✓':'?'}`;
+  if(p1pick && p2pick) reveal2P();
+}
+
+document.addEventListener('keydown', e => {
+  if(locked) return;
+  const k = e.key.toLowerCase();
+  if(mode==='cpu'){ if(k==='r')play('r'); if(k==='p')play('p'); if(k==='s')play('s'); }
+  else {
+    let changed=false;
+    if(k==='q' && !p1pick){ p1pick='r'; changed=true; }
+    if(k==='w' && !p1pick){ p1pick='p'; changed=true; }
+    if(k==='e' && !p1pick){ p1pick='s'; changed=true; }
+    if(k==='i' && !p2pick){ p2pick='r'; changed=true; }
+    if(k==='o' && !p2pick){ p2pick='p'; changed=true; }
+    if(k==='p' && !p2pick){ p2pick='s'; changed=true; }
+    if(changed) pickFeedback();
+  }
+});
+
+function reset(){
+  pd.textContent='❓'; cd.textContent='❓';
+  pd.classList.remove('locked'); cd.classList.remove('locked');
+  p1pick=null; p2pick=null; locked=false;
+  document.getElementById('msg').textContent = mode==='cpu' ? 'PICK YOUR WEAPON' : 'BOTH PLAYERS PICK';
+}
+function play(p){
+  if(locked) return;
+  locked = true;
+  pd.classList.add('shake'); cd.classList.add('shake');
+  pd.textContent='❓'; cd.textContent='❓';
+  sfx.click();
+  setTimeout(() => {
+    pd.classList.remove('shake'); cd.classList.remove('shake');
+    const c = ['r','p','s'][Math.random()*3|0];
+    pd.textContent=sym[p]; cd.textContent=sym[c];
+    resolve(p, c);
+    locked = false;
+  }, 800);
+}
+function reveal2P(){
+  locked = true;
+  pd.classList.add('shake'); cd.classList.add('shake');
+  pd.textContent='❓'; cd.textContent='❓';
+  sfx.countdown();
+  setTimeout(() => {
+    pd.classList.remove('shake'); cd.classList.remove('shake');
+    pd.textContent=sym[p1pick]; cd.textContent=sym[p2pick];
+    resolve(p1pick, p2pick);
+    p1pick=null; p2pick=null;
+    pd.classList.remove('locked'); cd.classList.remove('locked');
+    setTimeout(()=>{ locked=false; }, 100);
+  }, 800);
+}
+function resolve(a, b){
+  let msg;
+  if(a===b){ ds++; msg='DRAW!'; document.getElementById('ds').textContent=ds; sfx.lose(); }
+  else if(beats[a]===b){ ps++; p1chip.update(ps); msg=arcadeAvatars.get('p1').n+' WINS!'; sfx.win(); gamelib.domBurst(pd, {color:'#5dff8a', count:14}); if(navigator.vibrate)navigator.vibrate(20); gamelib.unlock('first_win'); gamelib.addCoins(2, 'rps'); gamelib.trackPlayed('rps'); }
+  else { cs++; p2chip.update(cs); msg=(mode==='cpu'?'CPU':arcadeAvatars.get('p2').n)+' WINS'; sfx.lose(); gamelib.domBurst(cd, {color:'#ff3df0', count:14}); }
+  document.getElementById('msg').textContent = msg + (mode==='2p' ? ' - PICK AGAIN' : '');
+  gamelib.setBestIfHigher('rps', ps);
+}
+rebadge();
+</script>
+</body>
+</html>

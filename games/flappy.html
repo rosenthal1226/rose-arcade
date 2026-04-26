@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FLAPPY - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🐦 FLAPPY</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">SCORE: <b id="score">0</b></div>
+      <div class="score-chip">BEST: <b id="best">0</b></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <canvas id="game" class="game-canvas"></canvas>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">SPACE / TAP TO FLAP</div>
+      <div class="controls-hint kbd-only">SPACE / W / ↑ / TAP TO FLAP</div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script>
+const c = document.getElementById('game'), ctx = c.getContext('2d');
+const GAP = 0.28;
+let bird, pipes, score=0, started=false, dead=false, particles=[], stars=[];
+let pipeSpeed, pipeGap, gravity, jumpV, birdR;
+let best = gamelib.bestScore('flappy');
+document.getElementById('best').textContent = best;
+
+function fitCanvas(){
+  const r = document.getElementById('playArea').getBoundingClientRect();
+  let availW = r.width-8, availH = r.height-8;
+  const aspect = 9/14;
+  let w, h;
+  if(availW/aspect <= availH){ w = availW; h = w/aspect; }
+  else { h = availH; w = h*aspect; }
+  c.width = Math.floor(w); c.height = Math.floor(h);
+  birdR = c.width * 0.04;
+  pipeSpeed = c.width / 220;
+  pipeGap = c.height * GAP;
+  gravity = c.height / 1300;
+  jumpV = -c.height / 165;
+  if(bird){ bird.x = c.width * 0.28; }
+  buildStars();
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,100));
+
+function buildStars(){
+  stars = [];
+  for(let i=0;i<25;i++) stars.push({ x: Math.random()*c.width, y: Math.random()*c.height*0.7, s: Math.random()*1.4+0.3 });
+}
+function fullReset(){
+  bird = { x: c.width*0.28, y: c.height/2, vy: 0, rot: 0 };
+  pipes = [];
+  score = 0; started = false; dead = false; particles = [];
+  document.getElementById('score').textContent = 0;
+  document.getElementById('msg').textContent = 'SPACE / TAP TO FLAP';
+}
+function start(){ if(started || dead) return; started = true; document.getElementById('msg').textContent=''; sfx.countdown(); spawnPipe(); }
+function spawnPipe(){
+  const minTop = c.height*0.1, maxTop = c.height-pipeGap-c.height*0.15;
+  const top = minTop + Math.random()*(maxTop - minTop);
+  pipes.push({ x: c.width+10, top, scored: false });
+}
+function flap(){
+  if(dead) return;
+  if(!started) start();
+  bird.vy = jumpV;
+  sfx.blip();
+}
+function loop(){
+  if(started && !dead && !gamelib.isPaused()){
+    bird.vy += gravity;
+    bird.y += bird.vy;
+    bird.rot = Math.max(-0.5, Math.min(1.2, bird.vy * 0.06));
+
+    for(const p of pipes) p.x -= pipeSpeed;
+    if(pipes.length && pipes[pipes.length-1].x < c.width*0.55) spawnPipe();
+    if(pipes[0] && pipes[0].x < -60) pipes.shift();
+
+    // collision + scoring
+    for(const p of pipes){
+      const pw = c.width*0.13;
+      // score on pass
+      if(!p.scored && p.x + pw < bird.x){
+        p.scored = true;
+        score++;
+        document.getElementById('score').textContent = score;
+        sfx.coin();
+        gamelib.popup(c, '+1', { color: '#ffe14d' });
+        if(navigator.vibrate) navigator.vibrate(8);
+        if(score === 1) gamelib.unlock('first_win');
+        if(score >= 10) gamelib.unlock('flappy_10');
+      }
+      // collide
+      if(bird.x + birdR > p.x && bird.x - birdR < p.x + pw){
+        if(bird.y - birdR < p.top || bird.y + birdR > p.top + pipeGap) endGame();
+      }
+    }
+    if(bird.y + birdR > c.height || bird.y < -10) endGame();
+  }
+  gamelib.stepParticles(particles);
+  draw();
+  requestAnimationFrame(loop);
+}
+function draw(){
+  // sky gradient
+  const g = ctx.createLinearGradient(0, 0, 0, c.height);
+  g.addColorStop(0, 'rgba(20,5,55,1)');
+  g.addColorStop(0.7, 'rgba(40,5,80,1)');
+  g.addColorStop(1, 'rgba(80,10,60,1)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,c.width,c.height);
+
+  // stars
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  for(const s of stars){ ctx.fillRect(s.x, s.y, s.s, s.s); }
+
+  // ground line
+  ctx.fillStyle = 'rgba(255,61,240,0.3)';
+  ctx.fillRect(0, c.height-2, c.width, 2);
+
+  // pipes
+  ctx.shadowBlur = 14;
+  for(const p of pipes){
+    const pw = c.width*0.13;
+    ctx.fillStyle = '#5dff8a'; ctx.shadowColor = '#5dff8a';
+    ctx.fillRect(p.x, 0, pw, p.top);
+    ctx.fillRect(p.x, p.top + pipeGap, pw, c.height - p.top - pipeGap);
+    // pipe lips
+    ctx.fillStyle = '#39c060';
+    ctx.fillRect(p.x-3, p.top - 12, pw+6, 12);
+    ctx.fillRect(p.x-3, p.top + pipeGap, pw+6, 12);
+  }
+  ctx.shadowBlur = 0;
+
+  // bird
+  ctx.save();
+  ctx.translate(bird.x, bird.y);
+  ctx.rotate(bird.rot);
+  ctx.font = (birdR*2.2) + 'px serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#ffe14d'; ctx.shadowBlur = 14;
+  ctx.fillText('🐦', 0, 0);
+  ctx.restore();
+  ctx.shadowBlur = 0;
+  gamelib.drawParticles(ctx, particles);
+}
+function endGame(){
+  if(dead) return;
+  dead = true; started = false;
+  gamelib.spawnParticles(particles, bird.x, bird.y, { color:'#ffe14d', count: 26, speed: 5 });
+  gamelib.shake(c, 14, 350); sfx.explode();
+  if(navigator.vibrate) navigator.vibrate(80);
+  const isBest = gamelib.setBestIfHigher('flappy', score);
+  if(isBest){ best = score; document.getElementById('best').textContent = best; }
+  if(score > 0) gamelib.addCoins(Math.min(15, score), 'flappy');
+  setTimeout(() => {
+    gamelib.gameOver({
+      title: 'CRASHED',
+      subtitle: isBest ? '🏆 NEW HIGH SCORE' : '',
+      stats: [
+        { label:'SCORE', value: score },
+        { label:'BEST',  value: best },
+      ],
+      onRestart: () => fullReset()
+    });
+  }, 500);
+}
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>fullReset() });
+
+document.addEventListener('keydown', e => {
+  if(e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W'){ flap(); e.preventDefault(); }
+});
+c.addEventListener('touchstart', e => { e.preventDefault(); flap(); }, {passive:false});
+c.addEventListener('mousedown', flap);
+
+fitCanvas();
+fullReset();
+gamelib.trackPlayed('flappy');
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

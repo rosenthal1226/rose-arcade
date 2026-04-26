@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TETRIS - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">🟦 TETRIS</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div class="score-chip">SCORE: <b id="score">0</b></div>
+      <div class="score-chip">LINES: <b id="lines">0</b></div>
+      <div class="score-chip">LEVEL: <b id="level">1</b></div>
+      <div class="score-chip">BEST: <b id="best">0</b></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <canvas id="game" class="game-canvas"></canvas>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">PRESS SPACE / TAP TO START</div>
+      <div class="controls-hint kbd-only">← → MOVE · ↑ ROTATE · ↓ DROP · SPACE HARD DROP</div>
+      <div class="touch-pad" id="pad" style="grid-template-columns: 60px 60px 60px 60px; grid-template-rows: 60px 60px;">
+        <button data-d="rot" style="grid-column:2;grid-row:1">↻</button>
+        <button data-d="drop" style="grid-column:3;grid-row:1">⤓</button>
+        <button data-d="left" style="grid-column:1;grid-row:2">◄</button>
+        <button data-d="down" style="grid-column:2;grid-row:2;grid-column:2/4">▼</button>
+        <button data-d="right" style="grid-column:4;grid-row:2">►</button>
+      </div>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script>
+const c = document.getElementById('game'), ctx = c.getContext('2d');
+const COLS = 10, ROWS = 20;
+let SIZE = 20;
+const PIECES = {
+  I:[[1,1,1,1]],
+  O:[[1,1],[1,1]],
+  T:[[0,1,0],[1,1,1]],
+  L:[[0,0,1],[1,1,1]],
+  J:[[1,0,0],[1,1,1]],
+  S:[[0,1,1],[1,1,0]],
+  Z:[[1,1,0],[0,1,1]],
+};
+const COLORS = { I:'#4df0ff', O:'#ffe14d', T:'#c46dff', L:'#ffa64d', J:'#5d9aff', S:'#5dff8a', Z:'#ff3d6d' };
+let grid, piece, px, py, score=0, lines=0, level=1, dropMs=600, lastDrop=0, started=false, dead=false;
+let particles = [];
+let best = gamelib.bestScore('tetris');
+document.getElementById('best').textContent = best;
+
+function fitCanvas(){
+  const r = document.getElementById('playArea').getBoundingClientRect();
+  let availH = r.height - 8, availW = r.width - 8;
+  const aspect = COLS/ROWS;
+  let w, h;
+  if(availW / aspect <= availH){ w = availW; h = w/aspect; }
+  else { h = availH; w = h*aspect; }
+  SIZE = Math.floor(w / COLS);
+  c.width = SIZE * COLS;
+  c.height = SIZE * ROWS;
+  draw();
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,100));
+
+function newPiece(){
+  const keys = Object.keys(PIECES);
+  const k = keys[Math.random()*keys.length|0];
+  return { type:k, shape: PIECES[k].map(r=>r.slice()) };
+}
+function spawn(){
+  piece = newPiece();
+  px = Math.floor((COLS - piece.shape[0].length)/2);
+  py = 0;
+  if(collides(0,0,piece.shape)){ dead = true; gameOver(); }
+}
+function rotate(s){
+  const r = s.length, c = s[0].length;
+  const out = Array.from({length:c},()=>Array(r).fill(0));
+  for(let i=0;i<r;i++) for(let j=0;j<c;j++) out[j][r-1-i] = s[i][j];
+  return out;
+}
+function collides(dx, dy, shape){
+  for(let i=0;i<shape.length;i++) for(let j=0;j<shape[i].length;j++){
+    if(!shape[i][j]) continue;
+    const x = px+j+dx, y = py+i+dy;
+    if(x<0||x>=COLS||y>=ROWS) return true;
+    if(y>=0 && grid[y][x]) return true;
+  }
+  return false;
+}
+function merge(){
+  for(let i=0;i<piece.shape.length;i++) for(let j=0;j<piece.shape[i].length;j++){
+    if(piece.shape[i][j] && py+i>=0) grid[py+i][px+j] = piece.type;
+  }
+}
+function clearLines(){
+  let cleared = 0;
+  for(let i=ROWS-1;i>=0;i--){
+    if(grid[i].every(x=>x)){
+      // particle burst
+      for(let j=0;j<COLS;j++){
+        gamelib.spawnParticles(particles, j*SIZE+SIZE/2, i*SIZE+SIZE/2, { color: COLORS[grid[i][j]] || '#fff', count: 10, speed: 3 });
+      }
+      grid.splice(i,1);
+      grid.unshift(Array(COLS).fill(0));
+      cleared++; i++;
+    }
+  }
+  if(cleared){
+    const points = [0,40,100,300,1200][cleared] * level;
+    score += points;
+    lines += cleared;
+    gamelib.unlock('tetris_clear');
+    if(cleared === 4) gamelib.unlock('tetris_4');
+    if(score > 0) gamelib.unlock('first_win');
+    if(lines >= level*10){ level++; dropMs = Math.max(80, 600 - (level-1)*50); }
+    document.getElementById('score').textContent = score;
+    document.getElementById('lines').textContent = lines;
+    document.getElementById('level').textContent = level;
+    gamelib.popup(c, '+'+points, { color: cleared===4?'#ff3df0':'#ffe14d' });
+    gamelib.shake(c, cleared===4?14:6, 280);
+    if(cleared===4) sfx.win(); else sfx.coin();
+    if(navigator.vibrate) navigator.vibrate(40+cleared*15);
+  }
+}
+function move(dx, dy){
+  if(!started || dead) return false;
+  if(!collides(dx, dy, piece.shape)){ px += dx; py += dy; return true; }
+  return false;
+}
+function rot(){
+  if(!started || dead) return;
+  const r = rotate(piece.shape);
+  if(!collides(0,0,r)){ piece.shape = r; sfx.blip(); }
+  else if(!collides(-1,0,r)){ px--; piece.shape = r; sfx.blip(); }
+  else if(!collides(1,0,r)){ px++; piece.shape = r; sfx.blip(); }
+}
+function hardDrop(){
+  if(!started || dead) return;
+  while(move(0,1)){ score += 2; }
+  document.getElementById('score').textContent = score;
+  lock();
+}
+function lock(){
+  merge(); sfx.paddle();
+  clearLines();
+  spawn();
+}
+function tick(now){
+  if(started && !dead && !gamelib.isPaused()){
+    if(!lastDrop) lastDrop = now;
+    if(now - lastDrop >= dropMs){
+      if(!move(0,1)){ lock(); }
+      lastDrop = now;
+    }
+  }
+  gamelib.stepParticles(particles);
+  draw();
+  requestAnimationFrame(tick);
+}
+function draw(){
+  ctx.fillStyle = 'rgba(0,0,20,0.95)';
+  ctx.fillRect(0,0,c.width,c.height);
+  // grid lines
+  ctx.strokeStyle = 'rgba(77,240,255,0.06)';
+  for(let i=0;i<=COLS;i++){ ctx.beginPath(); ctx.moveTo(i*SIZE,0); ctx.lineTo(i*SIZE,c.height); ctx.stroke(); }
+  for(let i=0;i<=ROWS;i++){ ctx.beginPath(); ctx.moveTo(0,i*SIZE); ctx.lineTo(c.width,i*SIZE); ctx.stroke(); }
+  // settled
+  for(let i=0;i<ROWS;i++) for(let j=0;j<COLS;j++) if(grid[i][j]) drawCell(j, i, COLORS[grid[i][j]]);
+  // ghost
+  if(piece && started && !dead){
+    let ghostY = py;
+    while(!collides(0, ghostY-py+1, piece.shape)) ghostY++;
+    for(let i=0;i<piece.shape.length;i++) for(let j=0;j<piece.shape[i].length;j++){
+      if(piece.shape[i][j]) drawCell(px+j, ghostY+i, COLORS[piece.type], 0.18);
+    }
+    for(let i=0;i<piece.shape.length;i++) for(let j=0;j<piece.shape[i].length;j++){
+      if(piece.shape[i][j]) drawCell(px+j, py+i, COLORS[piece.type]);
+    }
+  }
+  gamelib.drawParticles(ctx, particles);
+}
+function drawCell(j, i, color, alpha=1){
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.shadowColor = color; ctx.shadowBlur = alpha===1?12:0;
+  ctx.fillRect(j*SIZE+1, i*SIZE+1, SIZE-2, SIZE-2);
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 1;
+}
+function reset(){
+  grid = Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  score = 0; lines = 0; level = 1; dropMs = 600; lastDrop = 0;
+  started = false; dead = false; particles = [];
+  document.getElementById('score').textContent = 0;
+  document.getElementById('lines').textContent = 0;
+  document.getElementById('level').textContent = 1;
+  document.getElementById('msg').textContent = 'PRESS SPACE / TAP TO START';
+  spawn();
+  draw();
+}
+function start(){
+  if(started || dead) return;
+  started = true; document.getElementById('msg').textContent=''; sfx.countdown();
+}
+function gameOver(){
+  const isBest = gamelib.setBestIfHigher('tetris', score);
+  if(isBest){ best = score; document.getElementById('best').textContent = best; }
+  if(score > 0) gamelib.addCoins(Math.min(20, Math.ceil(score/100) + lines), 'tetris');
+  sfx.lose();
+  gamelib.shake(c, 14, 400);
+  setTimeout(() => {
+    gamelib.gameOver({
+      title: 'GAME OVER',
+      subtitle: isBest ? '🏆 NEW HIGH SCORE' : '',
+      stats: [
+        { label:'SCORE', value: score },
+        { label:'LINES', value: lines },
+        { label:'LEVEL', value: level },
+        { label:'BEST',  value: best },
+      ],
+      onRestart: () => reset()
+    });
+  }, 400);
+}
+
+// pause
+gamelib.mountPauseButton(document.getElementById('hdrRight'), {
+  onResume: () => {},
+  onRestart: () => reset(),
+});
+
+document.addEventListener('keydown', e => {
+  if(gamelib.isPaused()) return;
+  const k = e.key;
+  if(k===' '){ if(!started) start(); else hardDrop(); e.preventDefault(); }
+  else if(k==='ArrowLeft' || k==='a'){ if(move(-1,0)) sfx.click(); }
+  else if(k==='ArrowRight' || k==='d'){ if(move(1,0)) sfx.click(); }
+  else if(k==='ArrowDown' || k==='s'){ if(move(0,1)){ score++; document.getElementById('score').textContent=score; } }
+  else if(k==='ArrowUp' || k==='w'){ rot(); }
+});
+
+document.querySelectorAll('#pad button').forEach(b => {
+  const press = e => {
+    e.preventDefault();
+    if(!started) start();
+    if(gamelib.isPaused()) return;
+    const d = b.dataset.d;
+    if(d==='left'){ if(move(-1,0)) sfx.click(); }
+    if(d==='right'){ if(move(1,0)) sfx.click(); }
+    if(d==='down'){ if(move(0,1)){ score++; document.getElementById('score').textContent=score; } }
+    if(d==='rot'){ rot(); }
+    if(d==='drop'){ hardDrop(); }
+  };
+  b.addEventListener('touchstart', press, {passive:false});
+  b.addEventListener('mousedown', press);
+});
+
+c.addEventListener('click', () => { if(!started) start(); });
+
+reset();
+fitCanvas();
+gamelib.trackPlayed('tetris');
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

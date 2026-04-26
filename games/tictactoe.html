@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TIC-TAC-TOE - NEON ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  .ttt-board { --cell: min(120px, 26vmin); display:grid; grid-template-columns:repeat(3,var(--cell)); grid-template-rows:repeat(3,var(--cell)); gap:6px; padding:10px; }
+  .ttt-cell { background:rgba(0,0,30,0.8); border:2px solid var(--neon-cyan); box-shadow:0 0 10px var(--neon-cyan); display:flex; align-items:center; justify-content:center; font-family:'Press Start 2P',monospace; font-size:calc(var(--cell)*0.42); cursor:pointer; transition:all .2s; border-radius: var(--radius-sm); }
+  .ttt-cell:hover { background:rgba(77,240,255,0.1); transform: scale(1.04); }
+  .ttt-cell.x { color:var(--neon-pink); text-shadow:0 0 12px var(--neon-pink); }
+  .ttt-cell.o { color:var(--neon-green); text-shadow:0 0 12px var(--neon-green); }
+  .ttt-cell.win { background:rgba(255,225,77,0.25); border-color:var(--neon-yellow); box-shadow:0 0 24px var(--neon-yellow); animation: winPulse 1s ease-in-out infinite; }
+  @keyframes winPulse { 50% { transform: scale(1.05); } }
+</style>
+</head>
+<body class="crt game-shell-host">
+  <div class="scanlines"></div>
+  <div class="game-shell">
+    <header class="top-bar">
+      <a class="back-btn" href="../index.html">◄ EXIT</a>
+      <div class="game-title">⭕ TIC-TAC-TOE</div>
+      <div id="hdrRight"></div>
+    </header>
+    <div class="hud">
+      <div id="p1chip"></div>
+      <div id="p2chip"></div>
+      <div class="score-chip">DRAWS: <b id="pd">0</b></div>
+      <div id="modeWrap"></div>
+    </div>
+    <div class="play-area" id="playArea">
+      <div id="board" class="ttt-board game-board"></div>
+    </div>
+    <footer class="bottom-bar">
+      <div class="message" id="msg">YOUR TURN</div>
+      <button class="btn" id="reset">NEW GAME</button>
+    </footer>
+  </div>
+
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script src="../components.js"></script>
+<script>
+let board, turn, over, mode='cpu', scores={x:0,o:0,d:0};
+const boardEl = document.getElementById('board');
+
+const p1chip = gamelib.playerChip('p1', '#ff3df0');
+p1chip.querySelector('.pname').insertAdjacentHTML('afterend', '<span style="font-size:8px;opacity:.7"> X</span>');
+document.getElementById('p1chip').replaceWith(p1chip);
+const p2chip = gamelib.playerChip('p2', '#5dff8a');
+p2chip.querySelector('.pname').insertAdjacentHTML('afterend', '<span style="font-size:8px;opacity:.7"> O</span>');
+document.getElementById('p2chip').replaceWith(p2chip);
+
+function rebadge(){
+  if(mode==='cpu'){
+    p2chip.querySelector('.av').textContent = '🤖';
+    p2chip.querySelector('.pname').textContent = 'CPU';
+  } else { p2chip.refresh(); }
+}
+
+const modeToggle = arcadeUI.toggle({
+  options: [{value:'cpu',label:'VS CPU'},{value:'2p',label:'2 PLAYER'}],
+  value: 'cpu',
+  onChange: m => { mode = m; rebadge(); init(); }
+});
+document.getElementById('modeWrap').replaceWith(modeToggle.el);
+
+gamelib.mountPauseButton(document.getElementById('hdrRight'), { onResume:()=>{}, onRestart:()=>init() });
+
+function init(){
+  board = Array(9).fill(''); turn='X'; over=false;
+  boardEl.innerHTML = '';
+  for(let i=0;i<9;i++){
+    const c = document.createElement('div');
+    c.className = 'ttt-cell'; c.dataset.i = i;
+    c.onclick = () => play(i);
+    boardEl.appendChild(c);
+  }
+  document.getElementById('msg').textContent = mode==='cpu' ? 'YOUR TURN' : "P1'S TURN (X)";
+}
+function play(i){
+  if(over || board[i]) return;
+  if(mode==='cpu' && turn!=='X') return;
+  set(i, turn); sfx.blip();
+  if(checkEnd()) return;
+  if(mode==='cpu'){
+    turn='O';
+    document.getElementById('msg').textContent='CPU THINKING...';
+    setTimeout(cpuMove, 400);
+  } else {
+    turn = turn==='X'?'O':'X';
+    document.getElementById('msg').textContent = "P"+(turn==='X'?'1':'2')+"'S TURN ("+turn+")";
+  }
+}
+function cpuMove(){ const best = minimax(board,'O').i; set(best,'O'); sfx.blip(); if(!checkEnd()){ turn='X'; document.getElementById('msg').textContent='YOUR TURN'; } }
+function set(i,p){ board[i]=p; const c=boardEl.children[i]; c.textContent=p; c.classList.add(p.toLowerCase()); }
+function checkEnd(){
+  const w = winner(board);
+  if(w){
+    over = true;
+    if(w.p==='draw'){
+      scores.d++; document.getElementById('pd').textContent=scores.d;
+      sfx.lose();
+      gamelib.gameOver({ title:'DRAW', subtitle:'NO WINNER', stats:[
+        { label:arcadeAvatars.get('p1').n+' (X)', value:scores.x },
+        { label:mode==='cpu'?'CPU (O)':arcadeAvatars.get('p2').n+' (O)', value:scores.o },
+        { label:'DRAWS', value:scores.d },
+      ], onRestart:()=>init() });
+    } else {
+      w.line.forEach(i=>boardEl.children[i].classList.add('win'));
+      let winner;
+      if(w.p==='X'){ scores.x++; p1chip.update(scores.x); winner = arcadeAvatars.get('p1').n; sfx.win(); gamelib.shake(boardEl, 8, 300); gamelib.unlock('first_win'); gamelib.addCoins(3, 'tictactoe'); gamelib.trackPlayed('tictactoe'); }
+      else { scores.o++; p2chip.update(scores.o); winner = mode==='cpu'?'CPU':arcadeAvatars.get('p2').n; sfx.lose(); gamelib.shake(boardEl, 8, 300); }
+      gamelib.popup(boardEl, '+1', { color:'#ffe14d' });
+      if(navigator.vibrate) navigator.vibrate(50);
+      gamelib.gameOver({ title: winner+' WINS!', subtitle:'🏆', stats:[
+        { label:arcadeAvatars.get('p1').n+' (X)', value:scores.x },
+        { label:mode==='cpu'?'CPU (O)':arcadeAvatars.get('p2').n+' (O)', value:scores.o },
+        { label:'DRAWS', value:scores.d },
+      ], onRestart:()=>init() });
+    }
+    return true;
+  }
+  return false;
+}
+function winner(b){
+  const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(const l of lines){ if(b[l[0]] && b[l[0]]===b[l[1]] && b[l[1]]===b[l[2]]) return {p:b[l[0]], line:l}; }
+  if(b.every(x=>x)) return {p:'draw'};
+  return null;
+}
+function minimax(b, player){
+  const w = winner(b);
+  if(w){ if(w.p==='O') return {s:10}; if(w.p==='X') return {s:-10}; return {s:0}; }
+  const moves = [];
+  for(let i=0;i<9;i++){ if(!b[i]){ b[i]=player; moves.push({i, s:minimax(b, player==='O'?'X':'O').s}); b[i]=''; } }
+  if(player==='O') return moves.reduce((a,b)=>b.s>a.s?b:a);
+  return moves.reduce((a,b)=>b.s<a.s?b:a);
+}
+document.getElementById('reset').onclick = ()=>{ sfx.click(); init(); };
+rebadge();
+init();
+</script>
+</body>
+</html>
