@@ -5,756 +5,1290 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Computer</title>
 <style>
-/* ── Real Windows 98 arrow cursor as SVG data URI ── */
-* {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='19' viewBox='0 0 12 19'%3E%3Cpolygon points='0,0 0,16 4,12 7,19 9,18 6,11 12,11' fill='black'/%3E%3Cpolygon points='1,2 1,14 4,11 7,17 8,17 5.5,10.5 10.5,10.5' fill='white'/%3E%3C/svg%3E") 0 0, default;
+/* ── Win98 pixel cursor ── */
+* { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='19' viewBox='0 0 12 19'%3E%3Cpolygon points='0,0 0,16 4,12 7,19 9,18 6,11 12,11' fill='black'/%3E%3Cpolygon points='1,2 1,14 4,11 7,17 8,17 5.5,10.5 10.5,10.5' fill='white'/%3E%3C/svg%3E") 0 0, default; }
+
+/* ═══════════════════════════════════════════
+   OFFICE SCENE
+═══════════════════════════════════════════ */
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #c8b898;
 }
 
-/* ── Page ── */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at 50% 25%, #2a2a3a 0%, #0a0a0f 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.scene {
+  width: 100vw; height: 100vh;
+  position: relative;
   overflow: hidden;
 }
 
-/* ── 3D monitor scene ── */
-.monitor-scene {
-  perspective: 900px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* ── Back wall ── */
+.wall {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  bottom: 28%;
+  background: #e8dfc8;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(180,165,130,0.18) 39px, rgba(180,165,130,0.18) 40px),
+    repeating-linear-gradient(0deg, transparent 0px, transparent 39px, rgba(180,165,130,0.12) 39px, rgba(180,165,130,0.12) 40px);
 }
-.monitor-3d {
-  transform: rotateX(5deg) rotateY(-2deg);
-  transform-style: preserve-3d;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  filter: drop-shadow(0 50px 100px rgba(0,0,0,0.95));
+.baseboard {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 28%;
+  height: 14px;
+  background: linear-gradient(180deg, #d8c8a0 0%, #b09870 100%);
+  border-top: 2px solid #ecdcb4;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  z-index: 2;
 }
 
-/* ── Bezel ── */
-.bezel {
-  background: linear-gradient(160deg, #d8d4ce 0%, #bab6b0 35%, #a8a4a0 65%, #909090 100%);
-  border-radius: 14px 14px 8px 8px;
-  padding: 26px 26px 52px 26px;
-  border: 3px solid #999;
-  border-bottom: 6px solid #777;
+/* ── Floor ── */
+.floor {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0; height: 30%;
+  overflow: hidden;
+}
+.floor-inner {
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #a07838 0px, #a07838 118px,
+    #7a5820 118px, #7a5820 122px,
+    #b08840 122px, #b08840 238px,
+    #7a5820 238px, #7a5820 242px
+  );
+}
+.floor-sheen {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+}
+
+/* ── Wall window (outside view) ── */
+.wall-window-decor {
+  position: absolute;
+  top: 5%; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 160px;
+  background: linear-gradient(180deg, #4a9ad4 0%, #7ec8f8 50%, #b8e4ff 100%);
+  border: 14px solid #d4b870;
+  border-radius: 3px;
   box-shadow:
-    inset 3px 3px 8px rgba(255,255,255,0.55),
-    inset -3px -3px 8px rgba(0,0,0,0.35),
-    5px 5px 0 #555,
-    10px 10px 0 #333,
-    15px 15px 0 #222;
+    inset 0 0 30px rgba(74,154,212,0.4),
+    4px 6px 20px rgba(0,0,0,0.3),
+    inset 2px 2px 0 rgba(255,255,255,0.3);
+  overflow: hidden;
+}
+.win-pane {
+  position: absolute; inset: 0;
+}
+.win-pane::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0; width: 8px;
+  transform: translateX(-50%);
+  background: #d4b870;
+}
+.win-pane::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; height: 8px;
+  transform: translateY(-50%);
+  background: #d4b870;
+}
+.wcloud { position: absolute; background: rgba(255,255,255,0.92); border-radius: 50%; }
+.wcloud.c1 { width:50px;height:28px; top:18px;left:10px; box-shadow:20px 0 0 10px rgba(255,255,255,0.92); }
+.wcloud.c2 { width:36px;height:20px; top:38px;right:12px; }
+.wcloud.c3 { width:28px;height:18px; top:10px;left:60px; }
+.wsun { position:absolute; width:30px;height:30px; background:#ffd44a; border-radius:50%; top:8px;right:18px; box-shadow:0 0 14px #ffd44a; }
+.wbuilding { position:absolute; bottom:0; width:32px; background:#7090b0; }
+.wbuilding.b1 { height:45px; left:8px; }
+.wbuilding.b2 { height:60px; left:42px; width:28px; }
+.wbuilding.b3 { height:35px; right:10px; width:24px; }
+.wbuilding::after { content:''; position:absolute; top:0;left:0;right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(255,255,255,0.15) 8px,rgba(255,255,255,0.15) 9px); }
+
+/* ── Bookshelf ── */
+.bookshelf {
+  position: absolute;
+  top: 4%; left: 3%;
+  width: 110px;
+}
+.shelf-unit {
+  background: linear-gradient(90deg, #8a6020 0%, #b08040 50%, #8a6020 100%);
+  border: 3px solid #6a4810;
+  border-radius: 3px;
+  padding: 6px 4px;
+  box-shadow: 4px 6px 14px rgba(0,0,0,0.4);
+}
+.shelf-row { display:flex; gap:3px; align-items:flex-end; margin-bottom:6px; padding-bottom:4px; border-bottom:3px solid #6a4810; }
+.shelf-row:last-child { margin-bottom:0; border-bottom:none; }
+.book {
+  border-radius:2px 3px 3px 2px;
+  box-shadow:1px 0 2px rgba(0,0,0,0.3);
+}
+
+/* ── Wall art ── */
+.wall-art {
+  position: absolute;
+  top: 6%; right: 6%;
+  width: 100px; height: 80px;
+  border: 10px solid #c8a840;
+  box-shadow: 3px 5px 16px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  background: #1a3a6a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+
+/* ═══════════════════════════════════════════
+   DESK
+═══════════════════════════════════════════ */
+.desk-group {
+  position: absolute;
+  bottom: 20%; left: 50%;
+  transform: translateX(-50%);
+  width: 88%;
+  max-width: 920px;
+  z-index: 10;
+}
+.desk-top {
+  height: 22px;
+  background: linear-gradient(180deg, #d4a444 0%, #c09030 60%, #a87828 100%);
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 -3px 0 #e8bc60, 0 2px 8px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 14;
+}
+.desk-top::before {
+  content: '';
+  position: absolute; top:4px; left:12px; right:12px; height:2px;
+  background: rgba(255,255,255,0.2); border-radius:2px;
+}
+.desk-face {
+  height: 120px;
+  background: linear-gradient(180deg, #a07428 0%, #8a6020 60%, #704e18 100%);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 10;
+}
+/* desk edge trim */
+.desk-face::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height:3px;
+  background: rgba(255,255,255,0.08);
+}
+/* desk drawer */
+.desk-drawer {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  top: 30px;
+  width: 160px; height: 44px;
+  border: 2px solid rgba(0,0,0,0.4);
+  border-radius: 3px;
+  background: rgba(0,0,0,0.15);
+}
+.desk-drawer::before {
+  content: '';
+  position: absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:28px; height:8px;
+  background: linear-gradient(90deg,#c09030,#e0b040,#c09030);
+  border-radius:4px;
+  border:1px solid rgba(0,0,0,0.3);
+}
+.desk-legs {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+.desk-leg {
+  width: 18px; height: 40px;
+  background: linear-gradient(90deg, #6a4810 0%, #8a6020 50%, #6a4810 100%);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.4);
+}
+
+/* Items on desk */
+.desk-items {
+  position: absolute;
+  top: -90px; /* above desk face, on desk surface */
+  left: 0; right: 0;
+  height: 90px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 20px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+/* Coffee mug */
+.coffee-mug {
+  margin-left: auto;
+  margin-right: 30px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.mug-body {
+  width: 28px; height: 34px;
+  background: linear-gradient(180deg, #e8e0d0 0%, #c8c0b0 100%);
+  border-radius: 3px 3px 6px 6px;
+  border: 2px solid #a09880;
   position: relative;
 }
-/* brand label */
-.bezel::after {
-  content: 'RosePC™  Model 9800';
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  font-weight: bold;
-  color: #777;
-  letter-spacing: 1.5px;
-  white-space: nowrap;
+.mug-handle {
+  position: absolute; right: -12px; top: 6px;
+  width: 10px; height: 16px;
+  border: 3px solid #a09880;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
 }
-/* power LED */
-.power-led {
+.mug-steam {
+  display: flex; gap: 4px; margin-bottom: 2px;
+}
+.steam-line {
+  width: 2px; height: 10px;
+  background: rgba(200,200,200,0.5);
+  border-radius: 2px;
+  animation: steamRise 1.5s ease-in-out infinite;
+}
+.steam-line:nth-child(2) { animation-delay: 0.4s; height: 7px; }
+.steam-line:nth-child(3) { animation-delay: 0.8s; }
+@keyframes steamRise {
+  0%,100% { opacity: 0.4; transform: translateY(0) scaleX(1); }
+  50% { opacity: 0.7; transform: translateY(-4px) scaleX(1.4); }
+}
+.mug-liquid {
+  position: absolute; top: 4px; left: 4px; right: 4px; height: 6px;
+  background: #5c3010; border-radius: 2px;
+}
+
+/* Mouse */
+.desk-mouse {
+  width: 22px; height: 30px;
+  background: linear-gradient(160deg, #e0dcd0 0%, #c0bca8 100%);
+  border-radius: 11px 11px 8px 8px;
+  border: 1px solid #a0a090;
+  margin-right: 12px;
+  position: relative;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+}
+.desk-mouse::before {
+  content: '';
   position: absolute;
-  bottom: 18px;
-  right: 44px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
+  top: 10px; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 12px;
+  background: #a0a090;
+}
+
+/* Plant */
+.desk-plant {
+  display: flex; flex-direction: column; align-items: center;
+  margin-right: 16px;
+}
+.plant-pot {
+  width: 30px; height: 24px;
+  background: linear-gradient(180deg, #c07840 0%, #a06028 100%);
+  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+  border-radius: 0 0 4px 4px;
+  position: relative;
+}
+.plant-leaves {
+  font-size: 22px; line-height:1;
+  margin-bottom: -4px;
+  filter: drop-shadow(0 2px 3px rgba(0,80,0,0.4));
+}
+
+/* Papers */
+.desk-papers {
+  margin-right: 20px;
+}
+.paper {
+  width: 44px; height: 56px;
+  background: #f8f6f0;
+  border: 1px solid #d0c8b0;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.2);
+  border-radius: 1px;
+  position: relative;
+}
+.paper::before, .paper::after {
+  content: '';
+  position: absolute;
+  left: 6px; right: 6px;
+  height: 1px;
+  background: #b0c0e0;
+}
+.paper::before { top: 14px; }
+.paper::after { top: 22px; }
+.paper2 {
+  position: absolute;
+  top: 3px; left: -5px;
+  width: 44px; height: 56px;
+  background: #f0ede0;
+  border: 1px solid #d0c8b0;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+  z-index: -1;
+  transform: rotate(-4deg);
+}
+
+/* ═══════════════════════════════════════════
+   SIMS CHARACTER
+═══════════════════════════════════════════ */
+.char-group {
+  position: absolute;
+  bottom: calc(20% + 22px); /* sits on desk-top level, which is desk-group bottom + desk-face */
+  left: calc(50% - 46vw + 20px); /* left side of desk */
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Plumbob */
+.plumbob {
+  width: 16px; height: 16px;
+  background: linear-gradient(135deg, #44ff88 0%, #00cc44 50%, #008833 100%);
+  transform: rotate(45deg);
+  box-shadow: 0 0 8px #00ff55, 0 0 20px rgba(0,255,80,0.5);
+  margin-bottom: 6px;
+  animation: plumbFloat 2.5s ease-in-out infinite;
+}
+@keyframes plumbFloat {
+  0%,100% { transform: rotate(45deg) translateY(0); opacity:1; }
+  50% { transform: rotate(45deg) translateY(-5px); opacity:0.85; }
+}
+
+/* Head */
+.char-head {
+  width: 38px; height: 42px;
+  background: linear-gradient(160deg, #f5c888 0%, #e8b060 100%);
+  border-radius: 50% 50% 44% 44%;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.char-hair {
+  position: absolute;
+  top: -10px; left: -3px; right: -3px; height: 22px;
+  background: linear-gradient(180deg, #5c3810 0%, #7a5028 70%, transparent 100%);
+  border-radius: 50% 50% 20% 20%;
+  z-index: 2;
+}
+.char-hair::before {
+  content: '';
+  position: absolute;
+  top: 6px; left: -4px;
+  width: 14px; height: 20px;
+  background: #5c3810;
+  border-radius: 50% 20% 30% 50%;
+}
+.char-hair::after {
+  content: '';
+  position: absolute;
+  top: 6px; right: -4px;
+  width: 12px; height: 16px;
+  background: #5c3810;
+  border-radius: 20% 50% 50% 30%;
+}
+.char-eye { width: 5px; height: 6px; background: #2a1a40; border-radius: 50%; position: absolute; top: 16px; }
+.char-eye.l { left: 7px; }
+.char-eye.r { right: 7px; }
+.char-eye::after { content:''; position:absolute; top:1px;left:1px;width:2px;height:2px;background:rgba(255,255,255,0.6);border-radius:50%; }
+.char-brow { width: 7px; height: 2px; background: #5c3810; border-radius: 2px; position: absolute; top: 12px; }
+.char-brow.l { left: 6px; transform: rotate(-5deg); }
+.char-brow.r { right: 6px; transform: rotate(5deg); }
+.char-nose { width: 5px; height: 4px; border-bottom: 2px solid #d09060; border-radius: 0 0 4px 4px; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); }
+.char-mouth { width: 13px; height: 5px; border-bottom: 2px solid #c07050; border-radius: 0 0 8px 8px; position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); }
+
+/* Neck */
+.char-neck {
+  width: 14px; height: 8px;
+  background: #e8b060;
+  margin: -1px auto 0;
+}
+
+/* Body / shirt */
+.char-body {
+  width: 46px; height: 50px;
+  background: linear-gradient(160deg, #5588ee 0%, #3366cc 60%, #2244aa 100%);
+  border-radius: 10px 10px 6px 6px;
+  position: relative;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+/* collar */
+.char-body::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #e8b060;
+}
+/* arm left (reaching toward keyboard) */
+.char-arm-l {
+  position: absolute;
+  top: 8px; left: -14px;
+  width: 14px; height: 36px;
+  background: linear-gradient(180deg, #5588ee 0%, #3366cc 60%, #e8b060 85%, #e8b060 100%);
+  border-radius: 6px 6px 8px 8px;
+  transform: rotate(15deg);
+  transform-origin: top center;
+}
+/* arm right */
+.char-arm-r {
+  position: absolute;
+  top: 8px; right: -14px;
+  width: 14px; height: 36px;
+  background: linear-gradient(180deg, #5588ee 0%, #3366cc 60%, #e8b060 85%, #e8b060 100%);
+  border-radius: 6px 6px 8px 8px;
+  transform: rotate(-15deg);
+  transform-origin: top center;
+}
+
+/* Seated legs */
+.char-lap {
+  display: flex; gap: 4px;
+  margin-top: 1px;
+}
+.char-leg {
+  width: 18px; height: 30px;
+  background: linear-gradient(180deg, #334466 0%, #223355 100%);
+  border-radius: 4px 4px 0 0;
+}
+.char-shoe {
+  width: 20px; height: 10px;
+  background: linear-gradient(90deg, #222 0%, #444 100%);
+  border-radius: 2px 5px 5px 2px;
+  margin-top: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* ── Office Chair ── */
+.chair-group {
+  position: absolute;
+  bottom: calc(20% - 28px);
+  left: calc(50% - 46vw + 0px);
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chair-back {
+  width: 58px; height: 70px;
+  background: linear-gradient(160deg, #3a3a3a 0%, #222 60%, #111 100%);
+  border-radius: 8px 8px 4px 4px;
+  border: 2px solid #444;
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.5);
+  position: relative;
+}
+.chair-back::before {
+  content: '';
+  position: absolute; top: 8px; left: 6px; right: 6px; bottom: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+}
+.chair-seat {
+  width: 64px; height: 16px;
+  background: linear-gradient(180deg, #444 0%, #222 100%);
+  border-radius: 4px;
+  border: 2px solid #555;
+  margin-top: 2px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+.chair-pole {
+  width: 6px; height: 30px;
+  background: linear-gradient(90deg, #666 0%, #999 50%, #666 100%);
+  margin: 0 auto;
+}
+.chair-base {
+  width: 70px; height: 8px;
+  background: linear-gradient(90deg, #333 0%, #555 50%, #333 100%);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  position: relative;
+}
+.chair-base::before, .chair-base::after {
+  content: '';
+  position: absolute; bottom: -6px;
+  width: 8px; height: 8px;
+  background: #333; border-radius: 50%;
+}
+.chair-base::before { left: 6px; }
+.chair-base::after { right: 6px; }
+
+/* ═══════════════════════════════════════════
+   MONITOR (on desk)
+═══════════════════════════════════════════ */
+.monitor-wrap {
+  position: absolute;
+  bottom: calc(20% + 22px); /* sits on desk top */
+  left: 50%;
+  transform: translateX(-30%);
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.monitor-tilt {
+  transform: rotateX(3deg) rotateY(3deg);
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bezel {
+  background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
+  border-radius: 10px 10px 6px 6px;
+  padding: 18px 18px 40px 18px;
+  border: 3px solid #aaa;
+  border-bottom: 5px solid #888;
+  box-shadow:
+    inset 2px 2px 6px rgba(255,255,255,0.5),
+    inset -2px -2px 6px rgba(0,0,0,0.3),
+    4px 4px 0 #666, 7px 7px 0 #444, 10px 10px 0 #222;
+  position: relative;
+}
+.bezel::after {
+  content: 'RosePC™ Model 9800';
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  font-family: Arial, sans-serif; font-size: 9px; font-weight: bold;
+  color: #777; letter-spacing: 1px; white-space: nowrap;
+}
+.power-led {
+  position: absolute; bottom: 12px; right: 34px;
+  width: 8px; height: 8px; border-radius: 50%;
   background: #00ff55;
-  box-shadow: 0 0 6px #00ff55, 0 0 14px #00ff55;
+  box-shadow: 0 0 6px #00ff55, 0 0 12px #00ff55;
   animation: ledBlink 4s ease-in-out infinite;
 }
 @keyframes ledBlink { 0%,88%,100%{opacity:1;} 93%{opacity:0.2;} }
-/* power button */
 .power-btn {
-  position: absolute;
-  bottom: 14px;
-  right: 66px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  position: absolute; bottom: 10px; right: 52px;
+  width: 16px; height: 16px; border-radius: 50%;
   background: linear-gradient(140deg, #ccc 0%, #999 55%, #777 100%);
   border: 2px solid #666;
-  box-shadow: inset 0 1px 3px rgba(255,255,255,0.5), 2px 2px 0 #333;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 1px 1px 0 #333;
 }
 
-/* ── Screen glass ── */
+/* Screen */
 .screen-glass {
-  width: 680px;
-  height: 510px;
+  width: 480px; height: 360px;
   background: #000608;
-  border-radius: 6px 6px 4px 4px;
-  border: 5px solid #1a1a1a;
-  box-shadow:
-    inset 0 0 60px rgba(0,0,0,0.85),
-    inset 0 0 6px rgba(255,255,255,0.02);
+  border-radius: 4px;
+  border: 4px solid #1a1a1a;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
   overflow: hidden;
   position: relative;
 }
-/* scanlines */
 .screen-glass::after {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
-  );
-  pointer-events: none;
-  z-index: 200;
-  border-radius: 3px;
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none; z-index: 300; border-radius: 3px;
 }
-/* glare */
 .screen-glass::before {
   content: '';
-  position: absolute;
-  top: 6px; left: 6px;
-  right: 45%; height: 32%;
-  background: linear-gradient(140deg, rgba(255,255,255,0.07) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 201;
-  border-radius: 4px 0 0 0;
+  position: absolute; top:5px; left:5px; right:45%; height:28%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+  pointer-events: none; z-index: 301; border-radius: 4px 0 0 0;
 }
 
-/* ── Windows 98 Desktop ── */
+.monitor-neck {
+  width: 70px; height: 26px;
+  background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
+  box-shadow: 2px 0 0 #777, -2px 0 0 #777;
+  margin-top: -2px;
+}
+.monitor-base {
+  width: 190px; height: 18px;
+  background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
+  border-radius: 6px 6px 10px 10px;
+  border: 2px solid #888; border-top: none;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.3);
+}
+
+/* ═══════════════════════════════════════════
+   WIN98 DESKTOP
+═══════════════════════════════════════════ */
 .win98-desktop {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   background: #008080;
   position: relative;
   overflow: hidden;
-  /* Windows 98 teal pattern subtle noise */
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(0,100,100,0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(0,120,100,0.1) 0%, transparent 50%);
 }
 
-/* ── Taskbar ── */
+/* Taskbar */
 .taskbar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 32px;
+  position: absolute; bottom:0; left:0; right:0; height:28px;
   background: #c0c0c0;
   border-top: 2px solid #fff;
   box-shadow: inset 0 1px 0 #e0e0e0;
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
-  gap: 4px;
-  z-index: 500;
+  display: flex; align-items: center;
+  padding: 0 3px; gap: 3px; z-index: 500;
 }
 .start-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 10px 2px 6px;
+  display:flex; align-items:center; gap:4px;
+  padding: 2px 8px 2px 5px;
   background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  user-select: none;
-  white-space: nowrap;
+  border: 2px solid; border-color: #fff #808080 #808080 #fff;
+  font-family: Arial, sans-serif; font-size: 12px; font-weight: bold;
+  user-select: none; white-space: nowrap;
 }
 .start-btn:active { border-color: #808080 #fff #fff #808080; }
-.taskbar-sep { width: 2px; height: 22px; background: #808080; box-shadow: 1px 0 0 #fff; }
-.taskbar-clock {
-  margin-left: auto;
-  padding: 2px 10px;
-  background: #c0c0c0;
-  border: 1px solid;
-  border-color: #808080 #fff #fff #808080;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  user-select: none;
-}
-.taskbar-items {
-  display: flex;
-  gap: 3px;
-  flex: 1;
-  padding: 0 4px;
-}
+.taskbar-sep { width:2px; height:20px; background:#808080; box-shadow:1px 0 0 #fff; }
+.taskbar-items { display:flex; gap:2px; flex:1; padding:0 3px; }
 .taskbar-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  user-select: none;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: none;
+  display:none; align-items:center; gap:3px;
+  padding:1px 8px;
+  background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080;
+  font-family:Arial,sans-serif; font-size:10px; user-select:none;
+  max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.taskbar-item.visible { display: flex; }
-.taskbar-item.active { border-color: #808080 #fff #fff #808080; background: #b0b0b0; }
+.taskbar-item.visible { display:flex; }
+.taskbar-clock {
+  margin-left:auto; padding:2px 8px;
+  background:#c0c0c0; border:1px solid; border-color:#808080 #fff #fff #808080;
+  font-family:Arial,sans-serif; font-size:11px; user-select:none;
+}
 
-/* ── Desktop Icons ── */
+/* Desktop icons */
 .desktop-icons {
-  position: absolute;
-  top: 12px; left: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  position:absolute; top:10px; left:10px;
+  display:flex; flex-direction:column; gap:14px;
 }
 .icon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 74px;
-  padding: 4px;
-  border-radius: 1px;
-  user-select: none;
+  display:flex; flex-direction:column; align-items:center;
+  width:66px; padding:3px; border-radius:1px; user-select:none;
 }
-.icon .icon-img { font-size: 36px; line-height: 1; margin-bottom: 4px; display: block; }
+.icon .icon-img { font-size:30px; line-height:1; margin-bottom:3px; display:block; }
 .icon .icon-label {
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  color: #fff;
-  text-align: center;
-  text-shadow: 1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
-  padding: 1px 4px;
-  line-height: 1.25;
-  max-width: 74px;
-  word-break: break-word;
+  font-family:Arial,sans-serif; font-size:10px; color:#fff;
+  text-align:center; text-shadow:1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
+  padding:1px 3px; line-height:1.25; max-width:66px; word-break:break-word;
 }
-.icon:hover .icon-label,
-.icon.selected .icon-label { background: #000080; color: #fff; }
-.icon:hover .icon-img,
-.icon.selected .icon-img { filter: brightness(0.65) sepia(1) hue-rotate(200deg) saturate(4); }
+.icon:hover .icon-label, .icon.selected .icon-label { background:#000080; color:#fff; }
+.icon:hover .icon-img, .icon.selected .icon-img { filter:brightness(0.6) sepia(1) hue-rotate(200deg) saturate(4); }
 
-/* ── Windows ── */
+/* Win windows */
 .win-window {
-  position: absolute;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  box-shadow: 3px 3px 0 #000;
-  display: none;
-  min-width: 300px;
-  min-height: 120px;
-  z-index: 20;
+  position:absolute; background:#c0c0c0;
+  border:2px solid; border-color:#fff #808080 #808080 #fff;
+  box-shadow:3px 3px 0 #000; display:none; min-width:260px; z-index:20;
 }
-.win-window.open { display: block; }
+.win-window.open { display:block; }
 
-/* Title bar */
 .win-titlebar {
-  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
-  color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 3px 4px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: move;
-  user-select: none;
-  height: 20px;
+  background:linear-gradient(90deg,#000080 0%,#1084d0 100%);
+  color:#fff; font-family:Arial,sans-serif; font-size:11px; font-weight:bold;
+  padding:3px 3px; display:flex; align-items:center; gap:4px;
+  cursor:move; user-select:none; height:18px;
 }
-.win-titlebar.inactive {
-  background: linear-gradient(90deg, #7f7f7f 0%, #b0b0b0 100%);
-}
-.win-title-icon { font-size: 14px; }
-.win-title-text { flex: 1; }
-.win-controls { display: flex; gap: 2px; }
+.win-titlebar.inactive { background:linear-gradient(90deg,#7f7f7f 0%,#b0b0b0 100%); }
+.win-title-icon { font-size:12px; }
+.win-title-text { flex:1; }
+.win-controls { display:flex; gap:1px; }
 .win-btn {
-  width: 18px;
-  height: 16px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  line-height: 1;
-  color: #000;
-  padding: 0;
+  width:16px; height:14px;
+  background:#c0c0c0; border:2px solid; border-color:#fff #808080 #808080 #fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:8px; font-family:Arial,sans-serif; font-weight:bold;
+  line-height:1; color:#000; padding:0;
 }
-.win-btn:hover { background: #d0d0d0; }
-.win-btn:active { border-color: #808080 #fff #fff #808080; }
-.win-btn.close { font-size: 11px; }
+.win-btn:hover { background:#d0d0d0; }
+.win-btn:active { border-color:#808080 #fff #fff #808080; }
 
-/* Menu bar */
 .win-menubar {
-  background: #c0c0c0;
-  border-bottom: 1px solid #808080;
-  padding: 1px 4px;
-  display: flex;
-  gap: 0;
+  background:#c0c0c0; border-bottom:1px solid #808080;
+  padding:1px 3px; display:flex; gap:0;
 }
-.win-menu-item {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  padding: 2px 8px;
-  user-select: none;
-}
-.win-menu-item:hover { background: #000080; color: #fff; }
+.win-menu-item { font-family:Arial,sans-serif; font-size:11px; padding:2px 6px; user-select:none; }
+.win-menu-item:hover { background:#000080; color:#fff; }
 
-/* Toolbar */
 .win-toolbar {
-  background: #c0c0c0;
-  border-bottom: 1px solid #808080;
-  padding: 3px 6px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
+  background:#c0c0c0; border-bottom:1px solid #808080;
+  padding:2px 4px; display:flex; align-items:center; gap:2px;
 }
 .win-tb-btn {
-  width: 24px; height: 22px;
-  background: #c0c0c0;
-  border: 2px solid transparent;
-  font-size: 12px;
-  display: flex; align-items: center; justify-content: center;
-  user-select: none;
+  width:20px; height:18px; background:#c0c0c0;
+  border:2px solid transparent; font-size:10px;
+  display:flex; align-items:center; justify-content:center; user-select:none;
 }
-.win-tb-btn:hover { border-color: #fff #808080 #808080 #fff; }
-.win-tb-sep { width: 2px; height: 18px; background: #808080; box-shadow: 1px 0 0 #fff; margin: 0 3px; }
+.win-tb-btn:hover { border-color:#fff #808080 #808080 #fff; }
+.win-tb-sep { width:2px; height:14px; background:#808080; box-shadow:1px 0 0 #fff; margin:0 2px; }
 
-/* Status bar */
 .win-statusbar {
-  background: #c0c0c0;
-  border-top: 1px solid #808080;
-  padding: 2px 8px;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
+  background:#c0c0c0; border-top:1px solid #808080;
+  padding:2px 6px; font-family:Arial,sans-serif; font-size:10px;
 }
-
-/* Resize grip */
 .win-resize {
-  position: absolute;
-  bottom: 2px; right: 2px;
-  width: 12px; height: 12px;
-  font-size: 10px; color: #808080;
-  display: flex; align-items: flex-end; justify-content: flex-end;
-  line-height: 1;
-  pointer-events: none;
+  position:absolute; bottom:2px; right:2px;
+  width:10px; height:10px; font-size:9px; color:#808080;
+  display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none;
 }
 
-/* ── Documents Window ── */
-.doc-tabs {
-  display: flex;
-  gap: 0;
-  padding: 4px 8px 0;
-  background: #c0c0c0;
-  border-bottom: 2px solid #808080;
+/* ── Documents window ── */
+.doc-nav {
+  background:#fff; border-right:2px solid #808080;
+  width:100px; overflow-y:auto; flex-shrink:0;
 }
-.doc-tab {
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  padding: 3px 12px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-bottom: none;
-  border-color: #fff #808080 transparent #fff;
-  user-select: none;
-  position: relative;
-  top: 2px;
-  margin-right: 2px;
+.doc-nav-item {
+  font-family:Arial,sans-serif; font-size:10px;
+  padding:4px 6px; border-bottom:1px solid #e0e0e0;
+  user-select:none; line-height:1.3;
 }
-.doc-tab.active {
-  background: #fff;
-  border-color: #fff #808080 #fff #fff;
-  z-index: 1;
-}
+.doc-nav-item:hover { background:#000080; color:#fff; }
+.doc-nav-item.active { background:#000080; color:#fff; }
+.doc-content-wrap { display:flex; height:300px; }
 .doc-page {
-  background: #fff;
-  margin: 8px;
-  padding: 28px 36px;
-  min-height: 300px;
-  max-height: 320px;
-  overflow-y: auto;
-  font-family: 'Times New Roman', serif;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #000;
-  box-shadow: inset 1px 1px 4px rgba(0,0,0,0.12);
+  background:#fff; padding:20px 24px;
+  flex:1; overflow-y:auto;
+  font-family:'Times New Roman',serif; font-size:12px; line-height:1.7; color:#000;
 }
-.doc-story { display: none; }
-.doc-story.active { display: block; }
-.doc-story h2 { font-size: 15px; text-align: center; margin: 0 0 14px; text-decoration: underline; }
-.doc-story p { margin: 0 0 10px; }
-.story-end { text-align: center; font-style: italic; margin-top: 18px; }
+.doc-story { display:none; }
+.doc-story.active { display:block; }
+.doc-story h2 { font-size:13px; text-align:center; margin:0 0 12px; text-decoration:underline; }
+.doc-story .verse { margin:0 0 10px; white-space:pre-line; }
+.story-end { text-align:center; font-style:italic; margin-top:14px; font-size:11px; }
 
-/* ── Trash Window ── */
+/* ── Trash window ── */
 .trash-path {
-  flex: 1;
-  background: #fff;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  padding: 1px 6px;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  margin-left: 4px;
+  flex:1; background:#fff; border:2px solid; border-color:#808080 #fff #fff #808080;
+  padding:1px 5px; font-family:Arial,sans-serif; font-size:11px; margin-left:3px;
 }
 .trash-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  padding: 14px;
-  background: #fff;
-  margin: 6px;
-  min-height: 240px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  padding:10px; background:#fff; margin:4px; min-height:200px;
 }
 .trash-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
 }
 .trash-item img {
-  width: 88px; height: 66px;
-  object-fit: cover;
-  border: 2px solid #808080;
-  display: block;
+  width:76px; height:58px; object-fit:cover;
+  border:2px solid #808080; display:block;
 }
-.trash-item:hover img { border-color: #000080; outline: 1px solid #000080; }
+.trash-item:hover img { border-color:#000080; outline:1px solid #000080; }
 .trash-item span {
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  text-align: center;
-  max-width: 90px;
-  word-break: break-all;
-  line-height: 1.2;
-}
-
-/* ── Monitor stand ── */
-.monitor-neck {
-  width: 90px; height: 34px;
-  background: linear-gradient(90deg, #888 0%, #c4c4c4 35%, #b8b8b8 65%, #888 100%);
-  box-shadow: 3px 0 0 #777, -3px 0 0 #777;
-  margin-top: -3px;
-}
-.monitor-base {
-  width: 240px; height: 24px;
-  background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
-  border-radius: 8px 8px 12px 12px;
-  border: 3px solid #888;
-  border-top: none;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.65), inset 0 -2px 5px rgba(0,0,0,0.3);
+  font-family:Arial,sans-serif; font-size:9px;
+  text-align:center; max-width:78px; word-break:break-all; line-height:1.2;
 }
 </style>
 </head>
 <body>
 
-<div class="monitor-scene">
-  <div class="monitor-3d">
+<div class="scene">
 
-    <!-- Bezel -->
-    <div class="bezel">
-      <div class="power-led"></div>
-      <div class="power-btn"></div>
+  <!-- ── BACK WALL ── -->
+  <div class="wall"></div>
+  <div class="baseboard"></div>
 
-      <!-- Screen -->
-      <div class="screen-glass">
-        <div class="win98-desktop" id="desktop">
+  <!-- Wall window (outside) -->
+  <div class="wall-window-decor">
+    <div class="wcloud c1"></div>
+    <div class="wcloud c2"></div>
+    <div class="wcloud c3"></div>
+    <div class="wsun"></div>
+    <div class="wbuilding b1"></div>
+    <div class="wbuilding b2"></div>
+    <div class="wbuilding b3"></div>
+    <div class="win-pane"></div>
+  </div>
 
-          <!-- ICONS -->
-          <div class="desktop-icons">
+  <!-- Bookshelf -->
+  <div class="bookshelf">
+    <div class="shelf-unit">
+      <div class="shelf-row" style="height:36px;align-items:flex-end;padding-bottom:4px;">
+        <div class="book" style="width:14px;height:32px;background:#cc4444;"></div>
+        <div class="book" style="width:12px;height:28px;background:#4488cc;"></div>
+        <div class="book" style="width:16px;height:34px;background:#44aa44;"></div>
+        <div class="book" style="width:10px;height:24px;background:#ddaa22;"></div>
+        <div class="book" style="width:14px;height:30px;background:#aa44aa;"></div>
+        <div class="book" style="width:12px;height:26px;background:#cc6622;"></div>
+      </div>
+      <div style="height:4px;"></div>
+      <div class="shelf-row" style="height:34px;align-items:flex-end;padding-bottom:4px;">
+        <div class="book" style="width:13px;height:28px;background:#2288aa;"></div>
+        <div class="book" style="width:15px;height:32px;background:#cc8822;"></div>
+        <div style="font-size:18px;margin-bottom:0;">🏆</div>
+        <div class="book" style="width:11px;height:26px;background:#aa2244;"></div>
+        <div class="book" style="width:14px;height:30px;background:#228844;"></div>
+      </div>
+    </div>
+  </div>
 
-            <div class="icon" id="icon-docs"
-                 onclick="selectIcon(this)"
-                 ondblclick="openWin('docs-win')">
-              <span class="icon-img">📁</span>
-              <span class="icon-label">My Documents</span>
-            </div>
+  <!-- Wall art -->
+  <div class="wall-art">🏙️</div>
 
-            <div class="icon" id="icon-trash"
-                 onclick="selectIcon(this)"
-                 ondblclick="openWin('trash-win')">
-              <span class="icon-img">🗑️</span>
-              <span class="icon-label">Recycle Bin</span>
-            </div>
+  <!-- ── FLOOR ── -->
+  <div class="floor"><div class="floor-inner"></div><div class="floor-sheen"></div></div>
 
-            <div class="icon" id="icon-arcade"
-                 onclick="selectIcon(this)"
-                 ondblclick="goArcade()">
-              <span class="icon-img">🕹️</span>
-              <span class="icon-label">Rose Arcade</span>
-            </div>
+  <!-- ── CHAIR ── -->
+  <div class="chair-group">
+    <div class="chair-back"></div>
+    <div class="chair-seat"></div>
+    <div class="chair-pole"></div>
+    <div class="chair-base"></div>
+  </div>
 
+  <!-- ── SIMS CHARACTER ── -->
+  <div class="char-group">
+    <div class="plumbob"></div>
+    <div class="char-head">
+      <div class="char-hair"></div>
+      <div class="char-brow l"></div>
+      <div class="char-brow r"></div>
+      <div class="char-eye l"></div>
+      <div class="char-eye r"></div>
+      <div class="char-nose"></div>
+      <div class="char-mouth"></div>
+    </div>
+    <div class="char-neck"></div>
+    <div class="char-body">
+      <div class="char-arm-l"></div>
+      <div class="char-arm-r"></div>
+    </div>
+    <div class="char-lap">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="char-leg"></div>
+        <div class="char-shoe"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="char-leg"></div>
+        <div class="char-shoe"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DESK ── -->
+  <div class="desk-group">
+    <!-- Items sitting on top of desk surface -->
+    <div style="position:relative;">
+      <div class="desk-items">
+        <div style="position:relative;margin-right:10px;">
+          <div class="desk-papers">
+            <div class="paper"><div class="paper2"></div></div>
           </div>
-
-          <!-- ═══ DOCUMENTS WINDOW ═══ -->
-          <div class="win-window" id="docs-win" style="top:38px;left:88px;width:440px;">
-            <div class="win-titlebar">
-              <span class="win-title-icon">📄</span>
-              <span class="win-title-text">Fairy Tales — WordPad</span>
-              <div class="win-controls">
-                <div class="win-btn" title="Minimize" onclick="closeWin('docs-win')">&#x2014;</div>
-                <div class="win-btn" title="Maximize">&#9633;</div>
-                <div class="win-btn close" title="Close" onclick="closeWin('docs-win')">&#x2715;</div>
-              </div>
-            </div>
-            <div class="win-menubar">
-              <span class="win-menu-item">File</span>
-              <span class="win-menu-item">Edit</span>
-              <span class="win-menu-item">View</span>
-              <span class="win-menu-item">Insert</span>
-              <span class="win-menu-item">Format</span>
-              <span class="win-menu-item">Help</span>
-            </div>
-            <div class="win-toolbar">
-              <div class="win-tb-btn" title="New">📄</div>
-              <div class="win-tb-btn" title="Open">📂</div>
-              <div class="win-tb-btn" title="Save">💾</div>
-              <div class="win-tb-sep"></div>
-              <div class="win-tb-btn" title="Print">🖨️</div>
-              <div class="win-tb-sep"></div>
-              <div class="win-tb-btn" title="Bold"><b>B</b></div>
-              <div class="win-tb-btn" title="Italic"><i>I</i></div>
-              <div class="win-tb-btn" title="Underline"><u>U</u></div>
-            </div>
-            <div class="doc-tabs">
-              <div class="doc-tab active" onclick="switchStory(0)">Story I</div>
-              <div class="doc-tab" onclick="switchStory(1)">Story II</div>
-              <div class="doc-tab" onclick="switchStory(2)">Story III</div>
-            </div>
-            <div class="doc-page">
-              <div class="doc-story active" id="story-0">
-                <h2>The Princess and the Pixel</h2>
-                <p>Once upon a time, in the Kingdom of Bandwidth, there lived a princess so beautiful that even the dial-up modem would try to load her portrait — then give up after 47 minutes with a connection error.</p>
-                <p>She had been cursed by the Evil Wizard of 56k, who made her speak only in .wav files. The kingdom's sound card drivers hadn't been updated since 1997, so nobody could hear her.</p>
-                <p>Many brave knights rode in to rescue her by downloading her audio files, but the connection always dropped at 98%.</p>
-                <p>One day, a prince arrived bearing a T1 line. He downloaded her files in three seconds, heard her voice, fell deeply in love, and promptly installed the correct audio drivers.</p>
-                <p>The curse was broken. They were married in a ceremony streamed live at 240p. The buffering was rough during the vows, but everyone agreed it was beautiful.</p>
-                <p class="story-end">~ The End ~</p>
-              </div>
-              <div class="doc-story" id="story-1">
-                <h2>Jack and the Giant Download</h2>
-                <p>Jack was a poor boy who traded his family's only computer for three magic floppy disks. His mother was furious and threw the disks out the window into the yard.</p>
-                <p>By morning, an enormous download progress bar had grown from the yard up through the clouds. Jack climbed it and discovered a castle belonging to a terrible giant who owned a magical goose that laid golden .exe files.</p>
-                <p>"FEE FI FO FUM!" bellowed the giant, "I SMELL THE IP ADDRESS OF AN ENGLISHMAN! YOUR MAC ADDRESS HAS BEEN LOGGED."</p>
-                <p>Jack snatched the golden .exe, slid back down the progress bar, and double-clicked it before reading the terms of service. The goose turned out to be adware — extremely profitable adware — and Jack's mother eventually forgave him.</p>
-                <p>The giant tried to sue for copyright infringement, but his lawyer communicated only via AIM and was entirely unreachable.</p>
-                <p class="story-end">~ The End ~</p>
-              </div>
-              <div class="doc-story" id="story-2">
-                <h2>Goldilocks and the Three Firewalls</h2>
-                <p>Goldilocks was browsing one afternoon when she stumbled upon a server farm belonging to three bears: Papa Bear's Enterprise Firewall, Mama Bear's Corporate Proxy, and Baby Bear's Home Router — password still set to "password."</p>
-                <p>"Too restrictive," she said of Papa Bear's. "It won't even allow Wikipedia."</p>
-                <p>"Too slow," she said of Mama Bear's. "Everything routes through Cleveland."</p>
-                <p>"Just right," she said of Baby Bear's. She was inside in seconds.</p>
-                <p>She browsed, updated the router firmware, changed the admin password to something with 14 characters and two symbols, and left a strongly-worded sticky note about cybersecurity hygiene.</p>
-                <p>When the bears returned, they found their network significantly more secure. Their feelings were still hurt, so they filed a complaint with the HOA. The HOA's website was also running default credentials.</p>
-                <p class="story-end">~ The End ~</p>
-              </div>
-            </div>
-            <div class="win-statusbar">3 documents &nbsp;|&nbsp; Times New Roman &nbsp;|&nbsp; 13pt</div>
-            <div class="win-resize">◢</div>
+        </div>
+        <!-- spacer for monitor -->
+        <div style="flex:1;"></div>
+        <div class="desk-plant">
+          <div class="plant-leaves">🌿</div>
+          <div class="plant-pot"></div>
+        </div>
+        <div class="desk-mouse"></div>
+        <div class="coffee-mug">
+          <div class="mug-steam">
+            <div class="steam-line"></div>
+            <div class="steam-line"></div>
+            <div class="steam-line"></div>
           </div>
+          <div class="mug-body">
+            <div class="mug-handle"></div>
+            <div class="mug-liquid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="desk-top"></div>
+    <div class="desk-face">
+      <div class="desk-drawer"></div>
+    </div>
+    <div class="desk-legs">
+      <div class="desk-leg"></div>
+      <div class="desk-leg"></div>
+    </div>
+  </div>
 
-          <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-          <div class="win-window" id="trash-win" style="top:55px;left:160px;width:400px;">
-            <div class="win-titlebar">
-              <span class="win-title-icon">🗑️</span>
-              <span class="win-title-text">Recycle Bin</span>
-              <div class="win-controls">
-                <div class="win-btn" title="Minimize" onclick="closeWin('trash-win')">&#x2014;</div>
-                <div class="win-btn" title="Maximize">&#9633;</div>
-                <div class="win-btn close" title="Close" onclick="closeWin('trash-win')">&#x2715;</div>
+  <!-- ── MONITOR (on desk) ── -->
+  <div class="monitor-wrap">
+    <div class="monitor-tilt">
+      <div class="bezel">
+        <div class="power-led"></div>
+        <div class="power-btn"></div>
+
+        <!-- Screen -->
+        <div class="screen-glass">
+          <div class="win98-desktop" id="desktop">
+
+            <!-- ICONS -->
+            <div class="desktop-icons">
+              <div class="icon" id="icon-docs" onclick="selectIcon(this)" ondblclick="openWin('docs-win')">
+                <span class="icon-img">📁</span>
+                <span class="icon-label">My Documents</span>
+              </div>
+              <div class="icon" id="icon-trash" onclick="selectIcon(this)" ondblclick="openWin('trash-win')">
+                <span class="icon-img">🗑️</span>
+                <span class="icon-label">Recycle Bin</span>
+              </div>
+              <div class="icon" id="icon-arcade" onclick="selectIcon(this)" ondblclick="goArcade()">
+                <span class="icon-img">🕹️</span>
+                <span class="icon-label">Rose Arcade</span>
               </div>
             </div>
-            <div class="win-menubar">
-              <span class="win-menu-item">File</span>
-              <span class="win-menu-item">Edit</span>
-              <span class="win-menu-item">View</span>
-              <span class="win-menu-item">Help</span>
-            </div>
-            <div class="win-toolbar">
-              <div class="win-tb-btn" title="Back">&#9664;</div>
-              <div class="win-tb-btn" title="Forward">&#9654;</div>
-              <div class="win-tb-btn" title="Up">&#9650;</div>
-              <div class="win-tb-sep"></div>
-              <div class="win-tb-btn" title="Empty Recycle Bin"
-                   style="width:auto;padding:0 5px;font-size:10px;"
-                   onclick="emptyBin()">Empty</div>
-              <div class="win-tb-sep"></div>
-              <span class="trash-path">C:\RECYCLED\</span>
-            </div>
-            <div class="trash-grid" id="trash-grid"></div>
-            <div class="win-statusbar" id="trash-status">6 object(s) &nbsp;|&nbsp; 4.2 MB</div>
-            <div class="win-resize">◢</div>
-          </div>
 
-          <!-- TASKBAR -->
-          <div class="taskbar">
-            <div class="start-btn">
-              <span>🪟</span>
-              <span><b>Start</b></span>
+            <!-- ═══ DOCUMENTS WINDOW ═══ -->
+            <div class="win-window" id="docs-win" style="top:32px;left:70px;width:370px;">
+              <div class="win-titlebar">
+                <span class="win-title-icon">📄</span>
+                <span class="win-title-text">Nursery Rhymes — WordPad</span>
+                <div class="win-controls">
+                  <div class="win-btn" onclick="closeWin('docs-win')">&#x2014;</div>
+                  <div class="win-btn">&#9633;</div>
+                  <div class="win-btn" onclick="closeWin('docs-win')">&#x2715;</div>
+                </div>
+              </div>
+              <div class="win-menubar">
+                <span class="win-menu-item">File</span>
+                <span class="win-menu-item">Edit</span>
+                <span class="win-menu-item">View</span>
+                <span class="win-menu-item">Insert</span>
+                <span class="win-menu-item">Format</span>
+                <span class="win-menu-item">Help</span>
+              </div>
+              <div class="win-toolbar">
+                <div class="win-tb-btn">📄</div>
+                <div class="win-tb-btn">📂</div>
+                <div class="win-tb-btn">💾</div>
+                <div class="win-tb-sep"></div>
+                <div class="win-tb-btn">🖨️</div>
+                <div class="win-tb-sep"></div>
+                <div class="win-tb-btn"><b style="font-size:9px">B</b></div>
+                <div class="win-tb-btn"><i style="font-size:9px">I</i></div>
+                <div class="win-tb-btn"><u style="font-size:9px">U</u></div>
+              </div>
+              <div class="doc-content-wrap">
+                <!-- Nav sidebar -->
+                <div class="doc-nav" id="doc-nav"></div>
+                <!-- Content area -->
+                <div class="doc-page" id="doc-page"></div>
+              </div>
+              <div class="win-statusbar" id="doc-status">10 rhymes | Times New Roman | 12pt</div>
+              <div class="win-resize">◢</div>
             </div>
-            <div class="taskbar-sep"></div>
-            <div class="taskbar-items">
-              <div class="taskbar-item" id="tb-docs">📄 Fairy Tales</div>
-              <div class="taskbar-item" id="tb-trash">🗑️ Recycle Bin</div>
+
+            <!-- ═══ RECYCLE BIN WINDOW ═══ -->
+            <div class="win-window" id="trash-win" style="top:45px;left:55px;width:380px;">
+              <div class="win-titlebar">
+                <span class="win-title-icon">🗑️</span>
+                <span class="win-title-text">Recycle Bin</span>
+                <div class="win-controls">
+                  <div class="win-btn" onclick="closeWin('trash-win')">&#x2014;</div>
+                  <div class="win-btn">&#9633;</div>
+                  <div class="win-btn" onclick="closeWin('trash-win')">&#x2715;</div>
+                </div>
+              </div>
+              <div class="win-menubar">
+                <span class="win-menu-item">File</span>
+                <span class="win-menu-item">Edit</span>
+                <span class="win-menu-item">View</span>
+                <span class="win-menu-item">Help</span>
+              </div>
+              <div class="win-toolbar">
+                <div class="win-tb-btn">&#9664;</div>
+                <div class="win-tb-btn">&#9654;</div>
+                <div class="win-tb-btn">&#9650;</div>
+                <div class="win-tb-sep"></div>
+                <div class="win-tb-btn" onclick="emptyBin()" style="width:auto;padding:0 4px;font-size:9px;">Empty</div>
+                <div class="win-tb-sep"></div>
+                <span class="trash-path">C:\RECYCLED\</span>
+              </div>
+              <div class="trash-grid" id="trash-grid"></div>
+              <div class="win-statusbar" id="trash-status">10 object(s)</div>
+              <div class="win-resize">◢</div>
             </div>
-            <div class="taskbar-clock" id="taskbar-clock">12:00 PM</div>
-          </div>
 
-        </div><!-- /win98-desktop -->
-      </div><!-- /screen-glass -->
-    </div><!-- /bezel -->
+            <!-- TASKBAR -->
+            <div class="taskbar">
+              <div class="start-btn">🪟 <b>Start</b></div>
+              <div class="taskbar-sep"></div>
+              <div class="taskbar-items">
+                <div class="taskbar-item" id="tb-docs">📄 Nursery Rhymes</div>
+                <div class="taskbar-item" id="tb-trash">🗑️ Recycle Bin</div>
+              </div>
+              <div class="taskbar-clock" id="taskbar-clock">12:00 PM</div>
+            </div>
 
-    <!-- Stand -->
-    <div class="monitor-neck"></div>
-    <div class="monitor-base"></div>
+          </div><!-- /win98-desktop -->
+        </div><!-- /screen-glass -->
+      </div><!-- /bezel -->
+      <div class="monitor-neck"></div>
+      <div class="monitor-base"></div>
+    </div><!-- /monitor-tilt -->
+  </div><!-- /monitor-wrap -->
 
-  </div><!-- /monitor-3d -->
 </div><!-- /scene -->
 
 <script>
 /* ════ CLOCK ════ */
 function tick(){
-  const d = new Date();
-  let h = d.getHours(), m = d.getMinutes();
-  const ap = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  document.getElementById('taskbar-clock').textContent =
-    h + ':' + (m < 10 ? '0' + m : m) + ' ' + ap;
+  var d=new Date(), h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  document.getElementById('taskbar-clock').textContent=h+':'+(m<10?'0'+m:m)+' '+ap;
 }
-tick(); setInterval(tick, 10000);
+tick(); setInterval(tick,10000);
 
 /* ════ ICON SELECTION ════ */
-let selIcon = null;
+var selIcon=null;
 function selectIcon(el){
-  if(selIcon && selIcon !== el) selIcon.classList.remove('selected');
-  selIcon = el;
-  el.classList.add('selected');
+  if(selIcon&&selIcon!==el) selIcon.classList.remove('selected');
+  selIcon=el; el.classList.add('selected');
 }
-document.getElementById('desktop').addEventListener('mousedown', function(e){
-  if(!e.target.closest('.icon') && !e.target.closest('.win-window') && !e.target.closest('.taskbar')){
-    if(selIcon){ selIcon.classList.remove('selected'); selIcon = null; }
+document.getElementById('desktop').addEventListener('mousedown',function(e){
+  if(!e.target.closest('.icon')&&!e.target.closest('.win-window')&&!e.target.closest('.taskbar')){
+    if(selIcon){selIcon.classList.remove('selected');selIcon=null;}
   }
 });
 
-/* ════ ARCADE LAUNCH ════ */
+/* ════ ARCADE ════ */
 function goArcade(){
-  const ic = document.getElementById('icon-arcade');
-  ic.style.opacity = '0.6';
-  setTimeout(() => { window.location.href = 'hub.html'; }, 220);
+  var ic=document.getElementById('icon-arcade');
+  ic.style.opacity='0.5';
+  setTimeout(function(){window.location.href='hub.html';},220);
 }
 
 /* ════ WINDOW MANAGEMENT ════ */
-let zTop = 30;
-
-const TASKBAR_MAP = { 'docs-win':'tb-docs', 'trash-win':'tb-trash' };
+var zTop=30;
+var TB={'docs-win':'tb-docs','trash-win':'tb-trash'};
 
 function openWin(id){
-  const w = document.getElementById(id);
+  var w=document.getElementById(id);
   w.classList.add('open');
   bringFront(w);
-  const tb = document.getElementById(TASKBAR_MAP[id]);
-  if(tb){ tb.classList.add('visible','active'); }
-  // keep inside desktop
-  const dw = 680, dh = 510 - 32;
-  let l = parseInt(w.style.left)||60, t = parseInt(w.style.top)||40;
-  const maxL = dw - w.offsetWidth  - 6;
-  const maxT = dh - w.offsetHeight - 6;
-  if(l > maxL) w.style.left = Math.max(6, maxL) + 'px';
-  if(t > maxT) w.style.top  = Math.max(6, maxT) + 'px';
+  var tb=document.getElementById(TB[id]);
+  if(tb) tb.classList.add('visible');
 }
-
 function closeWin(id){
-  const w = document.getElementById(id);
+  var w=document.getElementById(id);
   w.classList.remove('open');
-  const tb = document.getElementById(TASKBAR_MAP[id]);
-  if(tb){ tb.classList.remove('visible','active'); }
+  var tb=document.getElementById(TB[id]);
+  if(tb) tb.classList.remove('visible');
 }
-
 function bringFront(w){
   zTop++;
-  w.style.zIndex = zTop;
-  document.querySelectorAll('.win-window').forEach(x => x.querySelector('.win-titlebar').classList.add('inactive'));
+  w.style.zIndex=zTop;
+  document.querySelectorAll('.win-window').forEach(function(x){
+    x.querySelector('.win-titlebar').classList.add('inactive');
+  });
   w.querySelector('.win-titlebar').classList.remove('inactive');
 }
 
-/* ════ DRAGGING ════ */
-(function(){
-  document.querySelectorAll('.win-window').forEach(function(w){
-    var tb = w.querySelector('.win-titlebar');
-    var drag = false, ox = 0, oy = 0;
-    tb.addEventListener('mousedown', function(e){
-      if(e.target.closest('.win-controls')) return;
-      drag = true; bringFront(w);
-      var r = w.getBoundingClientRect();
-      var p = document.getElementById('desktop').getBoundingClientRect();
-      ox = e.clientX - r.left; oy = e.clientY - r.top;
-      e.preventDefault();
-    });
-    document.addEventListener('mousemove', function(e){
-      if(!drag) return;
-      var p = document.getElementById('desktop').getBoundingClientRect();
-      var nx = e.clientX - p.left  - ox;
-      var ny = e.clientY - p.top   - oy;
-      nx = Math.max(0, Math.min(nx, p.width  - w.offsetWidth));
-      ny = Math.max(0, Math.min(ny, p.height - w.offsetHeight - 32));
-      w.style.left = nx + 'px'; w.style.top = ny + 'px';
-    });
-    document.addEventListener('mouseup', function(){ drag = false; });
-    w.addEventListener('mousedown', function(){ bringFront(w); });
+/* ════ DRAG ════ */
+document.querySelectorAll('.win-window').forEach(function(w){
+  var tb=w.querySelector('.win-titlebar'), drag=false, ox=0, oy=0;
+  tb.addEventListener('mousedown',function(e){
+    if(e.target.closest('.win-controls')) return;
+    drag=true; bringFront(w);
+    var r=w.getBoundingClientRect(), p=document.getElementById('desktop').getBoundingClientRect();
+    ox=e.clientX-r.left; oy=e.clientY-r.top; e.preventDefault();
   });
-})();
+  document.addEventListener('mousemove',function(e){
+    if(!drag) return;
+    var p=document.getElementById('desktop').getBoundingClientRect();
+    var nx=Math.max(0,Math.min(e.clientX-p.left-ox,p.width-w.offsetWidth));
+    var ny=Math.max(0,Math.min(e.clientY-p.top-oy,p.height-w.offsetHeight-28));
+    w.style.left=nx+'px'; w.style.top=ny+'px';
+  });
+  document.addEventListener('mouseup',function(){drag=false;});
+  w.addEventListener('mousedown',function(){bringFront(w);});
+});
 
-/* ════ STORY TABS ════ */
-function switchStory(i){
-  document.querySelectorAll('.doc-story').forEach(function(s,j){ s.classList.toggle('active', j===i); });
-  document.querySelectorAll('.doc-tab').forEach(function(t,j){ t.classList.toggle('active', j===i); });
+/* ════ NURSERY RHYMES ════ */
+var RHYMES=[
+  {
+    title:'Humpty Dumpty',
+    text:`Humpty Dumpty sat on a wall,
+Humpty Dumpty had a great fall.
+All the king's horses and all the king's men
+Couldn't put Humpty together again.`
+  },
+  {
+    title:'Jack and Jill',
+    text:`Jack and Jill went up the hill
+To fetch a pail of water.
+Jack fell down and broke his crown,
+And Jill came tumbling after.
+
+Up Jack got, and home did trot,
+As fast as he could caper;
+He went to bed to mend his head
+With vinegar and brown paper.`
+  },
+  {
+    title:'Twinkle, Twinkle',
+    text:`Twinkle, twinkle, little star,
+How I wonder what you are!
+Up above the world so high,
+Like a diamond in the sky.
+
+When the blazing sun is gone,
+When he nothing shines upon,
+Then you show your little light,
+Twinkle, twinkle, through the night.
+
+Then the traveller in the dark
+Thanks you for your tiny spark;
+He could not see which way to go,
+If you did not twinkle so.`
+  },
+  {
+    title:'Mary Had a Little Lamb',
+    text:`Mary had a little lamb,
+Its fleece was white as snow;
+And everywhere that Mary went,
+The lamb was sure to go.
+
+It followed her to school one day,
+Which was against the rule;
+It made the children laugh and play
+To see a lamb at school.
+
+And so the teacher turned it out,
+But still it lingered near,
+And waited patiently about
+Till Mary did appear.`
+  },
+  {
+    title:'Little Miss Muffet',
+    text:`Little Miss Muffet
+Sat on a tuffet,
+Eating her curds and whey;
+There came a big spider,
+Who sat down beside her,
+And frightened Miss Muffet away.`
+  },
+  {
+    title:'Baa Baa Black Sheep',
+    text:`Baa, baa, black sheep,
+Have you any wool?
+Yes, sir, yes, sir,
+Three bags full!
+
+One for the master,
+And one for the dame,
+And one for the little boy
+Who lives down the lane.`
+  },
+  {
+    title:'Little Bo Peep',
+    text:`Little Bo Peep has lost her sheep,
+And doesn't know where to find them;
+Leave them alone, and they'll come home,
+Wagging their tails behind them.
+
+Little Bo Peep fell fast asleep,
+And dreamt she heard them bleating;
+But when she awoke, she found it a joke,
+For they were still all fleeting.`
+  },
+  {
+    title:'Hey Diddle Diddle',
+    text:`Hey diddle diddle,
+The cat and the fiddle,
+The cow jumped over the moon;
+The little dog laughed
+To see such sport,
+And the dish ran away with the spoon!`
+  },
+  {
+    title:'Hickory Dickory Dock',
+    text:`Hickory, dickory, dock,
+The mouse ran up the clock.
+The clock struck one,
+The mouse ran down,
+Hickory, dickory, dock.
+
+Hickory, dickory, dock,
+The mouse ran up the clock.
+The clock struck two,
+The mouse said "Boo!"
+Hickory, dickory, dock.
+
+Hickory, dickory, dock,
+The mouse ran up the clock.
+The clock struck three,
+The mouse said "Wheee!"
+Hickory, dickory, dock.`
+  },
+  {
+    title:'Ring Around the Rosie',
+    text:`Ring around the rosie,
+A pocket full of posies,
+Ashes! Ashes!
+We all fall down!
+
+The cows are in the meadow
+Eating buttercups,
+Ashes! Ashes!
+We all stand up!`
+  }
+];
+
+var currentRhyme=0;
+
+function buildDocs(){
+  var nav=document.getElementById('doc-nav');
+  var page=document.getElementById('doc-page');
+  nav.innerHTML='';
+  page.innerHTML='';
+  RHYMES.forEach(function(r,i){
+    var item=document.createElement('div');
+    item.className='doc-nav-item'+(i===0?' active':'');
+    item.textContent=(i+1)+'. '+r.title;
+    item.onclick=function(){
+      document.querySelectorAll('.doc-nav-item').forEach(function(x){x.classList.remove('active');});
+      item.classList.add('active');
+      showRhyme(i);
+    };
+    nav.appendChild(item);
+    var story=document.createElement('div');
+    story.className='doc-story'+(i===0?' active':'');
+    story.id='story-'+i;
+    story.innerHTML='<h2>'+r.title+'</h2><div class="verse">'+r.text+'</div><div class="story-end">~ Traditional ~</div>';
+    page.appendChild(story);
+  });
 }
 
-/* ════ TRASH ITEMS ════ */
-var TRASH = [
-  { src:'https://picsum.photos/seed/rc1/88/66', name:'definitely_not_homework.doc' },
-  { src:'https://picsum.photos/seed/rc2/88/66', name:'ex_photos_DELETE_FOREVER.zip' },
-  { src:'https://picsum.photos/seed/rc3/88/66', name:'my_diet_plan_2019.xls' },
-  { src:'https://picsum.photos/seed/rc4/88/66', name:'resume_FINAL_v9_REAL.doc' },
-  { src:'https://picsum.photos/seed/rc5/88/66', name:'taxes_2019_oh_god.pdf' },
-  { src:'https://picsum.photos/seed/rc6/88/66', name:'do_not_open_IMPORTANT.jpg' }
+function showRhyme(i){
+  document.querySelectorAll('.doc-story').forEach(function(s,j){s.classList.toggle('active',j===i);});
+  document.getElementById('doc-status').textContent='Rhyme '+(i+1)+' of '+RHYMES.length+' | Times New Roman | 12pt';
+}
+
+buildDocs();
+
+/* ════ TRASH – CELEBRITY PHOTOS ════ */
+var TRASH=[
+  { name:'jordan_GOAT_confirmed.jpg',    url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Michael_Jordan_in_2014.jpg/200px-Michael_Jordan_in_2014.jpg',       label:'Michael Jordan' },
+  { name:'lebron_my_mvp_pick.jpg',       url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/LeBron_James_crop2.jpg/200px-LeBron_James_crop2.jpg',               label:'LeBron James' },
+  { name:'taylor_swift_era_tour_tix.png',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png/200px-191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png', label:'Taylor Swift' },
+  { name:'serena_ace_stats.xls',         url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Serena_Williams_2013_US_Open.jpg/200px-Serena_Williams_2013_US_Open.jpg', label:'Serena Williams' },
+  { name:'messi_better_than_ronaldo.doc',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg', label:'Lionel Messi' },
+  { name:'ronaldo_better_than_messi.doc',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/200px-Cristiano_Ronaldo_2018.jpg',        label:'Cristiano Ronaldo' },
+  { name:'the_rock_leg_day.jpg',         url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Dwayne_Johnson_2014_%28cropped%29.jpg/200px-Dwayne_Johnson_2014_%28cropped%29.jpg', label:'Dwayne Johnson' },
+  { name:'tiger_woods_Sunday_red.jpg',   url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Tiger_Woods_2012.jpg/200px-Tiger_Woods_2012.jpg',                   label:'Tiger Woods' },
+  { name:'bolt_100m_WR_analysis.pdf',    url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Usain_Bolt_2012_Olympics_2.jpg/200px-Usain_Bolt_2012_Olympics_2.jpg', label:'Usain Bolt' },
+  { name:'brady_ANOTHER_ring.png',       url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Tom_Brady_2017.jpg/200px-Tom_Brady_2017.jpg',                        label:'Tom Brady' }
 ];
 
 function renderTrash(){
-  var g = document.getElementById('trash-grid');
-  g.innerHTML = '';
+  var g=document.getElementById('trash-grid');
+  g.innerHTML='';
   TRASH.forEach(function(item){
-    var d = document.createElement('div');
-    d.className = 'trash-item';
-    d.innerHTML = '<img src="' + item.src + '" alt="' + item.name + '" loading="lazy"><span>' + item.name + '</span>';
+    var d=document.createElement('div');
+    d.className='trash-item';
+    d.innerHTML='<img src="'+item.url+'" alt="'+item.label+'" loading="lazy" title="'+item.label+'"><span>'+item.name+'</span>';
     g.appendChild(d);
   });
-  document.getElementById('trash-status').innerHTML = TRASH.length + ' object(s) &nbsp;|&nbsp; 4.2 MB';
+  document.getElementById('trash-status').textContent=TRASH.length+' object(s)';
 }
 renderTrash();
 
 function emptyBin(){
-  TRASH = [];
-  var g = document.getElementById('trash-grid');
-  g.style.display = 'block';
-  g.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#808080;padding:50px 0;">Recycle Bin is empty.</div>';
-  document.getElementById('trash-status').textContent = '0 object(s)';
+  TRASH=[];
+  document.getElementById('trash-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#808080;padding:40px 0;">Recycle Bin is empty.</div>';
+  document.getElementById('trash-status').textContent='0 object(s)';
 }
 </script>
 </body>
