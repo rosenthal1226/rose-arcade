@@ -129,6 +129,30 @@
   .lb-row .lb-game { flex:1; padding:0 6px; font-size:6px; }
   .lb-row .lb-best { color:var(--neon-yellow); text-shadow:0 0 4px var(--neon-yellow); font-size:8px; }
   .lb-row .lb-best.empty { color:#2a2a2a; text-shadow:none; }
+  .lb-tabs { display:flex; gap:4px; margin-bottom:8px; }
+  .lb-tab { flex:1; text-align:center; font-family:'Press Start 2P',monospace; font-size:6px; letter-spacing:1px; padding:5px 4px; border-radius:6px; border:1px solid #2a2a2a; color:#555; cursor:pointer; transition:all .15s; user-select:none; }
+  .lb-tab.active { background:rgba(255,210,80,0.12); border-color:var(--neon-yellow); color:var(--neon-yellow); text-shadow:0 0 6px var(--neon-yellow); }
+  .lb-tab:hover:not(.active) { border-color:#444; color:#888; }
+  .lb-global-game { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--neon-cyan); text-shadow:0 0 4px var(--neon-cyan); letter-spacing:1px; margin:6px 0 4px; padding:4px 6px; border-bottom:1px solid rgba(77,240,255,0.2); }
+  .lb-global-row { display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:5px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.04); margin-bottom:2px; }
+  .lb-rank { font-family:'Press Start 2P',monospace; font-size:7px; color:#555; width:14px; text-align:right; flex-shrink:0; }
+  .lb-rank.gold-r { color:#ffd700; text-shadow:0 0 6px #ffd700; }
+  .lb-rank.silver-r { color:#c0c0c0; text-shadow:0 0 4px #c0c0c0; }
+  .lb-rank.bronze-r { color:#cd7f32; text-shadow:0 0 4px #cd7f32; }
+  .lb-player { flex:1; font-family:'Press Start 2P',monospace; font-size:6px; color:#ccc; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-player.me { color:var(--neon-pink); text-shadow:0 0 4px var(--neon-pink); }
+  .lb-score-g { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--neon-yellow); text-shadow:0 0 4px var(--neon-yellow); }
+  .lb-global-empty { font-family:'Press Start 2P',monospace; font-size:6px; color:#333; text-align:center; padding:16px 0; letter-spacing:1px; }
+  .lb-global-loading { font-family:'Press Start 2P',monospace; font-size:6px; color:#444; text-align:center; padding:16px 0; letter-spacing:1px; animation:pulse 1s ease-in-out infinite; }
+  /* Name prompt modal */
+  .name-modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:400; display:none; align-items:center; justify-content:center; padding:20px; }
+  .name-modal.open { display:flex; animation:fadeIn .3s var(--ease); }
+  .name-modal-inner { background:linear-gradient(180deg,rgba(20,5,10,0.98) 0%,rgba(8,0,6,0.99) 100%); border:2px solid var(--neon-pink); border-radius:var(--radius-lg); padding:28px; max-width:360px; width:100%; box-shadow:0 0 50px color-mix(in srgb,var(--neon-pink) 40%,transparent); text-align:center; }
+  .name-modal-title { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--neon-pink); text-shadow:0 0 10px var(--neon-pink); margin-bottom:8px; letter-spacing:2px; }
+  .name-modal-sub { font-family:'Press Start 2P',monospace; font-size:7px; color:#666; letter-spacing:1px; margin-bottom:20px; line-height:1.8; }
+  .name-input { width:100%; box-sizing:border-box; background:#0a0a0a; border:2px solid var(--neon-pink); color:var(--neon-pink); font-family:'Press Start 2P',monospace; font-size:12px; padding:10px 12px; border-radius:8px; outline:none; text-align:center; letter-spacing:2px; margin-bottom:14px; }
+  .name-input::placeholder { color:#333; }
+  .name-input:focus { border-color:var(--neon-cyan); color:var(--neon-cyan); box-shadow:0 0 12px color-mix(in srgb,var(--neon-cyan) 40%,transparent); }
   @media (max-width: 950px) {
     .leaderboard { display: none; }
     .leaderboard.show-mobile { display:flex; position:fixed; inset:60px 10px 10px; z-index:50; }
@@ -218,10 +242,25 @@
       </div>
       <div class="leaderboard" id="leaderboard">
         <div class="leaderboard-title">🏆 HIGH SCORES</div>
+        <div class="lb-tabs">
+          <div class="lb-tab active" id="lbTabLocal" onclick="switchLbTab('local')">MY SCORES</div>
+          <div class="lb-tab" id="lbTabGlobal" onclick="switchLbTab('global')">🌍 GLOBAL</div>
+        </div>
         <div class="lb-list" id="lbList"></div>
       </div>
     </div>
     <div class="footer-hint">◄ ► · SWIPE TO BROWSE · ENTER TO PLAY</div>
+  </div>
+
+  <!-- Name prompt (shown once when global leaderboard is first used) -->
+  <div class="name-modal" id="nameModal">
+    <div class="name-modal-inner">
+      <div class="name-modal-title">ENTER YOUR NAME</div>
+      <div class="name-modal-sub">YOUR NAME WILL APPEAR ON THE<br>GLOBAL LEADERBOARD WHEN YOU<br>SET A NEW HIGH SCORE</div>
+      <input class="name-input" id="nameInput" type="text" maxlength="16" placeholder="PLAYER ONE" autocomplete="off" spellcheck="false">
+      <button class="btn" id="nameSaveBtn" style="width:100%;margin-bottom:8px;">SAVE &amp; PLAY ON</button>
+      <button class="btn btn-secondary" id="nameSkipBtn" style="width:100%;font-size:7px;">SKIP (SCORE AS ANONYMOUS)</button>
+    </div>
   </div>
 
   <div class="ach-modal" id="achModal">
@@ -243,6 +282,10 @@
   <script src="themes.js"></script>
   <script src="avatars.js"></script>
   <script src="gamelib.js"></script>
+  <!-- Firebase (loaded before scores.js) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="scores.js"></script>
   <script>
   const boot = document.getElementById('boot');
   if(sessionStorage.getItem('arcade_booted')){ boot.remove(); }
@@ -278,7 +321,7 @@
     p.innerHTML=`<div class="preview-icon ${g.anim}">${g.icon}</div><div class="preview-name">${g.name}</div><div class="preview-tag">${g.tag}${g.mp?' · 2P':''}</div>${best>0?`<div class="preview-best">BEST: ${best}</div>`:`<div class="preview-best" style="opacity:.3">NO HIGH SCORE</div>`}`;
     screen.appendChild(p);
   });
-  function setIdx(i,sound=false){ idx=(i+games.length)%games.length; document.querySelectorAll('.preview').forEach((p,k)=>p.classList.toggle('active',k===idx)); if(sound)sfx.blip(); }
+  function setIdx(i,sound=false){ idx=(i+games.length)%games.length; document.querySelectorAll('.preview').forEach((p,k)=>p.classList.toggle('active',k===idx)); if(sound)sfx.blip(); if(lbMode==='global') refreshLbGlobal(); }
   document.getElementById('prevBtn').onclick=()=>setIdx(idx-1,true);
   document.getElementById('nextBtn').onclick=()=>setIdx(idx+1,true);
   function startGame(){ gamelib.insertCoin(()=>{ location.href=games[idx].href; }); }
@@ -292,8 +335,90 @@
   document.getElementById('slot-p1').onclick=()=>arcadeAvatars.open('p1');
   document.getElementById('slot-p2').onclick=()=>arcadeAvatars.open('p2');
   const lbList=document.getElementById('lbList');
-  function refreshLb(){ lbList.innerHTML=''; games.forEach(g=>{ const best=gamelib.bestScore(g.id); const row=document.createElement('div'); row.className='lb-row'; row.style.setProperty('--c',g.c); row.innerHTML=`<span class="lb-icon">${g.icon}</span><span class="lb-game">${g.name}</span><span class="lb-best ${best===0?'empty':''}">${best||'--'}</span>`; row.onclick=()=>setIdx(games.indexOf(g),true); lbList.appendChild(row); }); }
-  refreshLb(); document.getElementById('lbBtn').onclick=()=>{ sfx.click(); document.getElementById('leaderboard').classList.toggle('show-mobile'); };
+  let lbMode='local';
+
+  // ── LOCAL tab: personal bests ──
+  function refreshLbLocal(){
+    lbList.innerHTML='';
+    games.forEach(g=>{
+      const best=gamelib.bestScore(g.id);
+      const row=document.createElement('div');
+      row.className='lb-row'; row.style.setProperty('--c',g.c);
+      row.innerHTML=`<span class="lb-icon">${g.icon}</span><span class="lb-game">${g.name}</span><span class="lb-best ${best===0?'empty':''}">${best||'--'}</span>`;
+      row.onclick=()=>setIdx(games.indexOf(g),true);
+      lbList.appendChild(row);
+    });
+  }
+
+  // ── GLOBAL tab: top scores from Firebase for current game ──
+  function refreshLbGlobal(){
+    const g=games[idx];
+    lbList.innerHTML=`<div class="lb-global-game">${g.icon} ${g.name}</div><div class="lb-global-loading">LOADING...</div>`;
+    if(!window.arcadeScores || !arcadeScores.isReady()){
+      lbList.innerHTML=`<div class="lb-global-game">${g.icon} ${g.name}</div><div class="lb-global-empty">FIREBASE NOT YET<br>CONFIGURED</div>`;
+      return;
+    }
+    arcadeScores.getGameTop(g.id, 10, function(rows){
+      lbList.innerHTML=`<div class="lb-global-game">${g.icon} ${g.name}</div>`;
+      if(!rows.length){
+        lbList.innerHTML+=`<div class="lb-global-empty">NO SCORES YET<br>BE THE FIRST!</div>`;
+        return;
+      }
+      const myName=(window.arcadeScores?arcadeScores.getPlayerName():'').toUpperCase();
+      rows.forEach(function(r,i){
+        const rankClass=i===0?'gold-r':i===1?'silver-r':i===2?'bronze-r':'';
+        const isMe=myName&&r.player.toUpperCase()===myName;
+        lbList.innerHTML+=`<div class="lb-global-row"><span class="lb-rank ${rankClass}">#${i+1}</span><span class="lb-player${isMe?' me':''}">${r.player}</span><span class="lb-score-g">${r.score}</span></div>`;
+      });
+    });
+  }
+
+  function refreshLb(){
+    if(lbMode==='local') refreshLbLocal(); else refreshLbGlobal();
+  }
+
+  function switchLbTab(mode){
+    lbMode=mode;
+    document.getElementById('lbTabLocal').classList.toggle('active',mode==='local');
+    document.getElementById('lbTabGlobal').classList.toggle('active',mode==='global');
+    refreshLb();
+  }
+
+  refreshLb();
+  document.getElementById('lbBtn').onclick=()=>{ sfx.click(); document.getElementById('leaderboard').classList.toggle('show-mobile'); };
+
+  // ── Name prompt ──
+  const nameModal=document.getElementById('nameModal');
+  function openNameModal(onDone){
+    nameModal.classList.add('open');
+    const inp=document.getElementById('nameInput');
+    const existing=window.arcadeScores?arcadeScores.getPlayerName():'';
+    inp.value=existing||'';
+    inp.focus();
+    document.getElementById('nameSaveBtn').onclick=()=>{
+      const val=inp.value.trim();
+      if(!val){inp.focus();return;}
+      if(window.arcadeScores) arcadeScores.setPlayerName(val);
+      nameModal.classList.remove('open');
+      if(onDone) onDone();
+    };
+    document.getElementById('nameSkipBtn').onclick=()=>{
+      if(window.arcadeScores) arcadeScores.setPlayerName('Anonymous');
+      nameModal.classList.remove('open');
+      if(onDone) onDone();
+    };
+    inp.onkeydown=e=>{ if(e.key==='Enter') document.getElementById('nameSaveBtn').click(); };
+  }
+  // Show name prompt if global scores exist but no name set yet
+  if(window.arcadeScores && arcadeScores.isReady() && !arcadeScores.hasPlayerName()){
+    setTimeout(()=>openNameModal(), 2200);
+  }
+  // Also open when clicking GLOBAL tab if no name
+  document.getElementById('lbTabGlobal').addEventListener('click',()=>{
+    if(window.arcadeScores && arcadeScores.isReady() && !arcadeScores.hasPlayerName()){
+      openNameModal(()=>refreshLbGlobal());
+    }
+  });
   const themeModal=document.getElementById('themeModal');
   function refreshThemeGrid(){ const grid=document.getElementById('themeGrid'); grid.innerHTML=''; const cur=arcadeThemes.current(); arcadeThemes.list().forEach(t=>{ const o=document.createElement('div'); o.className='theme-opt'+(t.key===cur?' active':''); o.style.color=t.pink; o.style.borderColor=t.pink; o.innerHTML=`${t.name}<div class="theme-swatches"><span class="theme-sw" style="background:${t.pink}"></span><span class="theme-sw" style="background:${t.cyan}"></span><span class="theme-sw" style="background:${t.yellow}"></span><span class="theme-sw" style="background:${t.green}"></span></div>`; o.onclick=()=>{ arcadeThemes.apply(t.key); sfx.coin(); refreshThemeGrid(); }; grid.appendChild(o); }); }
   document.getElementById('themeBtn').onclick=()=>{ sfx.click(); themeModal.classList.add('open'); refreshThemeGrid(); };

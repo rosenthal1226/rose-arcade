@@ -19,7 +19,12 @@
   }
   function setBestIfHigher(gameId, score){
     const cur = bestScore(gameId);
-    if(score > cur){ recordScore(gameId, score); return true; }
+    if(score > cur){
+      recordScore(gameId, score);
+      // Push to global leaderboard if Firebase is wired up
+      if(window.arcadeScores) arcadeScores.submit(gameId, score);
+      return true;
+    }
     return false;
   }
 
