@@ -612,6 +612,119 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════
+   WIN98 NAME DIALOG
+═══════════════════════════════════════════ */
+.name-dialog-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.name-dialog {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 4px 4px 0 #000;
+  width: 300px;
+  animation: dlgPop .18s ease-out;
+}
+@keyframes dlgPop {
+  from { transform: scale(0.88); opacity:0; }
+  to   { transform: scale(1);    opacity:1; }
+}
+@keyframes dlgShake {
+  0%,100% { transform: translateX(0); }
+  18%      { transform: translateX(-6px); }
+  36%      { transform: translateX(6px); }
+  54%      { transform: translateX(-4px); }
+  72%      { transform: translateX(4px); }
+  90%      { transform: translateX(-2px); }
+}
+.dlg-titlebar {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  user-select: none;
+}
+.dlg-title-icon { font-size: 13px; }
+.dlg-title-text { flex: 1; }
+.dlg-close {
+  width: 16px; height: 14px;
+  background: #c0c0c0;
+  border: 2px solid; border-color: #fff #808080 #808080 #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: bold; color: #000; line-height: 1;
+}
+.dlg-body {
+  padding: 14px 14px 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.dlg-bigicon { font-size: 36px; line-height: 1; flex-shrink: 0; }
+.dlg-text {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #000;
+  flex: 1;
+  line-height: 1.45;
+}
+.dlg-text b { display: block; margin-bottom: 5px; font-size: 12px; }
+.dlg-label {
+  display: block;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #000;
+  margin: 10px 0 3px;
+}
+.dlg-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  border: 2px solid; border-color: #808080 #fff #fff #808080;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 3px 5px;
+  outline: none;
+  color: #000;
+  letter-spacing: 1px;
+}
+.dlg-input:focus { border-color: #000080 #fff #fff #000080; }
+.dlg-footer {
+  padding: 8px 14px 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  border-top: 1px solid #dfdfdf;
+}
+.dlg-btn {
+  min-width: 72px;
+  padding: 4px 10px;
+  background: #c0c0c0;
+  border: 2px solid; border-color: #fff #808080 #808080 #fff;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+.dlg-btn:active { border-color: #808080 #fff #fff #808080; }
+.dlg-btn.primary { border-color: #000 #fff #fff #000; box-shadow: inset 1px 1px 0 #dfdfdf; }
+.dlg-btn.primary:focus { outline: 1px dotted #000; outline-offset: -4px; }
+.dlg-divider { border: none; border-top: 1px solid #808080; margin: 0 0 10px; }
+
+/* ═══════════════════════════════════════════
    WIN98 DESKTOP
 ═══════════════════════════════════════════ */
 .win98-desktop {
@@ -1000,6 +1113,31 @@ html, body {
               <div class="win-resize">◢</div>
             </div>
 
+            <!-- ═══ NAME PROMPT DIALOG ═══ -->
+            <div class="name-dialog-overlay" id="nameDialogOverlay" style="display:none;">
+              <div class="name-dialog">
+                <div class="dlg-titlebar">
+                  <span class="dlg-title-icon">🖥️</span>
+                  <span class="dlg-title-text">Rose Arcade — Welcome</span>
+                  <div class="dlg-close">✕</div>
+                </div>
+                <div class="dlg-body">
+                  <div class="dlg-bigicon">🕹️</div>
+                  <div class="dlg-text">
+                    <b>Welcome to Rose Arcade!</b>
+                    Enter your name to appear on the global high score leaderboard when you beat a record.
+                    <label class="dlg-label" for="nameDialogInput">Your name:</label>
+                    <input class="dlg-input" id="nameDialogInput" type="text" maxlength="16" placeholder="PLAYER ONE" autocomplete="off" spellcheck="false">
+                  </div>
+                </div>
+                <hr class="dlg-divider" style="margin:0 14px;">
+                <div class="dlg-footer">
+                  <button class="dlg-btn" id="nameDialogSkip">Skip</button>
+                  <button class="dlg-btn primary" id="nameDialogOk">OK</button>
+                </div>
+              </div>
+            </div>
+
             <!-- TASKBAR -->
             <div class="taskbar">
               <div class="start-btn">🪟 <b>Start</b></div>
@@ -1290,6 +1428,52 @@ function emptyBin(){
   document.getElementById('trash-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#808080;padding:40px 0;">Recycle Bin is empty.</div>';
   document.getElementById('trash-status').textContent='0 object(s)';
 }
+
+/* ════ NAME PROMPT ════ */
+(function(){
+  var STORAGE_KEY = 'arcade_global_name';
+  var overlay     = document.getElementById('nameDialogOverlay');
+  var inp         = document.getElementById('nameDialogInput');
+
+  // Already named — skip entirely
+  var existing = localStorage.getItem(STORAGE_KEY);
+  if(existing && existing.trim()){
+    overlay.style.display = 'none';
+    return;
+  }
+
+  // Show the dialog after a short pause so the desktop renders first
+  setTimeout(function(){ overlay.style.display = 'flex'; inp.focus(); }, 700);
+
+  function saveName(){
+    var val = inp.value.trim().slice(0, 16);
+    if(!val){ inp.focus(); inp.style.borderColor='#cc0000'; return; }
+    localStorage.setItem(STORAGE_KEY, val);
+    overlay.style.display = 'none';
+  }
+
+  function skipName(){
+    localStorage.setItem(STORAGE_KEY, 'Anonymous');
+    overlay.style.display = 'none';
+  }
+
+  document.getElementById('nameDialogOk').addEventListener('click', saveName);
+  document.getElementById('nameDialogSkip').addEventListener('click', skipName);
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') saveName(); });
+  inp.addEventListener('input', function(){ inp.style.borderColor=''; });
+
+  // Clicking outside the dialog on the overlay does nothing (it's modal)
+  overlay.addEventListener('mousedown', function(e){
+    if(e.target === overlay){
+      // Shake the dialog to indicate it's required
+      var dlg = overlay.querySelector('.name-dialog');
+      dlg.style.animation='none';
+      dlg.offsetWidth; // reflow
+      dlg.style.animation='dlgShake .35s ease';
+      inp.focus();
+    }
+  });
+})();
 </script>
 </body>
 </html>
