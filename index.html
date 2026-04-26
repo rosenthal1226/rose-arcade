@@ -2,809 +2,760 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ROSE ARCADE</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Computer</title>
 <style>
-  body { overflow: hidden; height: 100dvh; background: #000; }
+/* ── Real Windows 98 arrow cursor as SVG data URI ── */
+* {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='19' viewBox='0 0 12 19'%3E%3Cpolygon points='0,0 0,16 4,12 7,19 9,18 6,11 12,11' fill='black'/%3E%3Cpolygon points='1,2 1,14 4,11 7,17 8,17 5.5,10.5 10.5,10.5' fill='white'/%3E%3C/svg%3E") 0 0, default;
+}
 
-  /* ============================================================
-     DARK ARCADE BACKGROUND
-  ============================================================ */
-  .rose-bg {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-    background:
-      radial-gradient(ellipse 70% 35% at 50% 0%, rgba(20,80,10,0.18) 0%, transparent 60%),
-      linear-gradient(180deg, #050805 0%, #020202 100%);
-  }
-  .rose-glow {
-    position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px);
-    animation: glowPulse 7s ease-in-out infinite;
-  }
-  @keyframes glowPulse { 0%,100% { opacity: 0.18; } 50% { opacity: 0.35; } }
+/* ── Page ── */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% 25%, #2a2a3a 0%, #0a0a0f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-  /* Falling petals */
-  .petal {
-    position: absolute; pointer-events: none; user-select: none;
-    opacity: 0;
-    animation: petalFall linear infinite;
-  }
-  @keyframes petalFall {
-    0%   { transform: translateY(-50px) rotate(0deg) scale(0.9); opacity: 0; }
-    6%   { opacity: 0.65; }
-    88%  { opacity: 0.35; }
-    100% { transform: translateY(108vh) rotate(640deg) scale(0.55); opacity: 0; }
-  }
+/* ── 3D monitor scene ── */
+.monitor-scene {
+  perspective: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.monitor-3d {
+  transform: rotateX(5deg) rotateY(-2deg);
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 50px 100px rgba(0,0,0,0.95));
+}
 
-  /* ============================================================
-     HUB SHELL
-  ============================================================ */
-  .hub {
-    position: relative; z-index: 5;
-    height: 100dvh;
-    display: grid;
-    grid-template-rows: auto auto 1fr auto;
-    gap: 6px;
-    padding: 8px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
+/* ── Bezel ── */
+.bezel {
+  background: linear-gradient(160deg, #d8d4ce 0%, #bab6b0 35%, #a8a4a0 65%, #909090 100%);
+  border-radius: 14px 14px 8px 8px;
+  padding: 26px 26px 52px 26px;
+  border: 3px solid #999;
+  border-bottom: 6px solid #777;
+  box-shadow:
+    inset 3px 3px 8px rgba(255,255,255,0.55),
+    inset -3px -3px 8px rgba(0,0,0,0.35),
+    5px 5px 0 #555,
+    10px 10px 0 #333,
+    15px 15px 0 #222;
+  position: relative;
+}
+/* brand label */
+.bezel::after {
+  content: 'RosePC™  Model 9800';
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  color: #777;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+/* power LED */
+.power-led {
+  position: absolute;
+  bottom: 18px;
+  right: 44px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #00ff55;
+  box-shadow: 0 0 6px #00ff55, 0 0 14px #00ff55;
+  animation: ledBlink 4s ease-in-out infinite;
+}
+@keyframes ledBlink { 0%,88%,100%{opacity:1;} 93%{opacity:0.2;} }
+/* power button */
+.power-btn {
+  position: absolute;
+  bottom: 14px;
+  right: 66px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #ccc 0%, #999 55%, #777 100%);
+  border: 2px solid #666;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,0.5), 2px 2px 0 #333;
+}
 
-  /* ============================================================
-     TOP ROW
-  ============================================================ */
-  .top-row {
-    display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    flex-shrink: 0;
-  }
-  .corner-btn {
-    background: linear-gradient(180deg, #111 0%, #060606 100%);
-    border: 2px solid rgba(57,255,20,0.4);
-    color: #39ff14;
-    font-size: 16px;
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    text-shadow: 0 0 6px #39ff14;
-    box-shadow: 0 0 7px rgba(57,255,20,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
-    transition: all .2s var(--ease);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .corner-btn:hover { transform: scale(1.1); box-shadow: 0 0 16px rgba(57,255,20,0.55); }
-  .corner-btn:active { transform: scale(0.92); }
+/* ── Screen glass ── */
+.screen-glass {
+  width: 680px;
+  height: 510px;
+  background: #000608;
+  border-radius: 6px 6px 4px 4px;
+  border: 5px solid #1a1a1a;
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,0.85),
+    inset 0 0 6px rgba(255,255,255,0.02);
+  overflow: hidden;
+  position: relative;
+}
+/* scanlines */
+.screen-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 200;
+  border-radius: 3px;
+}
+/* glare */
+.screen-glass::before {
+  content: '';
+  position: absolute;
+  top: 6px; left: 6px;
+  right: 45%; height: 32%;
+  background: linear-gradient(140deg, rgba(255,255,255,0.07) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 201;
+  border-radius: 4px 0 0 0;
+}
 
-  /* ============================================================
-     AVATAR PLAYER BAR
-  ============================================================ */
-  .player-bar {
-    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
-    padding: 6px 16px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, rgba(12,12,12,0.96) 0%, rgba(5,5,5,0.98) 100%);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    max-width: 460px; margin: 0 auto;
-    box-shadow: 0 0 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04);
-  }
-  .pslot { display: flex; align-items: center; gap: 8px; cursor: pointer; transition: transform .2s var(--ease); }
-  .pslot:hover { transform: scale(1.05); }
-  .pslot .pe {
-    font-size: 22px; width: 34px; height: 34px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%;
-    border: 2px solid var(--c);
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.82) 70%);
-    box-shadow: 0 0 10px var(--c);
-  }
-  .pslot .pl { font-family:'Press Start 2P',monospace; font-size: 7px; color: var(--c); text-shadow: 0 0 4px var(--c); letter-spacing: 1px; }
-  .pslot .pn { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); letter-spacing: 1px; }
+/* ── Windows 98 Desktop ── */
+.win98-desktop {
+  width: 100%;
+  height: 100%;
+  background: #008080;
+  position: relative;
+  overflow: hidden;
+  /* Windows 98 teal pattern subtle noise */
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(0,100,100,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0,120,100,0.1) 0%, transparent 50%);
+}
 
-  /* ============================================================
-     MAIN GRID: CABINET + LEADERBOARD
-  ============================================================ */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-    min-height: 0;
-  }
-  @media (min-width: 950px) { .main-grid { grid-template-columns: 1fr 248px; } }
+/* ── Taskbar ── */
+.taskbar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 32px;
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  box-shadow: inset 0 1px 0 #e0e0e0;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 4px;
+  z-index: 500;
+}
+.start-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px 2px 6px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  user-select: none;
+  white-space: nowrap;
+}
+.start-btn:active { border-color: #808080 #fff #fff #808080; }
+.taskbar-sep { width: 2px; height: 22px; background: #808080; box-shadow: 1px 0 0 #fff; }
+.taskbar-clock {
+  margin-left: auto;
+  padding: 2px 10px;
+  background: #c0c0c0;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  user-select: none;
+}
+.taskbar-items {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+  padding: 0 4px;
+}
+.taskbar-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  user-select: none;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: none;
+}
+.taskbar-item.visible { display: flex; }
+.taskbar-item.active { border-color: #808080 #fff #fff #808080; background: #b0b0b0; }
 
-  /* ============================================================
-     3-D CABINET
-  ============================================================ */
-  .scene {
-    perspective: 1100px;
-    perspective-origin: 50% 30%;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-  .cabinet {
-    flex: 1; min-height: 0;
-    position: relative;
-    display: flex; flex-direction: column;
-  }
+/* ── Desktop Icons ── */
+.desktop-icons {
+  position: absolute;
+  top: 12px; left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 74px;
+  padding: 4px;
+  border-radius: 1px;
+  user-select: none;
+}
+.icon .icon-img { font-size: 36px; line-height: 1; margin-bottom: 4px; display: block; }
+.icon .icon-label {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
+  padding: 1px 4px;
+  line-height: 1.25;
+  max-width: 74px;
+  word-break: break-word;
+}
+.icon:hover .icon-label,
+.icon.selected .icon-label { background: #000080; color: #fff; }
+.icon:hover .icon-img,
+.icon.selected .icon-img { filter: brightness(0.65) sepia(1) hue-rotate(200deg) saturate(4); }
 
-  /* MAIN FRONT BODY */
-  .cab-body {
-    position: relative;
-    background: linear-gradient(160deg, #0e0e0e 0%, #080808 55%, #030303 100%);
-    border: 3px solid #2a2a2a;
-    border-top-color: #404040;
-    border-bottom-color: #111;
-    border-radius: 16px 16px 18px 18px;
-    padding: 6px 8px 8px;
-    flex: 1; min-height: 0;
-    display: flex; flex-direction: column;
-    gap: 6px;
-    /* depth via stacked box-shadows */
-    box-shadow:
-      9px 8px 0 #0a0a0a,
-      13px 13px 0 #000,
-      0 0 28px rgba(57,255,20,0.08),
-      inset 0 -6px 14px rgba(0,0,0,0.7),
-      inset 0 2px 3px rgba(255,255,255,0.04),
-      0 22px 50px rgba(0,0,0,0.9),
-      0 26px 0 #050505;
-  }
-  /* TOP NEON TRIM — bright green */
-  .cab-body::before {
-    content: '';
-    position: absolute;
-    top: -11px; left: 9%; right: 9%;
-    height: 11px;
-    background: linear-gradient(180deg, #39ff14 0%, #1a8800 100%);
-    border-radius: 9px 9px 0 0;
-    box-shadow: 0 0 16px #39ff14, 0 0 32px rgba(57,255,20,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
-  }
-  /* RIGHT-SIDE DEPTH STRIP */
-  .cab-body::after {
-    content: '';
-    position: absolute;
-    top: 0; right: -13px; bottom: -14px;
-    width: 13px;
-    background: linear-gradient(90deg, #0a0a0a 0%, #030303 100%);
-    border-radius: 0 5px 5px 0;
-    border: 1px solid #1a1a1a;
-    border-left: none;
-  }
+/* ── Windows ── */
+.win-window {
+  position: absolute;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 3px 3px 0 #000;
+  display: none;
+  min-width: 300px;
+  min-height: 120px;
+  z-index: 20;
+}
+.win-window.open { display: block; }
 
-  /* ============================================================
-     MARQUEE (tilted toward viewer)
-  ============================================================ */
-  .marquee {
-    position: relative;
-    background: linear-gradient(180deg, #040a04 0%, #020502 100%);
-    border-radius: 8px;
-    padding: 12px 22px;
-    text-align: center;
-    border: 2px solid #1a3a1a;
-    box-shadow: inset 0 0 22px rgba(57,255,20,0.12), 0 0 12px rgba(57,255,20,0.1);
-    transform: perspective(550px) rotateX(-7deg);
-    transform-origin: center bottom;
-    flex-shrink: 0;
-  }
-  /* Bulb lights — green + white alternating */
-  .marquee::before, .marquee::after {
-    content:'';
-    position: absolute; left: 5px; right: 5px; height: 7px;
-    background-image: radial-gradient(circle, #39ff14 35%, #116600 38%, transparent 42%);
-    background-size: 13px 7px; background-repeat: repeat-x; background-position: center;
-    filter: drop-shadow(0 0 4px #39ff14);
-    animation: bulbs 1.2s steps(2) infinite;
-  }
-  .marquee::before { top: -3px; }
-  .marquee::after  { bottom: -3px; animation-delay: .6s; }
-  @keyframes bulbs {
-    0%  { background-image: radial-gradient(circle, #39ff14 35%, #116600 38%, transparent 42%); filter: drop-shadow(0 0 4px #39ff14); }
-    50% { background-image: radial-gradient(circle, #ffffff 35%, #888888 38%, transparent 42%); filter: drop-shadow(0 0 4px #fff); }
-  }
+/* Title bar */
+.win-titlebar {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: move;
+  user-select: none;
+  height: 20px;
+}
+.win-titlebar.inactive {
+  background: linear-gradient(90deg, #7f7f7f 0%, #b0b0b0 100%);
+}
+.win-title-icon { font-size: 14px; }
+.win-title-text { flex: 1; }
+.win-controls { display: flex; gap: 2px; }
+.win-btn {
+  width: 18px;
+  height: 16px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  padding: 0;
+}
+.win-btn:hover { background: #d0d0d0; }
+.win-btn:active { border-color: #808080 #fff #fff #808080; }
+.win-btn.close { font-size: 11px; }
 
-  /* ROSE ARCADE — bright neon green, neon-tube flicker */
-  .chrome {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(13px, 3.6vw, 25px);
-    color: #39ff14;
-    text-shadow:
-      0 0 7px #39ff14,
-      0 0 16px #39ff14,
-      0 0 32px rgba(57,255,20,0.65),
-      0 0 60px rgba(57,255,20,0.25);
-    letter-spacing: 4px;
-    animation: neonFlicker 4s ease-in-out infinite;
-  }
-  @keyframes neonFlicker {
-    0%,89%,91%,93%,100% {
-      text-shadow: 0 0 7px #39ff14, 0 0 16px #39ff14, 0 0 32px rgba(57,255,20,0.65), 0 0 60px rgba(57,255,20,0.25);
-    }
-    90%,92% {
-      text-shadow: 0 0 3px #39ff14, 0 0 6px rgba(57,255,20,0.4);
-    }
-  }
-  .marquee .sub {
-    font-family:'VT323', monospace; font-size: 12px;
-    color: rgba(57,255,20,0.5); margin-top: 3px; letter-spacing: 2px;
-  }
+/* Menu bar */
+.win-menubar {
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+  padding: 1px 4px;
+  display: flex;
+  gap: 0;
+}
+.win-menu-item {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding: 2px 8px;
+  user-select: none;
+}
+.win-menu-item:hover { background: #000080; color: #fff; }
 
-  /* ============================================================
-     SCREEN BEZEL
-  ============================================================ */
-  .screen-shell {
-    position: relative;
-    background: linear-gradient(180deg, #111 0%, #040404 100%);
-    border: 4px solid #2a2a2a;
-    border-top-color: #383838;
-    border-bottom-color: #111;
-    border-radius: 13px;
-    padding: 7px;
-    flex: 1; min-height: 0;
-    box-shadow:
-      inset 0 0 30px rgba(0,0,0,0.98),
-      0 0 10px rgba(0,0,0,0.8);
-    margin: 0 2px;
-  }
-  .screw { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ccc, #555 70%, #222); box-shadow: 0 1px 1px rgba(0,0,0,0.6); }
-  .screen-shell .screw.tl { top: 4px; left: 4px; }
-  .screen-shell .screw.tr { top: 4px; right: 4px; }
-  .screen-shell .screw.bl { bottom: 4px; left: 4px; }
-  .screen-shell .screw.br { bottom: 4px; right: 4px; }
+/* Toolbar */
+.win-toolbar {
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.win-tb-btn {
+  width: 24px; height: 22px;
+  background: #c0c0c0;
+  border: 2px solid transparent;
+  font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+.win-tb-btn:hover { border-color: #fff #808080 #808080 #fff; }
+.win-tb-sep { width: 2px; height: 18px; background: #808080; box-shadow: 1px 0 0 #fff; margin: 0 3px; }
 
-  .screen {
-    position: relative; height: 100%;
-    background: #000;
-    border-radius: 7px; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.98);
-  }
-  .screen::after {
-    content:''; position:absolute; inset:0;
-    background:
-      radial-gradient(ellipse 80% 22% at 50% 0%, rgba(255,255,255,0.09) 0%, transparent 60%),
-      radial-gradient(ellipse 80% 30% at 50% 100%, rgba(0,0,0,0.5) 0%, transparent 60%);
-    pointer-events:none; border-radius:7px;
-  }
+/* Status bar */
+.win-statusbar {
+  background: #c0c0c0;
+  border-top: 1px solid #808080;
+  padding: 2px 8px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+}
 
-  /* Game preview cards */
-  .preview {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; opacity: 0; transform: scale(0.85);
-    transition: opacity .4s, transform .4s;
-    pointer-events: none; text-align: center;
-  }
-  .preview.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-  .preview-icon { font-size: clamp(34px, 9vh, 76px); filter: drop-shadow(0 0 16px var(--c, var(--neon-pink))); }
-  .preview-name { font-family:'Press Start 2P',monospace; font-size: clamp(10px, 2.4vw, 17px); color: var(--c, var(--neon-pink)); text-shadow: 0 0 10px var(--c, var(--neon-pink)); letter-spacing: 2px; }
-  .preview-tag  { font-family:'VT323',monospace; font-size: 14px; color: var(--neon-yellow); text-shadow: 0 0 6px var(--neon-yellow); letter-spacing: 1.5px; }
-  .preview-best { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-green); text-shadow: 0 0 6px var(--neon-green); letter-spacing: 1px; margin-top: 2px; }
+/* Resize grip */
+.win-resize {
+  position: absolute;
+  bottom: 2px; right: 2px;
+  width: 12px; height: 12px;
+  font-size: 10px; color: #808080;
+  display: flex; align-items: flex-end; justify-content: flex-end;
+  line-height: 1;
+  pointer-events: none;
+}
 
-  /* Preview animations */
-  .anim-snake  { animation: slither 2s ease-in-out infinite; }
-  @keyframes slither { 0%,100%{transform:translateX(-22%) rotate(-8deg)} 50%{transform:translateX(22%) rotate(8deg)} }
-  .anim-bounce { animation: bounce 1s ease-in-out infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
-  .anim-spin   { animation: spin 4s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  .anim-pulse  { animation: pulse 1.2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
-  .anim-shake  { animation: shakey .6s ease-in-out infinite; }
-  @keyframes shakey { 0%,100%{transform:rotate(-15deg)} 50%{transform:rotate(15deg)} }
-  .anim-float  { animation: floatAnim 2.5s ease-in-out infinite; }
-  @keyframes floatAnim { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
-  .anim-fall   { animation: fallAnim 1.5s ease-in-out infinite; }
-  @keyframes fallAnim { 0%,100%{transform:translateY(-12px) rotate(-10deg)} 50%{transform:translateY(12px) rotate(10deg)} }
-  .anim-shoot  { animation: shoot 1.5s ease-in-out infinite; }
-  @keyframes shoot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px) scaleY(1.1)} }
+/* ── Documents Window ── */
+.doc-tabs {
+  display: flex;
+  gap: 0;
+  padding: 4px 8px 0;
+  background: #c0c0c0;
+  border-bottom: 2px solid #808080;
+}
+.doc-tab {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  padding: 3px 12px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-bottom: none;
+  border-color: #fff #808080 transparent #fff;
+  user-select: none;
+  position: relative;
+  top: 2px;
+  margin-right: 2px;
+}
+.doc-tab.active {
+  background: #fff;
+  border-color: #fff #808080 #fff #fff;
+  z-index: 1;
+}
+.doc-page {
+  background: #fff;
+  margin: 8px;
+  padding: 28px 36px;
+  min-height: 300px;
+  max-height: 320px;
+  overflow-y: auto;
+  font-family: 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #000;
+  box-shadow: inset 1px 1px 4px rgba(0,0,0,0.12);
+}
+.doc-story { display: none; }
+.doc-story.active { display: block; }
+.doc-story h2 { font-size: 15px; text-align: center; margin: 0 0 14px; text-decoration: underline; }
+.doc-story p { margin: 0 0 10px; }
+.story-end { text-align: center; font-style: italic; margin-top: 18px; }
 
-  /* ============================================================
-     CONTROL DECK (angled toward viewer)
-  ============================================================ */
-  .control-deck {
-    background: linear-gradient(180deg, #101010 0%, #050505 100%);
-    border: 2px solid #222;
-    border-radius: 0 0 14px 14px;
-    padding: 10px 12px 13px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 10px;
-    align-items: center;
-    box-shadow: inset 0 -5px 12px rgba(0,0,0,0.8), inset 0 2px 0 rgba(255,255,255,0.03);
-    transform: perspective(480px) rotateX(17deg);
-    transform-origin: center top;
-    flex-shrink: 0;
-  }
+/* ── Trash Window ── */
+.trash-path {
+  flex: 1;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 1px 6px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  margin-left: 4px;
+}
+.trash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 14px;
+  background: #fff;
+  margin: 6px;
+  min-height: 240px;
+}
+.trash-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.trash-item img {
+  width: 88px; height: 66px;
+  object-fit: cover;
+  border: 2px solid #808080;
+  display: block;
+}
+.trash-item:hover img { border-color: #000080; outline: 1px solid #000080; }
+.trash-item span {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  text-align: center;
+  max-width: 90px;
+  word-break: break-all;
+  line-height: 1.2;
+}
 
-  /* Joystick */
-  .joystick { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
-  .joystick .base { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:40px; height:15px; background:radial-gradient(ellipse at top,#333,#0a0a0a); border-radius:50%; box-shadow:inset 0 -2px 5px rgba(0,0,0,0.9); }
-  .joystick .stick { position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:5px; height:21px; background:linear-gradient(180deg,#777 0%,#333 100%); border-radius:3px; }
-  .joystick .ball { position:absolute; top:0; left:50%; transform:translateX(-50%); width:19px; height:19px; border-radius:50%; background:radial-gradient(circle at 30% 30%,#ff6644 0%,#cc1100 55%,#660000 100%); box-shadow:0 3px 0 rgba(0,0,0,0.6),0 0 14px rgba(204,17,0,0.8); animation:stickWob 3s ease-in-out infinite; transform-origin:50% 100%; }
-  @keyframes stickWob { 0%,100%{transform:translateX(-50%) rotate(0deg)} 25%{transform:translateX(-60%) rotate(-8deg)} 75%{transform:translateX(-40%) rotate(8deg)} }
-
-  /* PLAY button — bright arcade red */
-  .play-area-deck { text-align: center; }
-  .play-btn {
-    font-family: 'Press Start 2P', monospace;
-    background: radial-gradient(circle at 35% 30%, #ff5533 0%, #cc1100 55%, #880000 100%);
-    border: 3px solid #ff7755;
-    color: #fff;
-    font-size: clamp(10px, 2.3vw, 13px);
-    padding: 11px 18px;
-    border-radius: 999px;
-    cursor: pointer;
-    box-shadow:
-      0 0 22px #cc1100,
-      0 0 44px rgba(200,17,0,0.4),
-      0 5px 0 #440000,
-      inset 0 -3px 5px rgba(0,0,0,0.4),
-      inset 0 3px 5px rgba(255,120,80,0.4);
-    letter-spacing: 2px;
-    text-shadow: 0 0 8px #fff, 0 1px 0 rgba(0,0,0,0.5);
-    animation: playPulse 1.6s ease-in-out infinite;
-    transition: transform .1s;
-    white-space: nowrap;
-  }
-  @keyframes playPulse {
-    0%,100% { box-shadow: 0 0 22px #cc1100, 0 0 44px rgba(200,17,0,0.4), 0 5px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
-    50%      { box-shadow: 0 0 40px #cc1100, 0 0 70px rgba(200,17,0,0.6), 0 0 100px rgba(200,17,0,0.2), 0 5px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
-  }
-  .play-btn:active { transform: translateY(4px); box-shadow: 0 0 22px #cc1100, 0 1px 0 #440000, inset 0 -3px 5px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,120,80,0.4); }
-
-  /* Nav buttons */
-  .nav-cluster { display: flex; gap: 6px; align-items: center; }
-  .arcade-btn {
-    width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
-    border: 3px solid rgba(0,0,0,0.4);
-    font-family: 'Press Start 2P', monospace; font-size: 13px;
-    color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-    flex-shrink: 0; transition: transform .08s; position: relative;
-  }
-  .arcade-btn::before { content:''; position:absolute; top:4px; left:7px; right:17px; height:23%; background:rgba(255,255,255,0.22); border-radius:50%; pointer-events:none; }
-  /* ◄ PREV — electric blue */
-  .arcade-btn.rose { background:radial-gradient(circle at 30% 30%,#88ccff,#1166ee 70%); box-shadow:0 5px 0 #001166,0 0 16px rgba(20,80,255,0.85),0 0 32px rgba(20,80,255,0.3); }
-  /* ► NEXT — bright green */
-  .arcade-btn.gold { background:radial-gradient(circle at 30% 30%,#88ff88,#11cc11 70%); box-shadow:0 5px 0 #003a00,0 0 16px rgba(57,255,20,0.85),0 0 32px rgba(57,255,20,0.3); }
-  .arcade-btn:active { transform: translateY(4px); }
-  .arcade-btn.rose:active { box-shadow: 0 1px 0 #001166, 0 0 16px rgba(20,80,255,0.85); }
-  .arcade-btn.gold:active { box-shadow: 0 1px 0 #003a00, 0 0 16px rgba(57,255,20,0.85); }
-
-  /* ============================================================
-     LEADERBOARD PANEL
-  ============================================================ */
-  .leaderboard {
-    background: linear-gradient(180deg, #0a0a0a 0%, #040404 100%);
-    border: 2px solid #1e1e1e;
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 0 14px rgba(57,255,20,0.07), inset 0 -3px 8px rgba(0,0,0,0.7);
-    overflow: hidden;
-    display: flex; flex-direction: column;
-    min-height: 0;
-  }
-  .leaderboard-title { font-family:'Press Start 2P',monospace; font-size: 9px; color: var(--neon-yellow); text-shadow: 0 0 6px var(--neon-yellow); letter-spacing: 2px; text-align:center; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,210,80,0.22); }
-  .lb-list { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; flex: 1; min-height: 0; }
-  .lb-row { display:flex; justify-content:space-between; align-items:center; padding:5px 8px; background:rgba(0,0,0,0.4); border:1px solid color-mix(in srgb,var(--c) 28%,transparent); border-radius:6px; font-family:'Press Start 2P',monospace; font-size:7px; letter-spacing:1px; color:var(--c); text-shadow:0 0 4px var(--c); cursor:pointer; transition:background .15s; }
-  .lb-row:hover { background: rgba(0,0,0,0.62); }
-  .lb-row .lb-icon { font-size: 13px; }
-  .lb-row .lb-game { flex:1; padding:0 6px; font-size:6px; }
-  .lb-row .lb-best { color:var(--neon-yellow); text-shadow:0 0 4px var(--neon-yellow); font-size:8px; }
-  .lb-row .lb-best.empty { color:#2a2a2a; text-shadow:none; }
-
-  @media (max-width: 950px) {
-    .leaderboard { display: none; }
-    .leaderboard.show-mobile { display:flex; position:fixed; inset:60px 10px 10px; z-index:50; box-shadow:var(--shadow-deep); }
-  }
-
-  /* ============================================================
-     THEME MODAL
-  ============================================================ */
-  .theme-modal { position:fixed; inset:0; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); z-index:300; display:none; align-items:center; justify-content:center; padding:20px; }
-  .theme-modal.open { display:flex; animation:fadeIn .25s var(--ease); }
-  .theme-modal-inner { background:linear-gradient(180deg,rgba(30,5,15,0.97) 0%,rgba(10,0,8,0.99) 100%); border:2px solid var(--neon-pink); border-radius:var(--radius-lg); padding:22px; max-width:400px; width:100%; box-shadow:0 0 40px color-mix(in srgb,var(--neon-pink) 50%,transparent); }
-  .theme-modal-title { font-family:'Press Start 2P',monospace; font-size:12px; color:var(--neon-pink); text-shadow:0 0 8px var(--neon-pink); margin-bottom:16px; text-align:center; letter-spacing:2px; }
-  .theme-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-bottom:14px; }
-  .theme-opt { padding:12px 8px; border:2px solid; border-radius:var(--radius); cursor:pointer; text-align:center; font-family:'Press Start 2P',monospace; font-size:9px; letter-spacing:2px; transition:all .2s var(--ease); }
-  .theme-opt:hover { transform:scale(1.05); }
-  .theme-opt.active { box-shadow:0 0 16px currentColor; }
-  .theme-swatches { display:flex; gap:4px; justify-content:center; margin-top:5px; }
-  .theme-sw { width:10px; height:10px; border-radius:50%; box-shadow:0 0 4px currentColor; }
-
-  /* Attract */
-  .attract-banner { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:'Press Start 2P',monospace; font-size:clamp(15px,3.2vw,22px); color:#39ff14; text-shadow:0 0 12px #39ff14,0 0 24px rgba(57,255,20,0.6); letter-spacing:4px; pointer-events:none; opacity:0; transition:opacity .3s; z-index:5; animation:attractBlink 1s steps(2) infinite; }
-  .attract-banner.show { opacity:1; }
-  @keyframes attractBlink { 50%{opacity:0.25} }
-
-  /* Footer */
-  .footer-hint { text-align:center; font-size:11px; color:rgba(57,255,20,0.28); padding:0 4px; font-family:'VT323',monospace; letter-spacing:1px; flex-shrink:0; }
+/* ── Monitor stand ── */
+.monitor-neck {
+  width: 90px; height: 34px;
+  background: linear-gradient(90deg, #888 0%, #c4c4c4 35%, #b8b8b8 65%, #888 100%);
+  box-shadow: 3px 0 0 #777, -3px 0 0 #777;
+  margin-top: -3px;
+}
+.monitor-base {
+  width: 240px; height: 24px;
+  background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
+  border-radius: 8px 8px 12px 12px;
+  border: 3px solid #888;
+  border-top: none;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.65), inset 0 -2px 5px rgba(0,0,0,0.3);
+}
 </style>
 </head>
-<body class="crt">
+<body>
 
-  <!-- BOOT SEQUENCE -->
-  <div class="boot-overlay" id="boot">
-    <div class="boot-line"></div>
-    <div class="boot-dot"></div>
-    <div class="boot-flash"></div>
-    <pre class="boot-text" id="bootText"></pre>
-    <div class="boot-ready">READY PLAYER ONE</div>
-  </div>
+<div class="monitor-scene">
+  <div class="monitor-3d">
 
-  <!-- ROSE VELVET BACKGROUND -->
-  <div class="rose-bg" id="roseBg">
-    <div class="rose-glow" style="width:500px;height:300px;background:radial-gradient(circle,rgba(30,100,10,0.22),transparent);top:-120px;left:10%;"></div>
-    <div class="rose-glow" style="width:300px;height:300px;background:radial-gradient(circle,rgba(10,40,5,0.15),transparent);bottom:-80px;right:5%;animation-delay:3.5s;"></div>
-  </div>
+    <!-- Bezel -->
+    <div class="bezel">
+      <div class="power-led"></div>
+      <div class="power-btn"></div>
 
-  <div class="scanlines"></div>
+      <!-- Screen -->
+      <div class="screen-glass">
+        <div class="win98-desktop" id="desktop">
 
-  <div class="hub">
+          <!-- ICONS -->
+          <div class="desktop-icons">
 
-    <!-- TOP ROW -->
-    <div class="top-row">
-      <div style="display:flex;gap:6px">
-        <button class="corner-btn" id="themeBtn" title="Theme">🎨</button>
-        <button class="corner-btn" id="achBtn"   title="Achievements">🏅</button>
-      </div>
+            <div class="icon" id="icon-docs"
+                 onclick="selectIcon(this)"
+                 ondblclick="openWin('docs-win')">
+              <span class="icon-img">📁</span>
+              <span class="icon-label">My Documents</span>
+            </div>
 
-      <div class="player-bar">
-        <div class="pslot" id="slot-p1" style="--c:var(--neon-pink)">
-          <span class="pe" id="p1e">🎮</span>
-          <div>
-            <div class="pl">P1 ▼</div>
-            <div class="pn" id="p1n">P1</div>
+            <div class="icon" id="icon-trash"
+                 onclick="selectIcon(this)"
+                 ondblclick="openWin('trash-win')">
+              <span class="icon-img">🗑️</span>
+              <span class="icon-label">Recycle Bin</span>
+            </div>
+
+            <div class="icon" id="icon-arcade"
+                 onclick="selectIcon(this)"
+                 ondblclick="goArcade()">
+              <span class="icon-img">🕹️</span>
+              <span class="icon-label">Rose Arcade</span>
+            </div>
+
           </div>
-        </div>
-        <div class="pslot" id="slot-p2" style="--c:var(--neon-green)">
-          <span class="pe" id="p2e">👾</span>
-          <div>
-            <div class="pl">P2 ▼</div>
-            <div class="pn" id="p2n">P2</div>
+
+          <!-- ═══ DOCUMENTS WINDOW ═══ -->
+          <div class="win-window" id="docs-win" style="top:38px;left:88px;width:440px;">
+            <div class="win-titlebar">
+              <span class="win-title-icon">📄</span>
+              <span class="win-title-text">Fairy Tales — WordPad</span>
+              <div class="win-controls">
+                <div class="win-btn" title="Minimize" onclick="closeWin('docs-win')">&#x2014;</div>
+                <div class="win-btn" title="Maximize">&#9633;</div>
+                <div class="win-btn close" title="Close" onclick="closeWin('docs-win')">&#x2715;</div>
+              </div>
+            </div>
+            <div class="win-menubar">
+              <span class="win-menu-item">File</span>
+              <span class="win-menu-item">Edit</span>
+              <span class="win-menu-item">View</span>
+              <span class="win-menu-item">Insert</span>
+              <span class="win-menu-item">Format</span>
+              <span class="win-menu-item">Help</span>
+            </div>
+            <div class="win-toolbar">
+              <div class="win-tb-btn" title="New">📄</div>
+              <div class="win-tb-btn" title="Open">📂</div>
+              <div class="win-tb-btn" title="Save">💾</div>
+              <div class="win-tb-sep"></div>
+              <div class="win-tb-btn" title="Print">🖨️</div>
+              <div class="win-tb-sep"></div>
+              <div class="win-tb-btn" title="Bold"><b>B</b></div>
+              <div class="win-tb-btn" title="Italic"><i>I</i></div>
+              <div class="win-tb-btn" title="Underline"><u>U</u></div>
+            </div>
+            <div class="doc-tabs">
+              <div class="doc-tab active" onclick="switchStory(0)">Story I</div>
+              <div class="doc-tab" onclick="switchStory(1)">Story II</div>
+              <div class="doc-tab" onclick="switchStory(2)">Story III</div>
+            </div>
+            <div class="doc-page">
+              <div class="doc-story active" id="story-0">
+                <h2>The Princess and the Pixel</h2>
+                <p>Once upon a time, in the Kingdom of Bandwidth, there lived a princess so beautiful that even the dial-up modem would try to load her portrait — then give up after 47 minutes with a connection error.</p>
+                <p>She had been cursed by the Evil Wizard of 56k, who made her speak only in .wav files. The kingdom's sound card drivers hadn't been updated since 1997, so nobody could hear her.</p>
+                <p>Many brave knights rode in to rescue her by downloading her audio files, but the connection always dropped at 98%.</p>
+                <p>One day, a prince arrived bearing a T1 line. He downloaded her files in three seconds, heard her voice, fell deeply in love, and promptly installed the correct audio drivers.</p>
+                <p>The curse was broken. They were married in a ceremony streamed live at 240p. The buffering was rough during the vows, but everyone agreed it was beautiful.</p>
+                <p class="story-end">~ The End ~</p>
+              </div>
+              <div class="doc-story" id="story-1">
+                <h2>Jack and the Giant Download</h2>
+                <p>Jack was a poor boy who traded his family's only computer for three magic floppy disks. His mother was furious and threw the disks out the window into the yard.</p>
+                <p>By morning, an enormous download progress bar had grown from the yard up through the clouds. Jack climbed it and discovered a castle belonging to a terrible giant who owned a magical goose that laid golden .exe files.</p>
+                <p>"FEE FI FO FUM!" bellowed the giant, "I SMELL THE IP ADDRESS OF AN ENGLISHMAN! YOUR MAC ADDRESS HAS BEEN LOGGED."</p>
+                <p>Jack snatched the golden .exe, slid back down the progress bar, and double-clicked it before reading the terms of service. The goose turned out to be adware — extremely profitable adware — and Jack's mother eventually forgave him.</p>
+                <p>The giant tried to sue for copyright infringement, but his lawyer communicated only via AIM and was entirely unreachable.</p>
+                <p class="story-end">~ The End ~</p>
+              </div>
+              <div class="doc-story" id="story-2">
+                <h2>Goldilocks and the Three Firewalls</h2>
+                <p>Goldilocks was browsing one afternoon when she stumbled upon a server farm belonging to three bears: Papa Bear's Enterprise Firewall, Mama Bear's Corporate Proxy, and Baby Bear's Home Router — password still set to "password."</p>
+                <p>"Too restrictive," she said of Papa Bear's. "It won't even allow Wikipedia."</p>
+                <p>"Too slow," she said of Mama Bear's. "Everything routes through Cleveland."</p>
+                <p>"Just right," she said of Baby Bear's. She was inside in seconds.</p>
+                <p>She browsed, updated the router firmware, changed the admin password to something with 14 characters and two symbols, and left a strongly-worded sticky note about cybersecurity hygiene.</p>
+                <p>When the bears returned, they found their network significantly more secure. Their feelings were still hurt, so they filed a complaint with the HOA. The HOA's website was also running default credentials.</p>
+                <p class="story-end">~ The End ~</p>
+              </div>
+            </div>
+            <div class="win-statusbar">3 documents &nbsp;|&nbsp; Times New Roman &nbsp;|&nbsp; 13pt</div>
+            <div class="win-resize">◢</div>
           </div>
-        </div>
-      </div>
 
-      <div style="display:flex;gap:6px;align-items:center">
-        <div class="coin-chip" id="coinChip"><span class="coin-icon">🪙</span><span id="coinCount">5</span></div>
-        <button class="corner-btn" id="lbBtn" title="Leaderboard">🏆</button>
-      </div>
-    </div>
-
-    <!-- TICKER -->
-    <div class="ticker" id="ticker">
-      <div class="ticker-track" id="tickerTrack"></div>
-    </div>
-
-    <!-- MAIN: 3D CABINET + LEADERBOARD -->
-    <div class="main-grid">
-
-      <!-- CABINET -->
-      <div class="scene">
-        <div class="cabinet">
-          <div class="cab-body">
-
-            <!-- MARQUEE -->
-            <div class="marquee">
-              <div class="chrome">ROSE ARCADE</div>
-              <div class="sub">// INSERT COIN //</div>
-            </div>
-
-            <!-- SCREEN -->
-            <div class="screen-shell">
-              <span class="screw tl"></span><span class="screw tr"></span>
-              <span class="screw bl"></span><span class="screw br"></span>
-              <div class="screen" id="screen">
-                <div class="attract-banner" id="attractBanner">► DEMO ◄</div>
+          <!-- ═══ RECYCLE BIN WINDOW ═══ -->
+          <div class="win-window" id="trash-win" style="top:55px;left:160px;width:400px;">
+            <div class="win-titlebar">
+              <span class="win-title-icon">🗑️</span>
+              <span class="win-title-text">Recycle Bin</span>
+              <div class="win-controls">
+                <div class="win-btn" title="Minimize" onclick="closeWin('trash-win')">&#x2014;</div>
+                <div class="win-btn" title="Maximize">&#9633;</div>
+                <div class="win-btn close" title="Close" onclick="closeWin('trash-win')">&#x2715;</div>
               </div>
             </div>
-
-            <!-- CONTROL DECK -->
-            <div class="control-deck">
-              <div class="joystick" aria-hidden="true">
-                <div class="base"></div>
-                <div class="stick"></div>
-                <div class="ball"></div>
-              </div>
-              <div class="play-area-deck">
-                <button class="play-btn" id="playBtn">▶ PRESS START</button>
-              </div>
-              <div class="nav-cluster">
-                <button class="arcade-btn rose" id="prevBtn" aria-label="Prev">◄</button>
-                <button class="arcade-btn gold" id="nextBtn" aria-label="Next">►</button>
-              </div>
+            <div class="win-menubar">
+              <span class="win-menu-item">File</span>
+              <span class="win-menu-item">Edit</span>
+              <span class="win-menu-item">View</span>
+              <span class="win-menu-item">Help</span>
             </div>
+            <div class="win-toolbar">
+              <div class="win-tb-btn" title="Back">&#9664;</div>
+              <div class="win-tb-btn" title="Forward">&#9654;</div>
+              <div class="win-tb-btn" title="Up">&#9650;</div>
+              <div class="win-tb-sep"></div>
+              <div class="win-tb-btn" title="Empty Recycle Bin"
+                   style="width:auto;padding:0 5px;font-size:10px;"
+                   onclick="emptyBin()">Empty</div>
+              <div class="win-tb-sep"></div>
+              <span class="trash-path">C:\RECYCLED\</span>
+            </div>
+            <div class="trash-grid" id="trash-grid"></div>
+            <div class="win-statusbar" id="trash-status">6 object(s) &nbsp;|&nbsp; 4.2 MB</div>
+            <div class="win-resize">◢</div>
+          </div>
 
-          </div><!-- /cab-body -->
-        </div><!-- /cabinet -->
-      </div><!-- /scene -->
+          <!-- TASKBAR -->
+          <div class="taskbar">
+            <div class="start-btn">
+              <span>🪟</span>
+              <span><b>Start</b></span>
+            </div>
+            <div class="taskbar-sep"></div>
+            <div class="taskbar-items">
+              <div class="taskbar-item" id="tb-docs">📄 Fairy Tales</div>
+              <div class="taskbar-item" id="tb-trash">🗑️ Recycle Bin</div>
+            </div>
+            <div class="taskbar-clock" id="taskbar-clock">12:00 PM</div>
+          </div>
 
-      <!-- LEADERBOARD -->
-      <div class="leaderboard" id="leaderboard">
-        <div class="leaderboard-title">🏆 HIGH SCORES</div>
-        <div class="lb-list" id="lbList"></div>
-      </div>
+        </div><!-- /win98-desktop -->
+      </div><!-- /screen-glass -->
+    </div><!-- /bezel -->
 
-    </div><!-- /main-grid -->
+    <!-- Stand -->
+    <div class="monitor-neck"></div>
+    <div class="monitor-base"></div>
 
-    <div class="footer-hint">◄ ► · SWIPE TO BROWSE · ENTER TO PLAY</div>
+  </div><!-- /monitor-3d -->
+</div><!-- /scene -->
 
-  </div><!-- /hub -->
+<script>
+/* ════ CLOCK ════ */
+function tick(){
+  const d = new Date();
+  let h = d.getHours(), m = d.getMinutes();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  document.getElementById('taskbar-clock').textContent =
+    h + ':' + (m < 10 ? '0' + m : m) + ' ' + ap;
+}
+tick(); setInterval(tick, 10000);
 
-  <!-- Achievement modal -->
-  <div class="ach-modal" id="achModal">
-    <div class="ach-modal-inner">
-      <div class="ach-modal-title">🏅 ACHIEVEMENTS</div>
-      <div class="ach-list" id="achList"></div>
-      <div style="text-align:center"><button class="btn btn-secondary" id="achClose">DONE</button></div>
-    </div>
-  </div>
-
-  <!-- Theme modal -->
-  <div class="theme-modal" id="themeModal">
-    <div class="theme-modal-inner">
-      <div class="theme-modal-title">SELECT THEME</div>
-      <div class="theme-grid" id="themeGrid"></div>
-      <div style="text-align:center"><button class="btn btn-secondary" id="themeClose">DONE</button></div>
-    </div>
-  </div>
-
-  <script src="audio.js"></script>
-  <script src="themes.js"></script>
-  <script src="avatars.js"></script>
-  <script src="gamelib.js"></script>
-  <script>
-
-  // ──────────────────────────────────────
-  // BOOT
-  // ──────────────────────────────────────
-  const boot = document.getElementById('boot');
-  if(sessionStorage.getItem('arcade_booted')){
-    boot.remove();
-  } else {
-    sessionStorage.setItem('arcade_booted','1');
-    const bootText = document.getElementById('bootText');
-    const lines = [
-      'ROSE-ARCADE OS v2.0.0',
-      'Booting CRT subsystem...   [ OK ]',
-      'Loading rose palette...    [ OK ]',
-      'Mounting cartridge slot... [ OK ]',
-      'Calibrating joystick...    [ OK ]',
-      'Initializing audio dsp...  [ OK ]',
-      '',
-      '> SYSTEM READY',
-    ];
-    let acc='', i=0;
-    function typeNext(){
-      if(i>=lines.length) return;
-      const line = lines[i]+'\n'; let j=0;
-      const t = setInterval(()=>{ acc+=line[j]; bootText.textContent=acc; j++; if(j>=line.length){clearInterval(t);i++;setTimeout(typeNext,60);} },18);
-    }
-    setTimeout(typeNext, 1100);
-    setTimeout(()=>{
-      boot.classList.add('scan-out');
-      setTimeout(()=>{ boot.classList.add('gone'); setTimeout(()=>boot.remove(),500); },500);
-    }, 3300);
+/* ════ ICON SELECTION ════ */
+let selIcon = null;
+function selectIcon(el){
+  if(selIcon && selIcon !== el) selIcon.classList.remove('selected');
+  selIcon = el;
+  el.classList.add('selected');
+}
+document.getElementById('desktop').addEventListener('mousedown', function(e){
+  if(!e.target.closest('.icon') && !e.target.closest('.win-window') && !e.target.closest('.taskbar')){
+    if(selIcon){ selIcon.classList.remove('selected'); selIcon = null; }
   }
+});
 
-  // ──────────────────────────────────────
-  // GAMES LIST
-  // ──────────────────────────────────────
-  const games = [
-    { id:'snake',       name:'SNAKE',              tag:'CLASSIC',     href:'games/snake.html',       icon:'🐍',   c:'#5dff8a', anim:'anim-snake' },
-    { id:'snake-duel',  name:'SNAKE DUEL',         tag:'2P VS',       href:'games/snake-duel.html',  icon:'🐍🐍', c:'#00ff88', anim:'anim-snake',  mp:true },
-    { id:'tictactoe',   name:'TIC-TAC-TOE',        tag:'CPU OR 2P',   href:'games/tictactoe.html',   icon:'⭕',   c:'#ff3d80', anim:'anim-spin',   mp:true },
-    { id:'pong',        name:'PONG',               tag:'CPU OR 2P',   href:'games/pong.html',        icon:'🏓',   c:'#4df0ff', anim:'anim-bounce', mp:true },
-    { id:'memory',      name:'MEMORY',             tag:'MATCH PAIRS', href:'games/memory.html',      icon:'🧠',   c:'#ffd166', anim:'anim-pulse' },
-    { id:'2048',        name:'2048',               tag:'PUZZLE',      href:'games/2048.html',        icon:'🔢',   c:'#ffa64d', anim:'anim-pulse' },
-    { id:'whackamole',  name:'WHACK-A-MOLE',       tag:'REACTION',    href:'games/whackamole.html',  icon:'🔨',   c:'#ff6688', anim:'anim-shake' },
-    { id:'rps',         name:'ROCK PAPER SCISSORS',tag:'CPU OR 2P',   href:'games/rps.html',         icon:'✊',   c:'#c46dff', anim:'anim-float',  mp:true },
-    { id:'minesweeper', name:'MINESWEEPER',        tag:'LOGIC',       href:'games/minesweeper.html', icon:'💣',   c:'#44ddff', anim:'anim-float' },
-    { id:'tetris',      name:'TETRIS',             tag:'CLASSIC',     href:'games/tetris.html',      icon:'🟦',   c:'#66ccff', anim:'anim-fall' },
-    { id:'breakout',    name:'BREAKOUT',           tag:'CLASSIC',     href:'games/breakout.html',    icon:'🧱',   c:'#ff8866', anim:'anim-bounce' },
-    { id:'invaders',    name:'INVADERS',           tag:'SHOOTER',     href:'games/invaders.html',    icon:'👾',   c:'#88ff66', anim:'anim-shoot' },
-    { id:'flappy',      name:'FLAPPY',             tag:'TAP TIMING',  href:'games/flappy.html',      icon:'🐦',   c:'#ffcc44', anim:'anim-bounce' },
-  ];
-  let idx = 0;
+/* ════ ARCADE LAUNCH ════ */
+function goArcade(){
+  const ic = document.getElementById('icon-arcade');
+  ic.style.opacity = '0.6';
+  setTimeout(() => { window.location.href = 'hub.html'; }, 220);
+}
 
-  // Build preview cards
-  const screen = document.getElementById('screen');
-  games.forEach(g => {
-    const p = document.createElement('div');
-    p.className = 'preview';
-    p.style.setProperty('--c', g.c);
-    const best = gamelib.bestScore(g.id);
-    p.innerHTML = `
-      <div class="preview-icon ${g.anim}">${g.icon}</div>
-      <div class="preview-name">${g.name}</div>
-      <div class="preview-tag">${g.tag}${g.mp?' · 2P':''}</div>
-      ${best>0
-        ? `<div class="preview-best">BEST: ${best}</div>`
-        : `<div class="preview-best" style="opacity:.3">NO HIGH SCORE</div>`}
-    `;
-    screen.appendChild(p);
-  });
+/* ════ WINDOW MANAGEMENT ════ */
+let zTop = 30;
 
-  function setIdx(i, sound=false){
-    idx = (i + games.length) % games.length;
-    document.querySelectorAll('.preview').forEach((p,k) => p.classList.toggle('active', k===idx));
-    if(sound) sfx.blip();
-  }
+const TASKBAR_MAP = { 'docs-win':'tb-docs', 'trash-win':'tb-trash' };
 
-  document.getElementById('prevBtn').onclick = () => setIdx(idx-1, true);
-  document.getElementById('nextBtn').onclick = () => setIdx(idx+1, true);
+function openWin(id){
+  const w = document.getElementById(id);
+  w.classList.add('open');
+  bringFront(w);
+  const tb = document.getElementById(TASKBAR_MAP[id]);
+  if(tb){ tb.classList.add('visible','active'); }
+  // keep inside desktop
+  const dw = 680, dh = 510 - 32;
+  let l = parseInt(w.style.left)||60, t = parseInt(w.style.top)||40;
+  const maxL = dw - w.offsetWidth  - 6;
+  const maxT = dh - w.offsetHeight - 6;
+  if(l > maxL) w.style.left = Math.max(6, maxL) + 'px';
+  if(t > maxT) w.style.top  = Math.max(6, maxT) + 'px';
+}
 
-  function startGame(){
-    gamelib.insertCoin(() => { location.href = games[idx].href; });
-  }
-  document.getElementById('playBtn').onclick = startGame;
+function closeWin(id){
+  const w = document.getElementById(id);
+  w.classList.remove('open');
+  const tb = document.getElementById(TASKBAR_MAP[id]);
+  if(tb){ tb.classList.remove('visible','active'); }
+}
 
-  document.addEventListener('keydown', e => {
-    if(e.key==='ArrowLeft'  || e.key==='a') { setIdx(idx-1, true); e.preventDefault(); }
-    else if(e.key==='ArrowRight' || e.key==='d') { setIdx(idx+1, true); e.preventDefault(); }
-    else if(e.key==='Enter' || e.key===' ') { startGame(); e.preventDefault(); }
-  });
+function bringFront(w){
+  zTop++;
+  w.style.zIndex = zTop;
+  document.querySelectorAll('.win-window').forEach(x => x.querySelector('.win-titlebar').classList.add('inactive'));
+  w.querySelector('.win-titlebar').classList.remove('inactive');
+}
 
-  // Swipe on screen
-  let tx = null;
-  screen.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
-  screen.addEventListener('touchend', e => {
-    if(tx===null) return;
-    const dx = e.changedTouches[0].clientX - tx;
-    if(Math.abs(dx)>40) setIdx(idx+(dx<0?1:-1), true);
-    tx = null;
-  }, {passive:true});
-
-  // ──────────────────────────────────────
-  // AVATARS
-  // ──────────────────────────────────────
-  function refreshAvatars(){
-    const p1=arcadeAvatars.get('p1'), p2=arcadeAvatars.get('p2');
-    arcadeAvatars.renderInto(document.getElementById('p1e'), p1);
-    arcadeAvatars.renderInto(document.getElementById('p2e'), p2);
-    document.getElementById('p1n').textContent = p1.n;
-    document.getElementById('p2n').textContent = p2.n;
-  }
-  refreshAvatars();
-  document.addEventListener('avatarchange', refreshAvatars);
-  document.getElementById('slot-p1').onclick = () => arcadeAvatars.open('p1');
-  document.getElementById('slot-p2').onclick = () => arcadeAvatars.open('p2');
-
-  // ──────────────────────────────────────
-  // LEADERBOARD
-  // ──────────────────────────────────────
-  const lbList = document.getElementById('lbList');
-  function refreshLb(){
-    lbList.innerHTML='';
-    games.forEach(g => {
-      const best = gamelib.bestScore(g.id);
-      const row = document.createElement('div');
-      row.className='lb-row'; row.style.setProperty('--c', g.c);
-      row.innerHTML=`<span class="lb-icon">${g.icon}</span><span class="lb-game">${g.name}</span><span class="lb-best ${best===0?'empty':''}">${best||'--'}</span>`;
-      row.onclick=()=>setIdx(games.indexOf(g), true);
-      lbList.appendChild(row);
+/* ════ DRAGGING ════ */
+(function(){
+  document.querySelectorAll('.win-window').forEach(function(w){
+    var tb = w.querySelector('.win-titlebar');
+    var drag = false, ox = 0, oy = 0;
+    tb.addEventListener('mousedown', function(e){
+      if(e.target.closest('.win-controls')) return;
+      drag = true; bringFront(w);
+      var r = w.getBoundingClientRect();
+      var p = document.getElementById('desktop').getBoundingClientRect();
+      ox = e.clientX - r.left; oy = e.clientY - r.top;
+      e.preventDefault();
     });
-  }
-  refreshLb();
-  document.getElementById('lbBtn').onclick=()=>{ sfx.click(); document.getElementById('leaderboard').classList.toggle('show-mobile'); };
-
-  // ──────────────────────────────────────
-  // THEMES
-  // ──────────────────────────────────────
-  const themeModal = document.getElementById('themeModal');
-  function refreshThemeGrid(){
-    const grid = document.getElementById('themeGrid');
-    grid.innerHTML='';
-    const cur = arcadeThemes.current();
-    arcadeThemes.list().forEach(t => {
-      const o = document.createElement('div');
-      o.className='theme-opt'+(t.key===cur?' active':'');
-      o.style.color=t.pink; o.style.borderColor=t.pink;
-      o.innerHTML=`${t.name}<div class="theme-swatches"><span class="theme-sw" style="background:${t.pink}"></span><span class="theme-sw" style="background:${t.cyan}"></span><span class="theme-sw" style="background:${t.yellow}"></span><span class="theme-sw" style="background:${t.green}"></span></div>`;
-      o.onclick=()=>{ arcadeThemes.apply(t.key); sfx.coin(); refreshThemeGrid(); };
-      grid.appendChild(o);
+    document.addEventListener('mousemove', function(e){
+      if(!drag) return;
+      var p = document.getElementById('desktop').getBoundingClientRect();
+      var nx = e.clientX - p.left  - ox;
+      var ny = e.clientY - p.top   - oy;
+      nx = Math.max(0, Math.min(nx, p.width  - w.offsetWidth));
+      ny = Math.max(0, Math.min(ny, p.height - w.offsetHeight - 32));
+      w.style.left = nx + 'px'; w.style.top = ny + 'px';
     });
-  }
-  document.getElementById('themeBtn').onclick=()=>{ sfx.click(); themeModal.classList.add('open'); refreshThemeGrid(); };
-  document.getElementById('themeClose').onclick=()=>{ sfx.click(); themeModal.classList.remove('open'); };
-  themeModal.addEventListener('click', e=>{ if(e.target===themeModal) themeModal.classList.remove('open'); });
-
-  // ──────────────────────────────────────
-  // FALLING ROSE PETALS
-  // ──────────────────────────────────────
-  const bgEl = document.getElementById('roseBg');
-  const petalEmojis = ['🌸','🌹','🪷','🌺','🌷'];
-  for(let i=0;i<20;i++){
-    const p = document.createElement('div');
-    p.className = 'petal';
-    p.textContent = petalEmojis[i % petalEmojis.length];
-    p.style.left = (Math.random()*100)+'%';
-    p.style.fontSize = (9 + Math.random()*13)+'px';
-    p.style.animationDuration = (9 + Math.random()*13)+'s';
-    p.style.animationDelay   = (-Math.random()*18)+'s';
-    bgEl.appendChild(p);
-  }
-
-  // ──────────────────────────────────────
-  // COIN COUNTER
-  // ──────────────────────────────────────
-  const coinChip  = document.getElementById('coinChip');
-  const coinCount = document.getElementById('coinCount');
-  function refreshCoins(){ coinCount.textContent = gamelib.getCoins(); }
-  refreshCoins();
-  document.addEventListener('coinchange', refreshCoins);
-  document.addEventListener('coinearn', e => {
-    coinChip.classList.remove('bump'); void coinChip.offsetWidth; coinChip.classList.add('bump');
-    const r = coinChip.getBoundingClientRect();
-    gamelib.popup({ getBoundingClientRect:()=>r }, '+'+e.detail.amount, { color:'#ffd166' });
+    document.addEventListener('mouseup', function(){ drag = false; });
+    w.addEventListener('mousedown', function(){ bringFront(w); });
   });
-  setInterval(()=>{ gamelib.addCoins(1,'idle drip'); }, 120000);
+})();
 
-  // ──────────────────────────────────────
-  // TICKER
-  // ──────────────────────────────────────
-  function buildTicker(){
-    const track = document.getElementById('tickerTrack');
-    const parts = [
-      `<span class="hi">✿ WELCOME TO ROSE ARCADE ✿</span>`,
-      `<span>INSERT COIN TO PLAY</span>`,
-    ];
-    games.forEach(g => {
-      const best = gamelib.bestScore(g.id);
-      if(best>0) parts.push(`<span class="ic">${g.icon} ${g.name} HI: ${best}</span>`);
-    });
-    const unlocked = gamelib.unlockedAchievements().length;
-    parts.push(`<span>🏅 ${unlocked}/${gamelib.ACHIEVEMENTS.length} ACHIEVEMENTS UNLOCKED</span>`);
-    parts.push(`<span class="hi">► PRESS START ◄</span>`);
-    track.innerHTML = parts.join('') + parts.join('');
-  }
-  buildTicker();
-  document.addEventListener('coinchange', buildTicker);
+/* ════ STORY TABS ════ */
+function switchStory(i){
+  document.querySelectorAll('.doc-story').forEach(function(s,j){ s.classList.toggle('active', j===i); });
+  document.querySelectorAll('.doc-tab').forEach(function(t,j){ t.classList.toggle('active', j===i); });
+}
 
-  // ──────────────────────────────────────
-  // ACHIEVEMENTS
-  // ──────────────────────────────────────
-  const achModal = document.getElementById('achModal');
-  function refreshAchList(){
-    const list = document.getElementById('achList');
-    list.innerHTML='';
-    const unlocked = new Set(gamelib.unlockedAchievements());
-    gamelib.ACHIEVEMENTS.forEach(a => {
-      const r = document.createElement('div');
-      r.className='ach-row'+(unlocked.has(a.id)?' unlocked':'');
-      r.innerHTML=`
-        <span class="ach-icon">${a.icon}</span>
-        <div class="ach-meta">
-          <div class="ach-name">${unlocked.has(a.id)?a.name:'???'}</div>
-          <div class="ach-desc">${a.desc}</div>
-        </div>
-        <span class="ach-reward">+${a.reward}🪙</span>`;
-      list.appendChild(r);
-    });
-  }
-  document.getElementById('achBtn').onclick=()=>{ sfx.click(); refreshAchList(); achModal.classList.add('open'); };
-  document.getElementById('achClose').onclick=()=>{ sfx.click(); achModal.classList.remove('open'); };
-  achModal.addEventListener('click', e=>{ if(e.target===achModal) achModal.classList.remove('open'); });
+/* ════ TRASH ITEMS ════ */
+var TRASH = [
+  { src:'https://picsum.photos/seed/rc1/88/66', name:'definitely_not_homework.doc' },
+  { src:'https://picsum.photos/seed/rc2/88/66', name:'ex_photos_DELETE_FOREVER.zip' },
+  { src:'https://picsum.photos/seed/rc3/88/66', name:'my_diet_plan_2019.xls' },
+  { src:'https://picsum.photos/seed/rc4/88/66', name:'resume_FINAL_v9_REAL.doc' },
+  { src:'https://picsum.photos/seed/rc5/88/66', name:'taxes_2019_oh_god.pdf' },
+  { src:'https://picsum.photos/seed/rc6/88/66', name:'do_not_open_IMPORTANT.jpg' }
+];
 
-  // ──────────────────────────────────────
-  // ATTRACT MODE
-  // ──────────────────────────────────────
-  const attractBanner = document.getElementById('attractBanner');
-  let attractTimer = null;
-  gamelib.attractMode({
-    idleMs: 25000,
-    trigger: ()=>{ attractBanner.classList.add('show'); attractTimer=setInterval(()=>setIdx(idx+1,false),2500); },
-    action:  ()=>{ attractBanner.classList.remove('show'); clearInterval(attractTimer); }
+function renderTrash(){
+  var g = document.getElementById('trash-grid');
+  g.innerHTML = '';
+  TRASH.forEach(function(item){
+    var d = document.createElement('div');
+    d.className = 'trash-item';
+    d.innerHTML = '<img src="' + item.src + '" alt="' + item.name + '" loading="lazy"><span>' + item.name + '</span>';
+    g.appendChild(d);
   });
-  document.addEventListener('attractend', ()=>{ attractBanner.classList.remove('show'); clearInterval(attractTimer); });
+  document.getElementById('trash-status').innerHTML = TRASH.length + ' object(s) &nbsp;|&nbsp; 4.2 MB';
+}
+renderTrash();
 
-  // ──────────────────────────────────────
-  // ACHIEVEMENT TRIGGERS (hub-side)
-  // ──────────────────────────────────────
-  document.addEventListener('avatarchange', ()=>gamelib.unlock('avatar_swap'));
-  document.addEventListener('themechange',  ()=>gamelib.unlock('theme_swap'));
-
-  setIdx(0);
-
-  </script>
+function emptyBin(){
+  TRASH = [];
+  var g = document.getElementById('trash-grid');
+  g.style.display = 'block';
+  g.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#808080;padding:50px 0;">Recycle Bin is empty.</div>';
+  document.getElementById('trash-status').textContent = '0 object(s)';
+}
+</script>
 </body>
 </html>
