@@ -15,14 +15,15 @@
 
 (function () {
 
-  // ── Paste your Firebase config here ──────────────────────
+  // ── Firebase config ───────────────────────────────────────
   var FB_CONFIG = {
-    apiKey:            "PASTE_YOUR_API_KEY",
-    authDomain:        "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:         "PASTE_YOUR_PROJECT_ID",
-    storageBucket:     "PASTE_YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "PASTE_YOUR_SENDER_ID",
-    appId:             "PASTE_YOUR_APP_ID"
+    apiKey:            "AIzaSyD7Ma0iEStWU0m9vQDX5UgvtU-gWYWZVgg",
+    authDomain:        "rose-arcade.firebaseapp.com",
+    projectId:         "rose-arcade",
+    storageBucket:     "rose-arcade.firebasestorage.app",
+    messagingSenderId: "822267120428",
+    appId:             "1:822267120428:web:f14cb5b42c9fa90c1bba89",
+    measurementId:     "G-EGR8PRVS8C"
   };
   // ─────────────────────────────────────────────────────────
 
