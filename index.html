@@ -357,7 +357,7 @@ html, body {
 .char-group {
   position: absolute;
   bottom: 31%;
-  left: 16%;
+  left: 20%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -442,28 +442,28 @@ html, body {
 /* ── Desk keyboard ── */
 .desk-keyboard {
   position: absolute;
-  bottom: 142px; /* same as desk surface from desk-group bottom */
+  bottom: 126px; /* slightly below desk surface = appears "in front" of monitor */
   left: 54%; /* centered under monitor */
   transform: translateX(-50%);
-  width: 82px; height: 16px;
+  width: 96px; height: 18px;
   background: linear-gradient(180deg, #c8c4be 0%, #aaa8a2 100%);
-  border-radius: 3px 3px 4px 4px;
+  border-radius: 3px 3px 5px 5px;
   border: 1.5px solid #808078;
-  border-top-color: #d0ccc6;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
-  z-index: 15;
+  border-top-color: #d8d4ce;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+  z-index: 16;
 }
 .desk-keyboard::before {
   content: '';
-  position: absolute; inset: 2px 3px 4px 3px;
-  background: repeating-linear-gradient(90deg, #848078 0px, #848078 3px, #b0aca6 3px, #b0aca6 5px);
-  border-radius: 1px; opacity: 0.9;
+  position: absolute; inset: 2px 4px 5px 4px;
+  background: repeating-linear-gradient(90deg, #787470 0px, #787470 3px, #b0aca6 3px, #b0aca6 5px);
+  border-radius: 1px; opacity: 1;
 }
 .desk-keyboard::after {
   content: '';
   position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 38px; height: 3px;
-  background: #888; border-radius: 2px;
+  width: 44px; height: 4px;
+  background: #868280; border-radius: 2px;
 }
 
 /* ── Cat ── */
@@ -708,11 +708,11 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 156px; height: 118px;
+  width: 204px; height: 154px;
   background: #000608;
   border-radius: 4px;
   border: 3px solid #1a1a1a;
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
   overflow: hidden;
   position: relative;
 }
@@ -730,15 +730,15 @@ html, body {
 }
 
 .monitor-neck {
-  width: 26px; height: 9px;
+  width: 32px; height: 11px;
   background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
   box-shadow: 2px 0 0 #777, -2px 0 0 #777;
   margin-top: -2px;
 }
 .monitor-base {
-  width: 70px; height: 8px;
+  width: 88px; height: 10px;
   background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
-  border-radius: 5px 5px 8px 8px;
+  border-radius: 6px 6px 10px 10px;
   border: 2px solid #888; border-top: none;
   box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.3);
 }
@@ -868,52 +868,52 @@ html, body {
 
 /* Taskbar */
 .taskbar {
-  position: absolute; bottom:0; left:0; right:0; height:22px;
+  position: absolute; bottom:0; left:0; right:0; height:24px;
   background: #c0c0c0;
   border-top: 2px solid #fff;
   box-shadow: inset 0 1px 0 #e0e0e0;
   display: flex; align-items: center;
-  padding: 0 2px; gap: 2px; z-index: 500;
+  padding: 0 3px; gap: 2px; z-index: 500;
 }
 .start-btn {
   display:flex; align-items:center; gap:3px;
-  padding: 1px 5px 1px 3px;
+  padding: 1px 6px 1px 4px;
   background: #c0c0c0;
   border: 2px solid; border-color: #fff #808080 #808080 #fff;
-  font-family: Arial, sans-serif; font-size: 9px; font-weight: bold;
+  font-family: Arial, sans-serif; font-size: 10px; font-weight: bold;
   user-select: none; white-space: nowrap;
 }
 .start-btn:active { border-color: #808080 #fff #fff #808080; }
-.taskbar-sep { width:2px; height:14px; background:#808080; box-shadow:1px 0 0 #fff; }
+.taskbar-sep { width:2px; height:16px; background:#808080; box-shadow:1px 0 0 #fff; }
 .taskbar-items { display:flex; gap:2px; flex:1; padding:0 2px; }
 .taskbar-item {
   display:none; align-items:center; gap:2px;
-  padding:1px 5px;
+  padding:1px 6px;
   background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:8px; user-select:none;
-  max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-family:Arial,sans-serif; font-size:9px; user-select:none;
+  max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .taskbar-item.visible { display:flex; }
 .taskbar-clock {
-  margin-left:auto; padding:1px 5px;
+  margin-left:auto; padding:1px 6px;
   background:#c0c0c0; border:1px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:9px; user-select:none;
+  font-family:Arial,sans-serif; font-size:10px; user-select:none;
 }
 
 /* Desktop icons */
 .desktop-icons {
-  position:absolute; top:4px; left:4px;
-  display:flex; flex-direction:column; gap:3px;
+  position:absolute; top:5px; left:5px;
+  display:flex; flex-direction:column; gap:5px;
 }
 .icon {
   display:flex; flex-direction:column; align-items:center;
-  width:40px; padding:1px; border-radius:1px; user-select:none;
+  width:46px; padding:2px; border-radius:1px; user-select:none;
 }
-.icon .icon-img { font-size:16px; line-height:1; margin-bottom:1px; display:block; }
+.icon .icon-img { font-size:20px; line-height:1; margin-bottom:2px; display:block; }
 .icon .icon-label {
-  font-family:Arial,sans-serif; font-size:6.5px; color:#fff;
+  font-family:Arial,sans-serif; font-size:8px; color:#fff;
   text-align:center; text-shadow:1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
-  padding:1px 2px; line-height:1.2; max-width:40px; word-break:break-word;
+  padding:1px 2px; line-height:1.2; max-width:46px; word-break:break-word;
 }
 .icon:hover .icon-label, .icon.selected .icon-label { background:#000080; color:#fff; }
 .icon:hover .icon-img, .icon.selected .icon-img { filter:brightness(0.6) sepia(1) hue-rotate(200deg) saturate(4); }
@@ -978,47 +978,47 @@ html, body {
 /* ── Documents window ── */
 .doc-nav {
   background:#fff; border-right:2px solid #808080;
-  width:42px; overflow-y:auto; flex-shrink:0;
+  width:54px; overflow-y:auto; flex-shrink:0;
 }
 .doc-nav-item {
-  font-family:Arial,sans-serif; font-size:8px;
-  padding:3px 4px; border-bottom:1px solid #e0e0e0;
+  font-family:Arial,sans-serif; font-size:9px;
+  padding:4px 5px; border-bottom:1px solid #e0e0e0;
   user-select:none; line-height:1.3;
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:72px; }
+.doc-content-wrap { display:flex; height:90px; }
 .doc-page {
-  background:#fff; padding:5px 7px;
+  background:#fff; padding:6px 8px;
   flex:1; overflow-y:auto;
-  font-family:'Times New Roman',serif; font-size:9px; line-height:1.5; color:#000;
+  font-family:'Times New Roman',serif; font-size:10px; line-height:1.5; color:#000;
 }
 .doc-story { display:none; }
 .doc-story.active { display:block; }
-.doc-story h2 { font-size:9px; text-align:center; margin:0 0 5px; text-decoration:underline; }
-.doc-story .verse { margin:0 0 6px; white-space:pre-line; }
-.story-end { text-align:center; font-style:italic; margin-top:8px; font-size:8px; }
+.doc-story h2 { font-size:10px; text-align:center; margin:0 0 6px; text-decoration:underline; }
+.doc-story .verse { margin:0 0 7px; white-space:pre-line; }
+.story-end { text-align:center; font-style:italic; margin-top:10px; font-size:9px; }
 
 /* ── Trash window ── */
 .trash-path {
   flex:1; background:#fff; border:2px solid; border-color:#808080 #fff #fff #808080;
-  padding:1px 4px; font-family:Arial,sans-serif; font-size:9px; margin-left:2px;
+  padding:1px 5px; font-family:Arial,sans-serif; font-size:10px; margin-left:3px;
 }
 .trash-grid {
-  display:grid; grid-template-columns:repeat(2,1fr); gap:4px;
-  padding:6px; background:#fff; margin:3px; min-height:100px;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:5px;
+  padding:8px; background:#fff; margin:4px; min-height:120px;
 }
 .trash-item {
-  display:flex; flex-direction:column; align-items:center; gap:2px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
 }
 .trash-item img {
-  width:46px; height:36px; object-fit:cover;
+  width:58px; height:44px; object-fit:cover;
   border:2px solid #808080; display:block;
 }
 .trash-item:hover img { border-color:#000080; outline:1px solid #000080; }
 .trash-item span {
-  font-family:Arial,sans-serif; font-size:7px;
-  text-align:center; max-width:56px; word-break:break-all; line-height:1.2;
+  font-family:Arial,sans-serif; font-size:8px;
+  text-align:center; max-width:72px; word-break:break-all; line-height:1.2;
 }
 
 /* ── DAY / NIGHT CYCLE ── */
@@ -1076,7 +1076,7 @@ html, body {
 @keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
 
 /* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:31%;right:12%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+.char2-group { position:absolute;bottom:31%;right:8%;z-index:12;display:flex;flex-direction:column;align-items:center; }
 #char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
 .plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
 .char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -1298,7 +1298,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:10px;left:8px;width:138px;">
+            <div class="win-window" id="docs-win" style="top:10px;left:8px;width:184px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1338,7 +1338,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:12px;left:8px;width:138px;">
+            <div class="win-window" id="trash-win" style="top:12px;left:8px;width:184px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
