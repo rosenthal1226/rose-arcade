@@ -442,10 +442,9 @@ html, body {
 /* ── Desk keyboard (scene-level so it's above monitor stacking context) ── */
 .desk-keyboard {
   position: absolute;
-  /* desk surface = 22% + 142px, then -12px forward perspective */
-  bottom: calc(22% + 130px);
-  left: 54%;
-  transform: translateX(-50%);
+  bottom: calc(22% + 142px); /* sit on desk surface */
+  left: calc(54% - 148px);   /* to the left of monitor, clear of it */
+  transform: none;
   width: 100px; height: 20px;
   background: linear-gradient(180deg, #e0dbd4 0%, #c0bcb6 100%);
   border-radius: 3px 3px 5px 5px;
@@ -908,6 +907,9 @@ html, body {
   position:absolute; top:6px; left:5px;
   display:flex; flex-direction:column; gap:6px;
 }
+.desktop-icon-tr {
+  position:absolute; top:6px; right:5px;
+}
 .icon {
   display:flex; flex-direction:column; align-items:center;
   width:46px; padding:2px; border-radius:1px; user-select:none;
@@ -1282,7 +1284,7 @@ html, body {
         <div class="screen-glass">
           <div class="win98-desktop" id="desktop">
 
-            <!-- ICONS -->
+            <!-- ICONS — left column -->
             <div class="desktop-icons">
               <div class="icon" id="icon-docs" onclick="selectIcon(this)" ondblclick="openWin('docs-win')">
                 <span class="icon-img">📁</span>
@@ -1292,10 +1294,11 @@ html, body {
                 <span class="icon-img">🗑️</span>
                 <span class="icon-label">Recycle Bin</span>
               </div>
-              <div class="icon" id="icon-arcade" onclick="selectIcon(this)" ondblclick="goArcade()">
-                <span class="icon-img">🕹️</span>
-                <span class="icon-label">Rose Arcade</span>
-              </div>
+            </div>
+            <!-- Rose Arcade icon — top right -->
+            <div class="icon desktop-icon-tr" id="icon-arcade" onclick="selectIcon(this)" ondblclick="goArcade()">
+              <span class="icon-img">🕹️</span>
+              <span class="icon-label">Rose Arcade</span>
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
