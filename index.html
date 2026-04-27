@@ -338,12 +338,99 @@ html, body {
 ═══════════════════════════════════════════ */
 .char-group {
   position: absolute;
-  bottom: calc(20% + 22px); /* sits on desk-top level, which is desk-group bottom + desk-face */
-  left: calc(50% - 46vw + 20px); /* left side of desk */
+  bottom: 29%;
+  left: 8%;
   z-index: 12;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: none;
+}
+#charVisual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.15s;
+}
+
+/* ── Walking animations ── */
+@keyframes armSwingFwd { 0%,100%{transform:rotate(30deg) translateY(2px);} 50%{transform:rotate(-25deg) translateY(2px);} }
+@keyframes armSwingBck { 0%,100%{transform:rotate(-30deg) translateY(2px);} 50%{transform:rotate(25deg) translateY(2px);} }
+@keyframes bodyBobWalk { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+@keyframes legStepL { 0%,100%{transform:skewX(0deg);} 50%{transform:skewX(14deg);} }
+@keyframes legStepR { 0%,100%{transform:skewX(0deg);} 50%{transform:skewX(-14deg);} }
+#charGroup.walking .char-arm-l { animation: armSwingFwd 0.36s ease-in-out infinite; }
+#charGroup.walking .char-arm-r { animation: armSwingBck 0.36s ease-in-out infinite; }
+#charGroup.walking .char-body  { animation: bodyBobWalk 0.36s ease-in-out infinite; }
+#charGroup.walking .char-leg:first-child { animation: legStepL 0.36s ease-in-out infinite; }
+#charGroup.walking .char-leg:last-child  { animation: legStepR 0.36s ease-in-out infinite; }
+
+/* ── Idle animations ── */
+@keyframes waveArm { 0%,100%{transform:rotate(15deg);} 20%{transform:rotate(-60deg) translateY(-8px);} 40%{transform:rotate(-30deg) translateY(-5px);} 60%{transform:rotate(-55deg) translateY(-8px);} 80%{transform:rotate(-25deg) translateY(-4px);} }
+@keyframes lookAround { 0%,100%{transform:none;} 25%{transform:rotate(-10deg);} 75%{transform:rotate(10deg);} }
+@keyframes shrug { 0%,100%{transform:translateY(0);} 40%{transform:translateY(-6px);} 60%{transform:translateY(-6px);} }
+#charGroup.waving .char-arm-l { animation: waveArm 0.9s ease-in-out 2; }
+#charGroup.looking .char-head  { animation: lookAround 1.4s ease-in-out; }
+#charGroup.shrugging .char-body { animation: shrug 0.7s ease-in-out; }
+
+/* ── Speech bubble ── */
+.speech-bubble {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 10px;
+  padding: 4px 9px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.25);
+  z-index: 200;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #222;
+}
+.speech-bubble.show { opacity: 1; }
+
+/* ── Click destination marker ── */
+.walk-marker {
+  position: absolute;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.18);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+  animation: markerPop 0.7s ease-out forwards;
+}
+@keyframes markerPop {
+  0%   { opacity:1; transform:translate(-50%,-50%) scale(0.3); }
+  60%  { opacity:0.8; }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(1.6); }
+}
+
+/* ── Cat ── */
+.office-cat {
+  position: absolute;
+  bottom: 29%;
+  font-size: 22px;
+  line-height: 1;
+  z-index: 11;
+  pointer-events: none;
+  transition: left 4s ease-in-out;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
 }
 
 /* Plumbob */
@@ -947,33 +1034,39 @@ html, body {
   </div>
 
   <!-- ── SIMS CHARACTER ── -->
-  <div class="char-group">
+  <div class="char-group" id="charGroup">
+    <div class="speech-bubble" id="speechBubble"></div>
     <div class="plumbob"></div>
-    <div class="char-head">
-      <div class="char-hair"></div>
-      <div class="char-brow l"></div>
-      <div class="char-brow r"></div>
-      <div class="char-eye l"></div>
-      <div class="char-eye r"></div>
-      <div class="char-nose"></div>
-      <div class="char-mouth"></div>
-    </div>
-    <div class="char-neck"></div>
-    <div class="char-body">
-      <div class="char-arm-l"></div>
-      <div class="char-arm-r"></div>
-    </div>
-    <div class="char-lap">
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <div class="char-leg"></div>
-        <div class="char-shoe"></div>
+    <div id="charVisual">
+      <div class="char-head">
+        <div class="char-hair"></div>
+        <div class="char-brow l"></div>
+        <div class="char-brow r"></div>
+        <div class="char-eye l"></div>
+        <div class="char-eye r"></div>
+        <div class="char-nose"></div>
+        <div class="char-mouth"></div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <div class="char-leg"></div>
-        <div class="char-shoe"></div>
+      <div class="char-neck"></div>
+      <div class="char-body">
+        <div class="char-arm-l"></div>
+        <div class="char-arm-r"></div>
+      </div>
+      <div class="char-lap">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="char-leg"></div>
+          <div class="char-shoe"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="char-leg"></div>
+          <div class="char-shoe"></div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Wandering office cat -->
+  <div class="office-cat" id="officeCat">🐱</div>
 
   <!-- ── DESK ── -->
   <div class="desk-group">
@@ -1181,33 +1274,11 @@ document.getElementById('desktop').addEventListener('mousedown',function(e){
 });
 
 /* ════ ARCADE ════ */
+// goArcade is overridden by the character script below (walks to monitor first)
+// _launchArcade is the final navigation step
 function goArcade(){
-  var STORAGE_KEY='arcade_global_name';
-  var existing=localStorage.getItem(STORAGE_KEY);
-  if(!existing||!existing.trim()){
-    // Show name prompt first, then navigate when done
-    var overlay=document.getElementById('nameDialogOverlay');
-    overlay.style.display='flex';
-    document.getElementById('nameDialogInput').focus();
-    // Override the OK/Skip buttons to navigate after saving
-    document.getElementById('nameDialogOk').onclick=function(){
-      var val=document.getElementById('nameDialogInput').value.trim().slice(0,16);
-      if(!val){document.getElementById('nameDialogInput').focus();document.getElementById('nameDialogInput').style.borderColor='#cc0000';return;}
-      localStorage.setItem(STORAGE_KEY,val);
-      overlay.style.display='none';
-      _launchArcade();
-    };
-    document.getElementById('nameDialogSkip').onclick=function(){
-      localStorage.setItem(STORAGE_KEY,'Anonymous');
-      overlay.style.display='none';
-      _launchArcade();
-    };
-    document.getElementById('nameDialogInput').onkeydown=function(e){
-      if(e.key==='Enter') document.getElementById('nameDialogOk').click();
-    };
-  } else {
-    _launchArcade();
-  }
+  // Stub — overridden after character script loads
+  _launchArcade();
 }
 function _launchArcade(){
   var ic=document.getElementById('icon-arcade');
@@ -1456,6 +1527,242 @@ function emptyBin(){
   document.getElementById('trash-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#808080;padding:40px 0;">Recycle Bin is empty.</div>';
   document.getElementById('trash-status').textContent='0 object(s)';
 }
+
+/* ════ CHARACTER + INTERACTIVITY ════ */
+(function(){
+  var scene    = document.querySelector('.scene');
+  var charGroup= document.getElementById('charGroup');
+  var charVis  = document.getElementById('charVisual');
+  var bubble   = document.getElementById('speechBubble');
+
+  var charX       = 0;
+  var targetX     = 0;
+  var walking     = false;
+  var SPEED       = 2.4;   // px per frame
+  var onArrived   = null;
+  var pendingMsg  = null;
+  var idleTimer   = null;
+  var bubbleTimer = null;
+
+  /* ── init ── */
+  function init(){
+    charX   = scene.offsetWidth * 0.08;
+    targetX = charX;
+    charGroup.style.left = charX + 'px';
+    startIdleTimer();
+    raf();
+  }
+
+  /* ── animation loop ── */
+  function raf(){
+    if(walking){
+      var d = targetX - charX;
+      if(Math.abs(d) <= SPEED){
+        charX = targetX;
+        charGroup.style.left = charX + 'px';
+        walking = false;
+        charGroup.classList.remove('walking');
+        if(pendingMsg){ say(pendingMsg); pendingMsg = null; }
+        if(onArrived){ onArrived(); onArrived = null; }
+        startIdleTimer();
+      } else {
+        charX += Math.sign(d) * SPEED;
+        charGroup.style.left = charX + 'px';
+        charVis.style.transform = d < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+      }
+    }
+    requestAnimationFrame(raf);
+  }
+
+  /* ── walk to X ── */
+  function walkTo(x, msg, cb){
+    clearTimeout(idleTimer);
+    hideBubble();
+    var pad = 40;
+    targetX = Math.max(pad, Math.min(x - 20, scene.offsetWidth - pad));
+    walking = true;
+    pendingMsg = msg || null;
+    onArrived  = cb   || null;
+    charGroup.classList.add('walking');
+  }
+  window.charWalkTo = walkTo; // expose for goArcade
+
+  /* ── speech bubble ── */
+  function say(txt){
+    clearTimeout(bubbleTimer);
+    bubble.textContent = txt;
+    bubble.classList.add('show');
+    bubbleTimer = setTimeout(hideBubble, 2600);
+  }
+  function hideBubble(){ bubble.classList.remove('show'); }
+
+  /* ── idle behaviours ── */
+  var IDLE = ['...', '🥱', 'Hmm.', '👀', 'La la la~', '🤔', '*yawns*', 'Is anyone there?'];
+  function startIdleTimer(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(doIdle, 4000 + Math.random()*5000);
+  }
+  function doIdle(){
+    var r = Math.random();
+    if(r < 0.33){
+      charGroup.classList.add('waving');
+      say('👋 Hi!');
+      setTimeout(function(){ charGroup.classList.remove('waving'); }, 1800);
+    } else if(r < 0.66){
+      charGroup.classList.add('looking');
+      setTimeout(function(){ charGroup.classList.remove('looking'); }, 1400);
+    } else {
+      charGroup.classList.add('shrugging');
+      say(IDLE[Math.floor(Math.random()*IDLE.length)]);
+      setTimeout(function(){ charGroup.classList.remove('shrugging'); }, 700);
+    }
+    startIdleTimer();
+  }
+
+  /* ── click marker ── */
+  function showMarker(x, y){
+    var m = document.createElement('div');
+    m.className = 'walk-marker';
+    m.style.left = x + 'px';
+    m.style.top  = y + 'px';
+    scene.appendChild(m);
+    setTimeout(function(){ m.remove(); }, 750);
+  }
+
+  /* ── click on scene → walk ── */
+  var WALK_MSGS = ['On it!', 'Sure thing.', 'Roger that!', '🚶', 'Walking...', 'Yep!'];
+  scene.addEventListener('click', function(e){
+    var skip = '.monitor-wrap,.bookshelf,.wall-art,.wall-window-decor,.coffee-mug,.desk-plant,.win-window,.taskbar,.name-dialog-overlay';
+    if(e.target.closest(skip)) return;
+    var rect = scene.getBoundingClientRect();
+    var cx   = e.clientX - rect.left;
+    var cy   = e.clientY - rect.top;
+    if(cy < scene.offsetHeight * 0.5) return; // ignore upper wall area
+    showMarker(cx, cy);
+    walkTo(cx, WALK_MSGS[Math.floor(Math.random()*WALK_MSGS.length)]);
+  });
+
+  /* ── special element interactions ── */
+  // Coffee mug → character walks over and drinks
+  var mugEl = document.querySelector('.coffee-mug');
+  if(mugEl) mugEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    var r = scene.getBoundingClientRect();
+    var mr = mugEl.getBoundingClientRect();
+    walkTo(mr.left - r.left, '☕ Mmmm, coffee!');
+  });
+
+  // Bookshelf → reads a book
+  var shelfEl = document.querySelector('.bookshelf');
+  if(shelfEl) shelfEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    var r = scene.getBoundingClientRect();
+    var sr = shelfEl.getBoundingClientRect();
+    var msgs = ['📚 So many books!','I love reading.','This one looks good.','Classic literature!'];
+    walkTo(sr.right - r.left + 10, msgs[Math.floor(Math.random()*msgs.length)]);
+  });
+
+  // Wall art → character admires it
+  var artEl = document.querySelector('.wall-art');
+  if(artEl) artEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    var msgs = ['🎨 Stunning.','Very avant-garde.','I made that.','Art!'];
+    say(msgs[Math.floor(Math.random()*msgs.length)]);
+  });
+
+  // Window → bird flies past
+  var winEl = document.querySelector('.wall-window-decor');
+  if(winEl) winEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    say('🌤️ Nice view!');
+    spawnBird();
+  });
+
+  // Monitor → walk to desk, then launch if it was the arcade icon
+  var monEl = document.querySelector('.monitor-wrap');
+  if(monEl) monEl.addEventListener('click', function(e){
+    if(e.target.closest('.win-window')) return;
+    e.stopPropagation();
+    var r  = scene.getBoundingClientRect();
+    var mr = monEl.getBoundingClientRect();
+    walkTo(mr.left - r.left - 10, '🕹️ Let\'s game!');
+  });
+
+  // Cat click → meow
+  var catEl = document.getElementById('officeCat');
+  if(catEl) catEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    var meows = ['Meow!','Purrr~','Mrow?','😾 leave me alone','🐾'];
+    say(meows[Math.floor(Math.random()*meows.length)]);
+  });
+
+  /* ── bird flyby ── */
+  function spawnBird(){
+    if(!winEl) return;
+    var b = document.createElement('div');
+    b.textContent = '🐦';
+    b.style.cssText = 'position:absolute;font-size:13px;top:15px;left:-24px;pointer-events:none;z-index:10;transition:left 1.4s linear;';
+    winEl.appendChild(b);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      b.style.left = '160px';
+      setTimeout(function(){ b.remove(); }, 1500);
+    }); });
+  }
+
+  /* ── wandering cat ── */
+  var catX = scene.offsetWidth * 0.6;
+  function moveCat(){
+    if(!catEl) return;
+    var sw = scene.offsetWidth;
+    catX = 80 + Math.random() * (sw - 200);
+    catEl.style.left = catX + 'px';
+    var CATS = ['🐱','😺','😸','🐈'];
+    catEl.textContent = CATS[Math.floor(Math.random()*CATS.length)];
+    var dur = 3000 + Math.random() * 6000; // sit time
+    setTimeout(moveCat, dur + 4500);
+  }
+  catEl.style.left = (scene.offsetWidth * 0.6) + 'px';
+  setTimeout(moveCat, 2500);
+
+  /* ── override goArcade to walk to monitor first ── */
+  var _origGoArcade = window.goArcade;
+  window.goArcade = function(){
+    // Check if name needed
+    var STORAGE_KEY = 'arcade_global_name';
+    var existing = localStorage.getItem(STORAGE_KEY);
+    var r  = scene.getBoundingClientRect();
+    var mr = document.querySelector('.monitor-wrap').getBoundingClientRect();
+    var destX = mr.left - r.left + mr.width/2;
+
+    function launch(){
+      if(!existing || !existing.trim()){
+        var overlay = document.getElementById('nameDialogOverlay');
+        overlay.style.display='flex';
+        document.getElementById('nameDialogInput').focus();
+        document.getElementById('nameDialogOk').onclick=function(){
+          var val=document.getElementById('nameDialogInput').value.trim().slice(0,16);
+          if(!val){document.getElementById('nameDialogInput').focus();document.getElementById('nameDialogInput').style.borderColor='#cc0000';return;}
+          localStorage.setItem(STORAGE_KEY,val);
+          overlay.style.display='none';
+          _launchArcade();
+        };
+        document.getElementById('nameDialogSkip').onclick=function(){
+          localStorage.setItem(STORAGE_KEY,'Anonymous');
+          overlay.style.display='none';
+          _launchArcade();
+        };
+        document.getElementById('nameDialogInput').onkeydown=function(e2){
+          if(e2.key==='Enter') document.getElementById('nameDialogOk').click();
+        };
+      } else {
+        _launchArcade();
+      }
+    }
+    walkTo(destX, '🕹️ Let\'s PLAY!', launch);
+  };
+
+  window.addEventListener('load', init);
+})();
 
 /* ════ NAME PROMPT ════ */
 (function(){
