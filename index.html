@@ -1182,6 +1182,34 @@ document.getElementById('desktop').addEventListener('mousedown',function(e){
 
 /* ════ ARCADE ════ */
 function goArcade(){
+  var STORAGE_KEY='arcade_global_name';
+  var existing=localStorage.getItem(STORAGE_KEY);
+  if(!existing||!existing.trim()){
+    // Show name prompt first, then navigate when done
+    var overlay=document.getElementById('nameDialogOverlay');
+    overlay.style.display='flex';
+    document.getElementById('nameDialogInput').focus();
+    // Override the OK/Skip buttons to navigate after saving
+    document.getElementById('nameDialogOk').onclick=function(){
+      var val=document.getElementById('nameDialogInput').value.trim().slice(0,16);
+      if(!val){document.getElementById('nameDialogInput').focus();document.getElementById('nameDialogInput').style.borderColor='#cc0000';return;}
+      localStorage.setItem(STORAGE_KEY,val);
+      overlay.style.display='none';
+      _launchArcade();
+    };
+    document.getElementById('nameDialogSkip').onclick=function(){
+      localStorage.setItem(STORAGE_KEY,'Anonymous');
+      overlay.style.display='none';
+      _launchArcade();
+    };
+    document.getElementById('nameDialogInput').onkeydown=function(e){
+      if(e.key==='Enter') document.getElementById('nameDialogOk').click();
+    };
+  } else {
+    _launchArcade();
+  }
+}
+function _launchArcade(){
   var ic=document.getElementById('icon-arcade');
   ic.style.opacity='0.5';
   setTimeout(function(){window.location.href='hub.html';},220);
@@ -1435,15 +1463,8 @@ function emptyBin(){
   var overlay     = document.getElementById('nameDialogOverlay');
   var inp         = document.getElementById('nameDialogInput');
 
-  // Already named — skip entirely
-  var existing = localStorage.getItem(STORAGE_KEY);
-  if(existing && existing.trim()){
-    overlay.style.display = 'none';
-    return;
-  }
-
-  // Show the dialog after a short pause so the desktop renders first
-  setTimeout(function(){ overlay.style.display = 'flex'; inp.focus(); }, 700);
+  // Dialog is triggered by goArcade() — not shown on load
+  overlay.style.display = 'none';
 
   function saveName(){
     var val = inp.value.trim().slice(0, 16);
