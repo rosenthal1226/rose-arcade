@@ -89,9 +89,9 @@ html, body {
 /* ── Wall window (outside view) ── */
 .wall-window-decor {
   position: absolute;
-  top: 7%; left: 50%;
+  top: 10%; left: 50%;
   transform: translateX(-50%);
-  width: 200px; height: 155px;
+  width: 280px; height: 210px;
   background: linear-gradient(180deg, #4a9ad4 0%, #7ec8f8 50%, #b8e4ff 100%);
   border: 14px solid #d4b870;
   border-radius: 3px;
@@ -119,21 +119,21 @@ html, body {
   background: #d4b870;
 }
 .wcloud { position: absolute; background: rgba(255,255,255,0.92); border-radius: 50%; }
-.wcloud.c1 { width:50px;height:28px; top:18px;left:10px; box-shadow:20px 0 0 10px rgba(255,255,255,0.92); }
-.wcloud.c2 { width:36px;height:20px; top:38px;right:12px; }
-.wcloud.c3 { width:28px;height:18px; top:10px;left:60px; }
-.wsun { position:absolute; width:30px;height:30px; background:#ffd44a; border-radius:50%; top:8px;right:18px; box-shadow:0 0 14px #ffd44a; }
-.wbuilding { position:absolute; bottom:0; width:32px; background:#7090b0; }
-.wbuilding.b1 { height:45px; left:8px; }
-.wbuilding.b2 { height:60px; left:42px; width:28px; }
-.wbuilding.b3 { height:35px; right:10px; width:24px; }
+.wcloud.c1 { width:72px;height:36px; top:22px;left:14px; box-shadow:26px 0 0 14px rgba(255,255,255,0.92); }
+.wcloud.c2 { width:50px;height:28px; top:50px;right:18px; }
+.wcloud.c3 { width:40px;height:24px; top:12px;left:80px; }
+.wsun { position:absolute; width:38px;height:38px; background:#ffd44a; border-radius:50%; top:10px;right:24px; box-shadow:0 0 18px #ffd44a; }
+.wbuilding { position:absolute; bottom:0; width:44px; background:#7090b0; }
+.wbuilding.b1 { height:70px; left:12px; }
+.wbuilding.b2 { height:95px; left:62px; width:40px; }
+.wbuilding.b3 { height:56px; right:14px; width:36px; }
 .wbuilding::after { content:''; position:absolute; top:0;left:0;right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(255,255,255,0.15) 8px,rgba(255,255,255,0.15) 9px); }
 
 /* ── Bookshelf ── */
 .bookshelf {
   position: absolute;
-  top: 4%; left: 3%;
-  width: 110px;
+  top: 16%; left: 3%;
+  width: 120px;
 }
 .shelf-unit {
   background: linear-gradient(90deg, #8a6020 0%, #b08040 50%, #8a6020 100%);
@@ -152,8 +152,8 @@ html, body {
 /* ── Wall art ── */
 .wall-art {
   position: absolute;
-  top: 6%; right: 6%;
-  width: 100px; height: 80px;
+  top: 14%; right: 5%;
+  width: 110px; height: 88px;
   border: 10px solid #c8a840;
   box-shadow: 3px 5px 16px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.2);
   border-radius: 2px;
@@ -170,8 +170,8 @@ html, body {
   position: absolute;
   bottom: 22%; left: 50%;
   transform: translateX(-50%);
-  width: 86%;
-  max-width: 900px;
+  width: 64%;
+  max-width: 760px;
   z-index: 10;
 }
 .desk-top {
@@ -188,7 +188,7 @@ html, body {
   background: rgba(255,255,255,0.2); border-radius:2px;
 }
 .desk-face {
-  height: 120px;
+  height: 80px;
   background: linear-gradient(180deg, #a07428 0%, #8a6020 60%, #704e18 100%);
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   position: relative;
@@ -204,8 +204,8 @@ html, body {
 .desk-drawer {
   position: absolute;
   left: 50%; transform: translateX(-50%);
-  top: 30px;
-  width: 160px; height: 44px;
+  top: 14px;
+  width: 120px; height: 34px;
   border: 2px solid rgba(0,0,0,0.4);
   border-radius: 3px;
   background: rgba(0,0,0,0.15);
@@ -357,7 +357,7 @@ html, body {
 .char-group {
   position: absolute;
   bottom: 31%;
-  left: 8%;
+  left: 24%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -600,7 +600,7 @@ html, body {
 .chair-group {
   position: absolute;
   bottom: calc(22% - 28px);
-  left: calc(50% - 44vw);
+  left: calc(24% - 30px);
   z-index: 9;
   display: flex;
   flex-direction: column;
@@ -655,7 +655,7 @@ html, body {
 .monitor-wrap {
   position: absolute;
   bottom: calc(22% + 22px); /* sits on desk top */
-  left: 58%;
+  left: 55%;
   transform: translateX(-50%);
   z-index: 13;
   display: flex;
@@ -674,8 +674,8 @@ html, body {
 
 .bezel {
   background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
-  border-radius: 8px 8px 5px 5px;
-  padding: 10px 10px 26px 10px;
+  border-radius: 7px 7px 4px 4px;
+  padding: 8px 8px 22px 8px;
   border: 3px solid #aaa;
   border-bottom: 5px solid #888;
   box-shadow:
@@ -708,7 +708,7 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 300px; height: 225px;
+  width: 240px; height: 180px;
   background: #000608;
   border-radius: 4px;
   border: 4px solid #1a1a1a;
@@ -730,13 +730,13 @@ html, body {
 }
 
 .monitor-neck {
-  width: 50px; height: 18px;
+  width: 40px; height: 14px;
   background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
   box-shadow: 2px 0 0 #777, -2px 0 0 #777;
   margin-top: -2px;
 }
 .monitor-base {
-  width: 140px; height: 14px;
+  width: 110px; height: 11px;
   background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
   border-radius: 6px 6px 10px 10px;
   border: 2px solid #888; border-top: none;
@@ -978,7 +978,7 @@ html, body {
 /* ── Documents window ── */
 .doc-nav {
   background:#fff; border-right:2px solid #808080;
-  width:78px; overflow-y:auto; flex-shrink:0;
+  width:62px; overflow-y:auto; flex-shrink:0;
 }
 .doc-nav-item {
   font-family:Arial,sans-serif; font-size:10px;
@@ -987,7 +987,7 @@ html, body {
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:145px; }
+.doc-content-wrap { display:flex; height:108px; }
 .doc-page {
   background:#fff; padding:20px 24px;
   flex:1; overflow-y:auto;
@@ -1005,7 +1005,7 @@ html, body {
   padding:1px 5px; font-family:Arial,sans-serif; font-size:11px; margin-left:3px;
 }
 .trash-grid {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:6px;
   padding:10px; background:#fff; margin:4px; min-height:200px;
 }
 .trash-item {
@@ -1076,7 +1076,7 @@ html, body {
 @keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
 
 /* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:31%;right:8%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+.char2-group { position:absolute;bottom:31%;right:22%;z-index:12;display:flex;flex-direction:column;align-items:center; }
 #char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
 .plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
 .char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -1298,7 +1298,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:22px;left:34px;width:248px;">
+            <div class="win-window" id="docs-win" style="top:18px;left:22px;width:200px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1338,7 +1338,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:28px;left:26px;width:258px;">
+            <div class="win-window" id="trash-win" style="top:20px;left:16px;width:210px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
@@ -1768,7 +1768,7 @@ function emptyBin(){
 
   /* ── init ── */
   function init(){
-    charX   = scene.offsetWidth * 0.08;
+    charX   = scene.offsetWidth * 0.24;
     targetX = charX;
     charGroup.style.left = charX + 'px';
     startIdleTimer();
