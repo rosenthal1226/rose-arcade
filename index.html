@@ -443,8 +443,8 @@ html, body {
 .desk-keyboard {
   position: absolute;
   bottom: 142px; /* same as desk surface from desk-group bottom */
-  left: 50%;
-  transform: translateX(-30%);
+  left: 18%;
+  transform: none;
   width: 88px; height: 18px;
   background: linear-gradient(160deg, #d8d4d0 0%, #c4c0bc 50%, #b8b4b0 100%);
   border-radius: 3px 3px 5px 5px;
@@ -902,18 +902,18 @@ html, body {
 
 /* Desktop icons */
 .desktop-icons {
-  position:absolute; top:10px; left:10px;
-  display:flex; flex-direction:column; gap:14px;
+  position:absolute; top:5px; left:5px;
+  display:flex; flex-direction:column; gap:4px;
 }
 .icon {
   display:flex; flex-direction:column; align-items:center;
-  width:66px; padding:3px; border-radius:1px; user-select:none;
+  width:46px; padding:2px; border-radius:1px; user-select:none;
 }
-.icon .icon-img { font-size:30px; line-height:1; margin-bottom:3px; display:block; }
+.icon .icon-img { font-size:18px; line-height:1; margin-bottom:1px; display:block; }
 .icon .icon-label {
-  font-family:Arial,sans-serif; font-size:10px; color:#fff;
+  font-family:Arial,sans-serif; font-size:7px; color:#fff;
   text-align:center; text-shadow:1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
-  padding:1px 3px; line-height:1.25; max-width:66px; word-break:break-word;
+  padding:1px 2px; line-height:1.2; max-width:46px; word-break:break-word;
 }
 .icon:hover .icon-label, .icon.selected .icon-label { background:#000080; color:#fff; }
 .icon:hover .icon-img, .icon.selected .icon-img { filter:brightness(0.6) sepia(1) hue-rotate(200deg) saturate(4); }
