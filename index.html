@@ -170,8 +170,8 @@ html, body {
   position: absolute;
   bottom: 22%; left: 50%;
   transform: translateX(-50%);
-  width: 52%;
-  max-width: 620px;
+  width: 44%;
+  max-width: 560px;
   z-index: 10;
 }
 .desk-top {
@@ -238,7 +238,7 @@ html, body {
   height: 90px;
   display: flex;
   align-items: flex-end;
-  padding: 0 20px;
+  padding: 0 12px;
   z-index: 15;
   pointer-events: none;
 }
@@ -246,7 +246,7 @@ html, body {
 /* Coffee mug */
 .coffee-mug {
   margin-left: auto;
-  margin-right: 30px;
+  margin-right: 14px;
   display: flex; flex-direction: column; align-items: center;
 }
 .mug-body {
@@ -304,7 +304,7 @@ html, body {
 /* Plant */
 .desk-plant {
   display: flex; flex-direction: column; align-items: center;
-  margin-right: 16px;
+  margin-right: 8px;
 }
 .plant-pot {
   width: 30px; height: 24px;
@@ -357,7 +357,7 @@ html, body {
 .char-group {
   position: absolute;
   bottom: 31%;
-  left: 28%;
+  left: 16%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -443,27 +443,27 @@ html, body {
 .desk-keyboard {
   position: absolute;
   bottom: 142px; /* same as desk surface from desk-group bottom */
-  left: 18%;
-  transform: none;
-  width: 88px; height: 18px;
-  background: linear-gradient(160deg, #d8d4d0 0%, #c4c0bc 50%, #b8b4b0 100%);
-  border-radius: 3px 3px 5px 5px;
-  border: 2px solid #a8a4a0;
-  border-top-color: #ccc;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  left: 54%; /* centered under monitor */
+  transform: translateX(-50%);
+  width: 82px; height: 16px;
+  background: linear-gradient(180deg, #c8c4be 0%, #aaa8a2 100%);
+  border-radius: 3px 3px 4px 4px;
+  border: 1.5px solid #808078;
+  border-top-color: #d0ccc6;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
   z-index: 15;
 }
 .desk-keyboard::before {
   content: '';
-  position: absolute; inset: 3px 4px;
-  background: repeating-linear-gradient(90deg, #aaa8a4 0px, #aaa8a4 4px, #c8c4c0 4px, #c8c4c0 6px);
-  border-radius: 1px; opacity: 0.55;
+  position: absolute; inset: 2px 3px 4px 3px;
+  background: repeating-linear-gradient(90deg, #848078 0px, #848078 3px, #b0aca6 3px, #b0aca6 5px);
+  border-radius: 1px; opacity: 0.9;
 }
 .desk-keyboard::after {
   content: '';
   position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 44px; height: 3px;
-  background: #aaa; border-radius: 2px;
+  width: 38px; height: 3px;
+  background: #888; border-radius: 2px;
 }
 
 /* ── Cat ── */
@@ -600,7 +600,7 @@ html, body {
 .chair-group {
   position: absolute;
   bottom: calc(22% - 28px);
-  left: calc(28% - 32px);
+  left: calc(40% - 32px);
   z-index: 9;
   display: flex;
   flex-direction: column;
@@ -655,7 +655,7 @@ html, body {
 .monitor-wrap {
   position: absolute;
   bottom: calc(22% + 142px); /* 22% desk-base + 40px legs + 80px face + 22px top = desk surface */
-  left: 55%;
+  left: 54%;
   transform: translateX(-50%);
   z-index: 14;
   display: flex;
@@ -674,45 +674,45 @@ html, body {
 
 .bezel {
   background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
-  border-radius: 6px 6px 4px 4px;
-  padding: 7px 7px 20px 7px;
-  border: 3px solid #aaa;
-  border-bottom: 5px solid #888;
+  border-radius: 5px 5px 3px 3px;
+  padding: 5px 5px 16px 5px;
+  border: 2px solid #aaa;
+  border-bottom: 4px solid #888;
   box-shadow:
-    inset 2px 2px 6px rgba(255,255,255,0.5),
-    inset -2px -2px 6px rgba(0,0,0,0.3),
-    4px 4px 0 #666, 7px 7px 0 #444, 10px 10px 0 #222;
+    inset 2px 2px 5px rgba(255,255,255,0.5),
+    inset -2px -2px 5px rgba(0,0,0,0.3),
+    3px 3px 0 #666, 6px 6px 0 #444, 8px 8px 0 #222;
   position: relative;
 }
 .bezel::after {
   content: 'RosePC™ Model 9800';
-  position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
-  font-family: Arial, sans-serif; font-size: 8px; font-weight: bold;
-  color: #777; letter-spacing: 1px; white-space: nowrap;
+  position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+  font-family: Arial, sans-serif; font-size: 7px; font-weight: bold;
+  color: #777; letter-spacing: 0.5px; white-space: nowrap;
 }
 .power-led {
-  position: absolute; bottom: 8px; right: 28px;
-  width: 8px; height: 8px; border-radius: 50%;
+  position: absolute; bottom: 5px; right: 20px;
+  width: 6px; height: 6px; border-radius: 50%;
   background: #00ff55;
-  box-shadow: 0 0 6px #00ff55, 0 0 12px #00ff55;
+  box-shadow: 0 0 5px #00ff55, 0 0 10px #00ff55;
   animation: ledBlink 4s ease-in-out infinite;
 }
 @keyframes ledBlink { 0%,88%,100%{opacity:1;} 93%{opacity:0.2;} }
 .power-btn {
-  position: absolute; bottom: 6px; right: 42px;
-  width: 13px; height: 13px; border-radius: 50%;
+  position: absolute; bottom: 4px; right: 32px;
+  width: 10px; height: 10px; border-radius: 50%;
   background: linear-gradient(140deg, #ccc 0%, #999 55%, #777 100%);
-  border: 2px solid #666;
+  border: 1.5px solid #666;
   box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 1px 1px 0 #333;
 }
 
 /* Screen */
 .screen-glass {
-  width: 220px; height: 165px;
+  width: 156px; height: 118px;
   background: #000608;
   border-radius: 4px;
-  border: 4px solid #1a1a1a;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
+  border: 3px solid #1a1a1a;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
   overflow: hidden;
   position: relative;
 }
@@ -730,15 +730,15 @@ html, body {
 }
 
 .monitor-neck {
-  width: 36px; height: 12px;
+  width: 26px; height: 9px;
   background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
   box-shadow: 2px 0 0 #777, -2px 0 0 #777;
   margin-top: -2px;
 }
 .monitor-base {
-  width: 96px; height: 10px;
+  width: 70px; height: 8px;
   background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
-  border-radius: 6px 6px 10px 10px;
+  border-radius: 5px 5px 8px 8px;
   border: 2px solid #888; border-top: none;
   box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.3);
 }
@@ -868,52 +868,52 @@ html, body {
 
 /* Taskbar */
 .taskbar {
-  position: absolute; bottom:0; left:0; right:0; height:28px;
+  position: absolute; bottom:0; left:0; right:0; height:22px;
   background: #c0c0c0;
   border-top: 2px solid #fff;
   box-shadow: inset 0 1px 0 #e0e0e0;
   display: flex; align-items: center;
-  padding: 0 3px; gap: 3px; z-index: 500;
+  padding: 0 2px; gap: 2px; z-index: 500;
 }
 .start-btn {
-  display:flex; align-items:center; gap:4px;
-  padding: 2px 8px 2px 5px;
+  display:flex; align-items:center; gap:3px;
+  padding: 1px 5px 1px 3px;
   background: #c0c0c0;
   border: 2px solid; border-color: #fff #808080 #808080 #fff;
-  font-family: Arial, sans-serif; font-size: 12px; font-weight: bold;
+  font-family: Arial, sans-serif; font-size: 9px; font-weight: bold;
   user-select: none; white-space: nowrap;
 }
 .start-btn:active { border-color: #808080 #fff #fff #808080; }
-.taskbar-sep { width:2px; height:20px; background:#808080; box-shadow:1px 0 0 #fff; }
-.taskbar-items { display:flex; gap:2px; flex:1; padding:0 3px; }
+.taskbar-sep { width:2px; height:14px; background:#808080; box-shadow:1px 0 0 #fff; }
+.taskbar-items { display:flex; gap:2px; flex:1; padding:0 2px; }
 .taskbar-item {
-  display:none; align-items:center; gap:3px;
-  padding:1px 8px;
+  display:none; align-items:center; gap:2px;
+  padding:1px 5px;
   background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:10px; user-select:none;
-  max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-family:Arial,sans-serif; font-size:8px; user-select:none;
+  max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .taskbar-item.visible { display:flex; }
 .taskbar-clock {
-  margin-left:auto; padding:2px 8px;
+  margin-left:auto; padding:1px 5px;
   background:#c0c0c0; border:1px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:11px; user-select:none;
+  font-family:Arial,sans-serif; font-size:9px; user-select:none;
 }
 
 /* Desktop icons */
 .desktop-icons {
-  position:absolute; top:5px; left:5px;
-  display:flex; flex-direction:column; gap:4px;
+  position:absolute; top:4px; left:4px;
+  display:flex; flex-direction:column; gap:3px;
 }
 .icon {
   display:flex; flex-direction:column; align-items:center;
-  width:46px; padding:2px; border-radius:1px; user-select:none;
+  width:40px; padding:1px; border-radius:1px; user-select:none;
 }
-.icon .icon-img { font-size:18px; line-height:1; margin-bottom:1px; display:block; }
+.icon .icon-img { font-size:16px; line-height:1; margin-bottom:1px; display:block; }
 .icon .icon-label {
-  font-family:Arial,sans-serif; font-size:7px; color:#fff;
+  font-family:Arial,sans-serif; font-size:6.5px; color:#fff;
   text-align:center; text-shadow:1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
-  padding:1px 2px; line-height:1.2; max-width:46px; word-break:break-word;
+  padding:1px 2px; line-height:1.2; max-width:40px; word-break:break-word;
 }
 .icon:hover .icon-label, .icon.selected .icon-label { background:#000080; color:#fff; }
 .icon:hover .icon-img, .icon.selected .icon-img { filter:brightness(0.6) sepia(1) hue-rotate(200deg) saturate(4); }
@@ -922,7 +922,7 @@ html, body {
 .win-window {
   position:absolute; background:#c0c0c0;
   border:2px solid; border-color:#fff #808080 #808080 #fff;
-  box-shadow:3px 3px 0 #000; display:none; min-width:260px; z-index:20;
+  box-shadow:3px 3px 0 #000; display:none; min-width:60px; z-index:20;
 }
 .win-window.open { display:block; }
 
@@ -978,47 +978,47 @@ html, body {
 /* ── Documents window ── */
 .doc-nav {
   background:#fff; border-right:2px solid #808080;
-  width:54px; overflow-y:auto; flex-shrink:0;
+  width:42px; overflow-y:auto; flex-shrink:0;
 }
 .doc-nav-item {
-  font-family:Arial,sans-serif; font-size:10px;
-  padding:4px 6px; border-bottom:1px solid #e0e0e0;
+  font-family:Arial,sans-serif; font-size:8px;
+  padding:3px 4px; border-bottom:1px solid #e0e0e0;
   user-select:none; line-height:1.3;
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:90px; }
+.doc-content-wrap { display:flex; height:72px; }
 .doc-page {
-  background:#fff; padding:20px 24px;
+  background:#fff; padding:5px 7px;
   flex:1; overflow-y:auto;
-  font-family:'Times New Roman',serif; font-size:12px; line-height:1.7; color:#000;
+  font-family:'Times New Roman',serif; font-size:9px; line-height:1.5; color:#000;
 }
 .doc-story { display:none; }
 .doc-story.active { display:block; }
-.doc-story h2 { font-size:13px; text-align:center; margin:0 0 12px; text-decoration:underline; }
-.doc-story .verse { margin:0 0 10px; white-space:pre-line; }
-.story-end { text-align:center; font-style:italic; margin-top:14px; font-size:11px; }
+.doc-story h2 { font-size:9px; text-align:center; margin:0 0 5px; text-decoration:underline; }
+.doc-story .verse { margin:0 0 6px; white-space:pre-line; }
+.story-end { text-align:center; font-style:italic; margin-top:8px; font-size:8px; }
 
 /* ── Trash window ── */
 .trash-path {
   flex:1; background:#fff; border:2px solid; border-color:#808080 #fff #fff #808080;
-  padding:1px 5px; font-family:Arial,sans-serif; font-size:11px; margin-left:3px;
+  padding:1px 4px; font-family:Arial,sans-serif; font-size:9px; margin-left:2px;
 }
 .trash-grid {
-  display:grid; grid-template-columns:repeat(2,1fr); gap:6px;
-  padding:10px; background:#fff; margin:4px; min-height:200px;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:4px;
+  padding:6px; background:#fff; margin:3px; min-height:100px;
 }
 .trash-item {
-  display:flex; flex-direction:column; align-items:center; gap:4px;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
 }
 .trash-item img {
-  width:60px; height:46px; object-fit:cover;
+  width:46px; height:36px; object-fit:cover;
   border:2px solid #808080; display:block;
 }
 .trash-item:hover img { border-color:#000080; outline:1px solid #000080; }
 .trash-item span {
-  font-family:Arial,sans-serif; font-size:9px;
-  text-align:center; max-width:78px; word-break:break-all; line-height:1.2;
+  font-family:Arial,sans-serif; font-size:7px;
+  text-align:center; max-width:56px; word-break:break-all; line-height:1.2;
 }
 
 /* ── DAY / NIGHT CYCLE ── */
@@ -1076,7 +1076,7 @@ html, body {
 @keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
 
 /* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:31%;right:26%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+.char2-group { position:absolute;bottom:31%;right:12%;z-index:12;display:flex;flex-direction:column;align-items:center; }
 #char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
 .plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
 .char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -1298,7 +1298,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:14px;left:14px;width:186px;">
+            <div class="win-window" id="docs-win" style="top:10px;left:8px;width:138px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1338,7 +1338,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:16px;left:12px;width:192px;">
+            <div class="win-window" id="trash-win" style="top:12px;left:8px;width:138px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
