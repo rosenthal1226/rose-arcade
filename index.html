@@ -24,11 +24,28 @@ html, body {
   overflow: hidden;
 }
 
+/* ── Ceiling ── */
+.ceiling {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 22px;
+  background: linear-gradient(180deg, #cdc5b0 0%, #c4bcaa 60%, #b8b098 100%);
+  border-bottom: 3px solid #a89878;
+  z-index: 4;
+}
+.ceiling-light {
+  position: absolute;
+  top: 5px; left: 50%; transform: translateX(-50%);
+  width: 160px; height: 9px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,210,0.55) 30%, rgba(255,255,200,0.75) 50%, rgba(255,255,210,0.55) 70%, transparent 100%);
+  border-radius: 5px;
+  box-shadow: 0 0 22px rgba(255,255,180,0.35);
+}
+
 /* ── Back wall ── */
 .wall {
   position: absolute;
   top: 0; left: 0; right: 0;
-  bottom: 28%;
+  bottom: 30%;
   background: #e8dfc8;
   background-image:
     repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(180,165,130,0.18) 39px, rgba(180,165,130,0.18) 40px),
@@ -37,7 +54,7 @@ html, body {
 .baseboard {
   position: absolute;
   left: 0; right: 0;
-  bottom: 28%;
+  bottom: 30%;
   height: 14px;
   background: linear-gradient(180deg, #d8c8a0 0%, #b09870 100%);
   border-top: 2px solid #ecdcb4;
@@ -49,7 +66,7 @@ html, body {
 .floor {
   position: absolute;
   left: 0; right: 0;
-  bottom: 0; height: 30%;
+  bottom: 0; height: 32%;
   overflow: hidden;
 }
 .floor-inner {
@@ -64,16 +81,17 @@ html, body {
 }
 .floor-sheen {
   position: absolute;
-  top: 0; left: 0; right: 0; height: 30%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 35%, rgba(0,0,0,0.1) 100%);
+  pointer-events: none;
 }
 
 /* ── Wall window (outside view) ── */
 .wall-window-decor {
   position: absolute;
-  top: 5%; left: 50%;
+  top: 7%; left: 50%;
   transform: translateX(-50%);
-  width: 200px; height: 160px;
+  width: 200px; height: 155px;
   background: linear-gradient(180deg, #4a9ad4 0%, #7ec8f8 50%, #b8e4ff 100%);
   border: 14px solid #d4b870;
   border-radius: 3px;
@@ -150,10 +168,10 @@ html, body {
 ═══════════════════════════════════════════ */
 .desk-group {
   position: absolute;
-  bottom: 20%; left: 50%;
+  bottom: 22%; left: 50%;
   transform: translateX(-50%);
-  width: 88%;
-  max-width: 920px;
+  width: 86%;
+  max-width: 900px;
   z-index: 10;
 }
 .desk-top {
@@ -338,7 +356,7 @@ html, body {
 ═══════════════════════════════════════════ */
 .char-group {
   position: absolute;
-  bottom: 29%;
+  bottom: 31%;
   left: 8%;
   z-index: 12;
   display: flex;
@@ -421,10 +439,37 @@ html, body {
   100% { opacity:0; transform:translate(-50%,-50%) scale(1.6); }
 }
 
+/* ── Desk keyboard ── */
+.desk-keyboard {
+  position: absolute;
+  bottom: -8px;
+  left: 52%;
+  transform: translateX(-50%);
+  width: 110px; height: 24px;
+  background: linear-gradient(160deg, #d8d4d0 0%, #c4c0bc 50%, #b8b4b0 100%);
+  border-radius: 3px 3px 5px 5px;
+  border: 2px solid #a8a4a0;
+  border-top-color: #ccc;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  z-index: 15;
+}
+.desk-keyboard::before {
+  content: '';
+  position: absolute; inset: 3px 4px;
+  background: repeating-linear-gradient(90deg, #aaa8a4 0px, #aaa8a4 4px, #c8c4c0 4px, #c8c4c0 6px);
+  border-radius: 1px; opacity: 0.55;
+}
+.desk-keyboard::after {
+  content: '';
+  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+  width: 44px; height: 3px;
+  background: #aaa; border-radius: 2px;
+}
+
 /* ── Cat ── */
 .office-cat {
   position: absolute;
-  bottom: 29%;
+  bottom: 31%;
   font-size: 22px;
   line-height: 1;
   z-index: 11;
@@ -554,8 +599,8 @@ html, body {
 /* ── Office Chair ── */
 .chair-group {
   position: absolute;
-  bottom: calc(20% - 28px);
-  left: calc(50% - 46vw + 0px);
+  bottom: calc(22% - 28px);
+  left: calc(50% - 44vw);
   z-index: 9;
   display: flex;
   flex-direction: column;
@@ -609,9 +654,9 @@ html, body {
 ═══════════════════════════════════════════ */
 .monitor-wrap {
   position: absolute;
-  bottom: calc(20% + 22px); /* sits on desk top */
-  left: 50%;
-  transform: translateX(-30%);
+  bottom: calc(22% + 22px); /* sits on desk top */
+  left: 58%;
+  transform: translateX(-50%);
   z-index: 13;
   display: flex;
   flex-direction: column;
@@ -629,8 +674,8 @@ html, body {
 
 .bezel {
   background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
-  border-radius: 10px 10px 6px 6px;
-  padding: 18px 18px 40px 18px;
+  border-radius: 8px 8px 5px 5px;
+  padding: 10px 10px 26px 10px;
   border: 3px solid #aaa;
   border-bottom: 5px solid #888;
   box-shadow:
@@ -641,12 +686,12 @@ html, body {
 }
 .bezel::after {
   content: 'RosePC™ Model 9800';
-  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-  font-family: Arial, sans-serif; font-size: 9px; font-weight: bold;
+  position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+  font-family: Arial, sans-serif; font-size: 8px; font-weight: bold;
   color: #777; letter-spacing: 1px; white-space: nowrap;
 }
 .power-led {
-  position: absolute; bottom: 12px; right: 34px;
+  position: absolute; bottom: 8px; right: 28px;
   width: 8px; height: 8px; border-radius: 50%;
   background: #00ff55;
   box-shadow: 0 0 6px #00ff55, 0 0 12px #00ff55;
@@ -654,8 +699,8 @@ html, body {
 }
 @keyframes ledBlink { 0%,88%,100%{opacity:1;} 93%{opacity:0.2;} }
 .power-btn {
-  position: absolute; bottom: 10px; right: 52px;
-  width: 16px; height: 16px; border-radius: 50%;
+  position: absolute; bottom: 6px; right: 42px;
+  width: 13px; height: 13px; border-radius: 50%;
   background: linear-gradient(140deg, #ccc 0%, #999 55%, #777 100%);
   border: 2px solid #666;
   box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 1px 1px 0 #333;
@@ -663,7 +708,7 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 400px; height: 300px;
+  width: 300px; height: 225px;
   background: #000608;
   border-radius: 4px;
   border: 4px solid #1a1a1a;
@@ -685,13 +730,13 @@ html, body {
 }
 
 .monitor-neck {
-  width: 70px; height: 26px;
+  width: 50px; height: 18px;
   background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
   box-shadow: 2px 0 0 #777, -2px 0 0 #777;
   margin-top: -2px;
 }
 .monitor-base {
-  width: 190px; height: 18px;
+  width: 140px; height: 14px;
   background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
   border-radius: 6px 6px 10px 10px;
   border: 2px solid #888; border-top: none;
@@ -933,7 +978,7 @@ html, body {
 /* ── Documents window ── */
 .doc-nav {
   background:#fff; border-right:2px solid #808080;
-  width:100px; overflow-y:auto; flex-shrink:0;
+  width:78px; overflow-y:auto; flex-shrink:0;
 }
 .doc-nav-item {
   font-family:Arial,sans-serif; font-size:10px;
@@ -942,7 +987,7 @@ html, body {
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:200px; }
+.doc-content-wrap { display:flex; height:145px; }
 .doc-page {
   background:#fff; padding:20px 24px;
   flex:1; overflow-y:auto;
@@ -967,7 +1012,7 @@ html, body {
   display:flex; flex-direction:column; align-items:center; gap:4px;
 }
 .trash-item img {
-  width:76px; height:58px; object-fit:cover;
+  width:60px; height:46px; object-fit:cover;
   border:2px solid #808080; display:block;
 }
 .trash-item:hover img { border-color:#000080; outline:1px solid #000080; }
@@ -980,6 +1025,7 @@ html, body {
 .scene.dusk  .wall { background:#e0c890; }
 .scene.night .wall { background:#2a2a3e; background-image:repeating-linear-gradient(90deg,transparent 0,transparent 39px,rgba(80,80,120,.18) 39px,rgba(80,80,120,.18) 40px),repeating-linear-gradient(0deg,transparent 0,transparent 39px,rgba(80,80,120,.12) 39px,rgba(80,80,120,.12) 40px); }
 .scene.night .baseboard { background:linear-gradient(180deg,#5a5030 0%,#3a3010 100%); border-top-color:#786840; }
+.scene.night .ceiling { background:linear-gradient(180deg,#2a2832 0%,#221e2a 100%); border-bottom-color:#18141e; }
 .scene.night .floor-inner { background:repeating-linear-gradient(90deg,#7a5820 0,#7a5820 118px,#5a3c0e 118px,#5a3c0e 122px,#8a6428 122px,#8a6428 238px,#5a3c0e 238px,#5a3c0e 242px); filter:brightness(.6); }
 .scene.dusk  .wall-window-decor { background:linear-gradient(180deg,#e06018 0%,#f0a040 50%,#f8c870 100%); }
 .scene.night .wall-window-decor { background:linear-gradient(180deg,#060814 0%,#0e1628 55%,#1a2640 100%); }
@@ -1030,7 +1076,7 @@ html, body {
 @keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
 
 /* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:29%;right:10%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+.char2-group { position:absolute;bottom:31%;right:8%;z-index:12;display:flex;flex-direction:column;align-items:center; }
 #char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
 .plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
 .char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -1047,6 +1093,9 @@ html, body {
 <body>
 
 <div class="scene">
+
+  <!-- ── CEILING ── -->
+  <div class="ceiling"><div class="ceiling-light"></div></div>
 
   <!-- ── BACK WALL ── -->
   <div class="wall"></div>
@@ -1209,6 +1258,8 @@ html, body {
         </div>
       </div>
     </div>
+    <!-- Keyboard sits on desk surface in front of monitor -->
+    <div class="desk-keyboard"></div>
     <div class="desk-top"></div>
     <div class="desk-face">
       <div class="desk-drawer"></div>
@@ -1247,7 +1298,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:26px;left:46px;width:310px;">
+            <div class="win-window" id="docs-win" style="top:22px;left:34px;width:248px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1287,7 +1338,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:36px;left:36px;width:326px;">
+            <div class="win-window" id="trash-win" style="top:28px;left:26px;width:258px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
