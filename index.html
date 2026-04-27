@@ -3,361 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Computer</title>
+<title>Rose Arcade</title>
 <style>
 /* ── Win98 pixel cursor ── */
 * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='19' viewBox='0 0 12 19'%3E%3Cpolygon points='0,0 0,16 4,12 7,19 9,18 6,11 12,11' fill='black'/%3E%3Cpolygon points='1,2 1,14 4,11 7,17 8,17 5.5,10.5 10.5,10.5' fill='white'/%3E%3C/svg%3E") 0 0, default; }
 
-/* ═══════════════════════════════════════════
-   OFFICE SCENE
-═══════════════════════════════════════════ */
 html, body {
   margin: 0; padding: 0;
   width: 100%; height: 100%;
   overflow: hidden;
-  background: #c8b898;
+  background: #000;
 }
 
+/* ═══════════════════════════════════════════
+   ARCADE SCENE
+═══════════════════════════════════════════ */
 .scene {
   width: 100vw; height: 100vh;
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #0d0025 0%, #050010 100%);
+}
+/* Scanline overlay */
+.scene::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 3px);
+  pointer-events: none; z-index: 998; mix-blend-mode: multiply;
 }
 
 /* ── Ceiling ── */
-.ceiling {
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 22px;
-  background: linear-gradient(180deg, #cdc5b0 0%, #c4bcaa 60%, #b8b098 100%);
-  border-bottom: 3px solid #a89878;
+.arcade-ceiling {
+  position: absolute; top: 0; left: 0; right: 0; height: 9%;
+  background: linear-gradient(180deg, #000 0%, #080015 100%);
   z-index: 4;
 }
-.ceiling-light {
-  position: absolute;
-  top: 5px; left: 50%; transform: translateX(-50%);
-  width: 160px; height: 9px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,210,0.55) 30%, rgba(255,255,200,0.75) 50%, rgba(255,255,210,0.55) 70%, transparent 100%);
-  border-radius: 5px;
-  box-shadow: 0 0 22px rgba(255,255,180,0.35);
+.ceiling-neon {
+  position: absolute; bottom: 0; left: 6%; right: 6%; height: 3px;
+  background: linear-gradient(90deg, transparent, #ff3068 12%, #ff3068 30%, #00f8ff 48%, #00f8ff 52%, #39ff14 70%, #39ff14 88%, transparent);
+  box-shadow: 0 0 8px #ff3068, 0 0 20px rgba(255,48,104,0.5), 0 4px 30px rgba(255,48,104,0.15);
+  animation: neonPulse 4s ease-in-out infinite;
+}
+@keyframes neonPulse { 0%,100%{opacity:1;} 50%{opacity:0.75;} }
+
+/* Pendant lights */
+.pendant {
+  position: absolute; top: 9%;
+  display: flex; flex-direction: column; align-items: center;
+  transform: translateX(-50%); z-index: 5;
+}
+.pend-wire {
+  width: 2px; height: clamp(24px,4vh,46px);
+  background: linear-gradient(180deg, #444, #222);
+}
+.pend-shade {
+  width: clamp(28px,4vw,44px); height: clamp(14px,2vh,22px);
+  background: linear-gradient(180deg, #2a2a3a, #111);
+  clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 0 20px rgba(255,230,150,0.06);
 }
 
 /* ── Back wall ── */
-.wall {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  bottom: 30%;
-  background: #e8dfc8;
+.arcade-wall {
+  position: absolute; top: 9%; left: 0; right: 0; bottom: 34%;
+  background: linear-gradient(180deg, #080018 0%, #0d0022 100%);
   background-image:
-    repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(180,165,130,0.18) 39px, rgba(180,165,130,0.18) 40px),
-    repeating-linear-gradient(0deg, transparent 0px, transparent 39px, rgba(180,165,130,0.12) 39px, rgba(180,165,130,0.12) 40px);
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.013) 59px, rgba(255,255,255,0.013) 60px),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.013) 59px, rgba(255,255,255,0.013) 60px);
+  z-index: 1;
 }
-.baseboard {
+
+/* ── ROSE ARCADE sign ── */
+.arcade-sign {
   position: absolute;
-  left: 0; right: 0;
-  bottom: 30%;
-  height: 14px;
-  background: linear-gradient(180deg, #d8c8a0 0%, #b09870 100%);
-  border-top: 2px solid #ecdcb4;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-  z-index: 2;
+  top: 10%; left: 50%; transform: translateX(-50%);
+  z-index: 8;
+  display: flex; flex-direction: column; align-items: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.sign-bulbs {
+  display: flex; gap: clamp(5px,0.8vw,9px); justify-content: center; margin-bottom: 3px;
+}
+.sign-bulb {
+  width: clamp(4px,0.6vw,7px); height: clamp(4px,0.6vw,7px);
+  border-radius: 50%;
+  animation: bulbFlash 1.1s ease-in-out infinite;
+}
+.sign-bulb:nth-child(even) { animation-delay: 0.55s; }
+.sign-bulb.g { background: #39ff14; box-shadow: 0 0 5px #39ff14, 0 0 10px rgba(57,255,20,0.5); }
+.sign-bulb.w { background: #fff; box-shadow: 0 0 5px #fff, 0 0 10px rgba(255,255,255,0.4); }
+@keyframes bulbFlash { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+.sign-title {
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: clamp(20px,4.5vw,58px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #39ff14;
+  text-shadow: 0 0 8px #39ff14, 0 0 20px #39ff14, 0 0 40px rgba(57,255,20,0.7), 0 0 80px rgba(57,255,20,0.25);
+  animation: signFlicker 9s ease-in-out infinite;
+  line-height: 1.1;
+}
+@keyframes signFlicker { 0%,93%,97%,100%{opacity:1;} 94%{opacity:0.65;} 96%{opacity:0.85;} }
+.sign-sub {
+  font-family: Arial, sans-serif;
+  font-size: clamp(6px,1vw,12px);
+  color: #ff3068;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  text-shadow: 0 0 6px #ff3068, 0 0 14px rgba(255,48,104,0.4);
+  margin-top: 4px;
+}
+
+/* ── Arcade cabinets ── */
+.cabinet-row {
+  position: absolute;
+  bottom: 34%; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px,1.8vw,28px);
+  align-items: flex-end;
+  padding: 0 7%;
+  z-index: 7;
+}
+.arcade-cabinet {
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer;
+  width: clamp(64px,8vw,98px);
+  transition: transform 0.15s ease, filter 0.15s ease;
+  user-select: none;
+}
+.arcade-cabinet:hover { transform: scale(1.05) translateY(-5px); filter: brightness(1.2); }
+.cab-body {
+  width: 100%;
+  background: linear-gradient(180deg, #18182c 0%, #0c0c1c 100%);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 2px 0 5px rgba(255,255,255,0.05), inset -2px 0 5px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.cab-marquee {
+  height: clamp(18px,2.8vw,30px);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px 4px 0 0;
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: clamp(5px,0.75vw,9px);
+  font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.cab-screen-bezel {
+  margin: 3px 5px;
+  background: #000;
+  border: 3px solid #1a1a2c;
+  border-radius: 3px; padding: 3px;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.9);
+}
+.cab-screen {
+  width: 100%; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(18px,2.8vw,32px);
+  border-radius: 2px;
+  position: relative; overflow: hidden;
+  animation: screenGlow 3s ease-in-out infinite;
+}
+.cab-screen::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 3px);
+  pointer-events: none;
+}
+@keyframes screenGlow {
+  0%,100% { box-shadow: inset 0 0 12px rgba(0,200,200,0.25); }
+  50% { box-shadow: inset 0 0 22px rgba(0,200,200,0.5); }
+}
+.cab-panel {
+  background: linear-gradient(160deg, #1c1c2e, #0a0a18);
+  margin: 0 3px 0; padding: clamp(4px,0.7vw,8px) 3px;
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(3px,0.5vw,7px);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.cab-stick {
+  width: clamp(5px,0.7vw,8px); height: clamp(8px,1.2vw,14px);
+  background: linear-gradient(180deg, #555, #1a1a1a);
+  border-radius: 3px; position: relative; flex-shrink: 0;
+}
+.cab-stick::before {
+  content: ''; position: absolute;
+  top: -4px; left: 50%; transform: translateX(-50%);
+  width: clamp(9px,1.3vw,14px); height: clamp(9px,1.3vw,14px);
+  background: radial-gradient(circle at 35% 35%, #666, #1a1a1a);
+  border-radius: 50%;
+}
+.cab-btn {
+  width: clamp(6px,0.9vw,11px); height: clamp(6px,0.9vw,11px);
+  border-radius: 50%; flex-shrink: 0;
+}
+.cab-base {
+  width: 108%; height: clamp(6px,0.9vw,11px);
+  background: linear-gradient(180deg, #1e1e30, #0c0c1c);
+  border-radius: 0 0 5px 5px;
+  border: 2px solid rgba(255,255,255,0.08); border-top: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.8);
+}
+.arcade-cabinet:hover .cab-body {
+  border-color: var(--cab-color, #00f8ff);
+  box-shadow: 0 0 16px var(--cab-color, #00f8ff), inset 2px 0 5px rgba(255,255,255,0.08);
+}
+.arcade-cabinet:hover .cab-screen {
+  animation: none;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.15), 0 0 12px var(--cab-color, #00f8ff);
 }
 
 /* ── Floor ── */
-.floor {
-  position: absolute;
-  left: 0; right: 0;
-  bottom: 0; height: 32%;
-  overflow: hidden;
+.arcade-baseboard {
+  position: absolute; bottom: 34%; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #39ff14, #00f8ff, #ff3068, #ffe100, #39ff14);
+  box-shadow: 0 0 8px #00f8ff, 0 -3px 18px rgba(0,248,255,0.35), 0 3px 18px rgba(0,248,255,0.35);
+  z-index: 6;
 }
-.floor-inner {
-  width: 100%; height: 100%;
-  background: repeating-linear-gradient(
-    90deg,
-    #a07838 0px, #a07838 118px,
-    #7a5820 118px, #7a5820 122px,
-    #b08840 122px, #b08840 238px,
-    #7a5820 238px, #7a5820 242px
-  );
+.arcade-floor {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 34%;
+  background: repeating-conic-gradient(#0b0020 0% 25%, #15003a 0% 50%) 0 0 / clamp(32px,5vw,56px) clamp(32px,5vw,56px);
+  z-index: 2;
 }
-.floor-sheen {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 35%, rgba(0,0,0,0.1) 100%);
-  pointer-events: none;
+.arcade-floor::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 35%;
+  background: linear-gradient(180deg, rgba(0,248,255,0.07) 0%, transparent 100%);
 }
 
-/* ── Wall window (outside view) ── */
-.wall-window-decor {
+/* ── PRESS START button ── */
+.press-start-wrap {
   position: absolute;
-  top: 10%; left: 50%;
-  transform: translateX(-50%);
-  width: 280px; height: 210px;
-  background: linear-gradient(180deg, #4a9ad4 0%, #7ec8f8 50%, #b8e4ff 100%);
-  border: 14px solid #d4b870;
-  border-radius: 3px;
-  box-shadow:
-    inset 0 0 30px rgba(74,154,212,0.4),
-    4px 6px 20px rgba(0,0,0,0.3),
-    inset 2px 2px 0 rgba(255,255,255,0.3);
-  overflow: hidden;
-}
-.win-pane {
-  position: absolute; inset: 0;
-}
-.win-pane::before {
-  content: '';
-  position: absolute;
-  left: 50%; top: 0; bottom: 0; width: 8px;
-  transform: translateX(-50%);
-  background: #d4b870;
-}
-.win-pane::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 0; right: 0; height: 8px;
-  transform: translateY(-50%);
-  background: #d4b870;
-}
-.wcloud { position: absolute; background: rgba(255,255,255,0.92); border-radius: 50%; }
-.wcloud.c1 { width:72px;height:36px; top:22px;left:14px; box-shadow:26px 0 0 14px rgba(255,255,255,0.92); }
-.wcloud.c2 { width:50px;height:28px; top:50px;right:18px; }
-.wcloud.c3 { width:40px;height:24px; top:12px;left:80px; }
-.wsun { position:absolute; width:38px;height:38px; background:#ffd44a; border-radius:50%; top:10px;right:24px; box-shadow:0 0 18px #ffd44a; }
-.wbuilding { position:absolute; bottom:0; width:44px; background:#7090b0; }
-.wbuilding.b1 { height:70px; left:12px; }
-.wbuilding.b2 { height:95px; left:62px; width:40px; }
-.wbuilding.b3 { height:56px; right:14px; width:36px; }
-.wbuilding::after { content:''; position:absolute; top:0;left:0;right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(255,255,255,0.15) 8px,rgba(255,255,255,0.15) 9px); }
-
-/* ── Bookshelf ── */
-.bookshelf {
-  position: absolute;
-  top: 16%; left: 3%;
-  width: 120px;
-}
-.shelf-unit {
-  background: linear-gradient(90deg, #8a6020 0%, #b08040 50%, #8a6020 100%);
-  border: 3px solid #6a4810;
-  border-radius: 3px;
-  padding: 6px 4px;
-  box-shadow: 4px 6px 14px rgba(0,0,0,0.4);
-}
-.shelf-row { display:flex; gap:3px; align-items:flex-end; margin-bottom:6px; padding-bottom:4px; border-bottom:3px solid #6a4810; }
-.shelf-row:last-child { margin-bottom:0; border-bottom:none; }
-.book {
-  border-radius:2px 3px 3px 2px;
-  box-shadow:1px 0 2px rgba(0,0,0,0.3);
-}
-
-/* ── Wall art ── */
-.wall-art {
-  position: absolute;
-  top: 14%; right: 5%;
-  width: 110px; height: 88px;
-  border: 10px solid #c8a840;
-  box-shadow: 3px 5px 16px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.2);
-  border-radius: 2px;
-  overflow: hidden;
-  background: #1a3a6a;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px;
-}
-
-/* ═══════════════════════════════════════════
-   DESK
-═══════════════════════════════════════════ */
-.desk-group {
-  position: absolute;
-  bottom: 22%; left: 50%;
-  transform: translateX(-50%);
-  width: 44%;
-  max-width: 560px;
-  z-index: 10;
-}
-.desk-top {
-  height: 22px;
-  background: linear-gradient(180deg, #d4a444 0%, #c09030 60%, #a87828 100%);
-  border-radius: 5px 5px 0 0;
-  box-shadow: 0 -3px 0 #e8bc60, 0 2px 8px rgba(0,0,0,0.4);
-  position: relative;
-  z-index: 14;
-}
-.desk-top::before {
-  content: '';
-  position: absolute; top:4px; left:12px; right:12px; height:2px;
-  background: rgba(255,255,255,0.2); border-radius:2px;
-}
-.desk-face {
-  height: 80px;
-  background: linear-gradient(180deg, #a07428 0%, #8a6020 60%, #704e18 100%);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  position: relative;
-  z-index: 10;
-}
-/* desk edge trim */
-.desk-face::before {
-  content: '';
-  position: absolute; top:0; left:0; right:0; height:3px;
-  background: rgba(255,255,255,0.08);
-}
-/* desk drawer */
-.desk-drawer {
-  position: absolute;
+  bottom: calc(34% + 28px);
   left: 50%; transform: translateX(-50%);
-  top: 14px;
-  width: 120px; height: 34px;
-  border: 2px solid rgba(0,0,0,0.4);
-  border-radius: 3px;
-  background: rgba(0,0,0,0.15);
+  z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
-.desk-drawer::before {
-  content: '';
-  position: absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:28px; height:8px;
-  background: linear-gradient(90deg,#c09030,#e0b040,#c09030);
-  border-radius:4px;
-  border:1px solid rgba(0,0,0,0.3);
+.press-start-btn {
+  background: linear-gradient(180deg, #e01800 0%, #a81000 100%);
+  color: #fff;
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: clamp(13px,2vw,22px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: clamp(10px,1.5vh,16px) clamp(22px,4vw,50px);
+  border: 2px solid rgba(255,120,60,0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 22px #cc1100, 0 0 50px rgba(204,17,0,0.45), inset 0 2px 0 rgba(255,120,80,0.4), inset 0 -2px 0 rgba(0,0,0,0.35);
+  animation: btnPulse 1.7s ease-in-out infinite;
+  text-transform: uppercase;
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.desk-legs {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 30px;
+.press-start-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 35px #cc1100, 0 0 70px rgba(204,17,0,0.65), inset 0 2px 0 rgba(255,120,80,0.4), inset 0 -2px 0 rgba(0,0,0,0.35);
 }
-.desk-leg {
-  width: 18px; height: 40px;
-  background: linear-gradient(90deg, #6a4810 0%, #8a6020 50%, #6a4810 100%);
-  border-radius: 0 0 4px 4px;
-  box-shadow: 2px 4px 8px rgba(0,0,0,0.4);
+.press-start-btn:active { transform: scale(0.96); }
+@keyframes btnPulse {
+  0%,100% { box-shadow: 0 0 22px #cc1100, 0 0 50px rgba(204,17,0,0.45), inset 0 2px 0 rgba(255,120,80,0.4), inset 0 -2px 0 rgba(0,0,0,0.35); }
+  50% { box-shadow: 0 0 36px #cc1100, 0 0 80px rgba(204,17,0,0.65), inset 0 2px 0 rgba(255,120,80,0.4), inset 0 -2px 0 rgba(0,0,0,0.35); }
 }
-
-/* Items on desk */
-.desk-items {
-  position: absolute;
-  top: -90px; /* above desk face, on desk surface */
-  left: 0; right: 0;
-  height: 90px;
-  display: flex;
-  align-items: flex-end;
-  padding: 0 12px;
-  z-index: 15;
+.insert-coin-text {
+  font-family: Arial, sans-serif;
+  font-size: clamp(9px,1.1vw,13px);
+  color: #ffe100;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  text-shadow: 0 0 8px #ffe100, 0 0 16px rgba(255,225,0,0.4);
+  animation: coinBlink 1.1s step-end infinite;
   pointer-events: none;
 }
+@keyframes coinBlink { 0%,100%{opacity:1;} 50%{opacity:0;} }
 
-/* Coffee mug */
-.coffee-mug {
-  margin-left: auto;
-  margin-right: 14px;
-  display: flex; flex-direction: column; align-items: center;
-}
-.mug-body {
-  width: 28px; height: 34px;
-  background: linear-gradient(180deg, #e8e0d0 0%, #c8c0b0 100%);
-  border-radius: 3px 3px 6px 6px;
-  border: 2px solid #a09880;
-  position: relative;
-}
-.mug-handle {
-  position: absolute; right: -12px; top: 6px;
-  width: 10px; height: 16px;
-  border: 3px solid #a09880;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-}
-.mug-steam {
-  display: flex; gap: 4px; margin-bottom: 2px;
-}
-.steam-line {
-  width: 2px; height: 10px;
-  background: rgba(200,200,200,0.5);
-  border-radius: 2px;
-  animation: steamRise 1.5s ease-in-out infinite;
-}
-.steam-line:nth-child(2) { animation-delay: 0.4s; height: 7px; }
-.steam-line:nth-child(3) { animation-delay: 0.8s; }
-@keyframes steamRise {
-  0%,100% { opacity: 0.4; transform: translateY(0) scaleX(1); }
-  50% { opacity: 0.7; transform: translateY(-4px) scaleX(1.4); }
-}
-.mug-liquid {
-  position: absolute; top: 4px; left: 4px; right: 4px; height: 6px;
-  background: #5c3010; border-radius: 2px;
-}
-
-/* Mouse */
-.desk-mouse {
-  width: 22px; height: 30px;
-  background: linear-gradient(160deg, #e0dcd0 0%, #c0bca8 100%);
-  border-radius: 11px 11px 8px 8px;
-  border: 1px solid #a0a090;
-  margin-right: 12px;
-  position: relative;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
-}
-.desk-mouse::before {
-  content: '';
-  position: absolute;
-  top: 10px; left: 50%; transform: translateX(-50%);
-  width: 1px; height: 12px;
-  background: #a0a090;
-}
-
-/* Plant */
-.desk-plant {
-  display: flex; flex-direction: column; align-items: center;
-  margin-right: 8px;
-}
-.plant-pot {
-  width: 30px; height: 24px;
-  background: linear-gradient(180deg, #c07840 0%, #a06028 100%);
-  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
-  border-radius: 0 0 4px 4px;
-  position: relative;
-}
-.plant-leaves {
-  font-size: 22px; line-height:1;
-  margin-bottom: -4px;
-  filter: drop-shadow(0 2px 3px rgba(0,80,0,0.4));
-}
-
-/* Papers */
-.desk-papers {
-  margin-right: 20px;
-}
-.paper {
-  width: 44px; height: 56px;
-  background: #f8f6f0;
-  border: 1px solid #d0c8b0;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.2);
-  border-radius: 1px;
-  position: relative;
-}
-.paper::before, .paper::after {
-  content: '';
-  position: absolute;
-  left: 6px; right: 6px;
-  height: 1px;
-  background: #b0c0e0;
-}
-.paper::before { top: 14px; }
-.paper::after { top: 22px; }
-.paper2 {
-  position: absolute;
-  top: 3px; left: -5px;
-  width: 44px; height: 56px;
-  background: #f0ede0;
-  border: 1px solid #d0c8b0;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
-  z-index: -1;
-  transform: rotate(-4deg);
+/* ── Coin display ── */
+.coin-display {
+  position: absolute; top: 11%; left: 2%;
+  background: rgba(0,0,0,0.55);
+  border: 2px solid #ffe100;
+  border-radius: 6px; padding: 4px 10px;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(10px,1.3vw,15px);
+  color: #ffe100;
+  text-shadow: 0 0 8px #ffe100;
+  box-shadow: 0 0 10px rgba(255,225,0,0.25);
+  z-index: 20; white-space: nowrap;
+  user-select: none;
 }
 
 /* ═══════════════════════════════════════════
-   SIMS CHARACTER
+   CHARACTER (Sims-style)
 ═══════════════════════════════════════════ */
 .char-group {
   position: absolute;
-  bottom: 31%;
-  left: 20%;
+  bottom: 34%;
+  left: 18%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -439,47 +379,7 @@ html, body {
   100% { opacity:0; transform:translate(-50%,-50%) scale(1.6); }
 }
 
-/* ── Desk keyboard (scene-level so it's above monitor stacking context) ── */
-.desk-keyboard {
-  position: absolute;
-  bottom: calc(22% + 142px); /* sit on desk surface */
-  left: calc(54% - 148px);   /* to the left of monitor, clear of it */
-  transform: none;
-  width: 100px; height: 20px;
-  background: linear-gradient(180deg, #e0dbd4 0%, #c0bcb6 100%);
-  border-radius: 3px 3px 5px 5px;
-  border: 2px solid #9a9690;
-  border-top-color: #e8e4de;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5);
-  z-index: 15;
-}
-.desk-keyboard::before {
-  content: '';
-  position: absolute; inset: 3px 5px 6px 5px;
-  background: repeating-linear-gradient(90deg, #706c68 0px, #706c68 3px, #c0bcb6 3px, #c0bcb6 5px);
-  border-radius: 1px;
-}
-.desk-keyboard::after {
-  content: '';
-  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-  width: 48px; height: 4px;
-  background: #909090; border-radius: 2px;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.3);
-}
-
-/* ── Cat ── */
-.office-cat {
-  position: absolute;
-  bottom: 31%;
-  font-size: 22px;
-  line-height: 1;
-  z-index: 11;
-  pointer-events: none;
-  transition: left 4s ease-in-out;
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
-}
-
-/* Plumbob */
+/* ── Plumbob ── */
 .plumbob {
   width: 16px; height: 16px;
   background: linear-gradient(135deg, #44ff88 0%, #00cc44 50%, #008833 100%);
@@ -493,7 +393,7 @@ html, body {
   50% { transform: rotate(45deg) translateY(-5px); opacity:0.85; }
 }
 
-/* Head */
+/* ── Character head ── */
 .char-head {
   width: 38px; height: 42px;
   background: linear-gradient(160deg, #f5c888 0%, #e8b060 100%);
@@ -534,14 +434,14 @@ html, body {
 .char-nose { width: 5px; height: 4px; border-bottom: 2px solid #d09060; border-radius: 0 0 4px 4px; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); }
 .char-mouth { width: 13px; height: 5px; border-bottom: 2px solid #c07050; border-radius: 0 0 8px 8px; position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); }
 
-/* Neck */
+/* ── Neck ── */
 .char-neck {
   width: 14px; height: 8px;
   background: #e8b060;
   margin: -1px auto 0;
 }
 
-/* Body / shirt */
+/* ── Body / shirt ── */
 .char-body {
   width: 46px; height: 50px;
   background: linear-gradient(160deg, #5588ee 0%, #3366cc 60%, #2244aa 100%);
@@ -558,7 +458,7 @@ html, body {
   border-right: 8px solid transparent;
   border-top: 10px solid #e8b060;
 }
-/* arm left (reaching toward keyboard) */
+/* arm left */
 .char-arm-l {
   position: absolute;
   top: 8px; left: -14px;
@@ -579,7 +479,7 @@ html, body {
   transform-origin: top center;
 }
 
-/* Seated legs */
+/* ── Legs ── */
 .char-lap {
   display: flex; gap: 4px;
   margin-top: 1px;
@@ -597,170 +497,49 @@ html, body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* ── Office Chair ── */
-.chair-group {
+/* ── Cat ── */
+.office-cat {
   position: absolute;
-  bottom: 31%;              /* same floor level as character */
-  left: 20%;                /* centered on char1 */
-  transform: translateX(-50%);
-  z-index: 9;               /* behind character (char is z-index 12) */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  bottom: 34%;
+  font-size: 22px;
+  line-height: 1;
+  z-index: 11;
+  pointer-events: auto;
+  transition: left 4s ease-in-out;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  cursor: pointer;
 }
-.chair-back {
-  width: 58px; height: 70px;
-  background: linear-gradient(160deg, #3a3a3a 0%, #222 60%, #111 100%);
-  border-radius: 8px 8px 4px 4px;
-  border: 2px solid #444;
-  box-shadow: 2px 3px 10px rgba(0,0,0,0.5);
-  position: relative;
-}
-.chair-back::before {
-  content: '';
-  position: absolute; top: 8px; left: 6px; right: 6px; bottom: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 6px;
-}
-.chair-seat {
-  width: 64px; height: 16px;
-  background: linear-gradient(180deg, #444 0%, #222 100%);
-  border-radius: 4px;
-  border: 2px solid #555;
-  margin-top: 2px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-}
-.chair-pole {
-  width: 6px; height: 30px;
-  background: linear-gradient(90deg, #666 0%, #999 50%, #666 100%);
-  margin: 0 auto;
-}
-.chair-base {
-  width: 70px; height: 8px;
-  background: linear-gradient(90deg, #333 0%, #555 50%, #333 100%);
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  position: relative;
-}
-.chair-base::before, .chair-base::after {
-  content: '';
-  position: absolute; bottom: -6px;
-  width: 8px; height: 8px;
-  background: #333; border-radius: 50%;
-}
-.chair-base::before { left: 6px; }
-.chair-base::after { right: 6px; }
 
-/* ═══════════════════════════════════════════
-   MONITOR (on desk)
-═══════════════════════════════════════════ */
-.monitor-wrap {
+/* ── Second character ── */
+.char2-group {
   position: absolute;
-  bottom: calc(22% + 142px); /* 22% desk-base + 40px legs + 80px face + 22px top = desk surface */
-  left: 54%;
-  transform: translateX(-50%);
-  z-index: 14;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  bottom: 34%; right: 8%;
+  z-index: 12;
+  display: flex; flex-direction: column; align-items: center;
 }
-
-.monitor-tilt {
-  transform: rotateX(3deg) rotateY(3deg);
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.bezel {
-  background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
-  border-radius: 5px 5px 3px 3px;
-  padding: 5px 5px 16px 5px;
-  border: 2px solid #aaa;
-  border-bottom: 4px solid #888;
-  box-shadow:
-    inset 2px 2px 5px rgba(255,255,255,0.5),
-    inset -2px -2px 5px rgba(0,0,0,0.3),
-    3px 3px 0 #666, 6px 6px 0 #444, 8px 8px 0 #222;
-  position: relative;
-}
-.bezel::after {
-  content: 'RosePC™ Model 9800';
-  position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
-  font-family: Arial, sans-serif; font-size: 7px; font-weight: bold;
-  color: #777; letter-spacing: 0.5px; white-space: nowrap;
-}
-.power-led {
-  position: absolute; bottom: 5px; right: 20px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #00ff55;
-  box-shadow: 0 0 5px #00ff55, 0 0 10px #00ff55;
-  animation: ledBlink 4s ease-in-out infinite;
-}
-@keyframes ledBlink { 0%,88%,100%{opacity:1;} 93%{opacity:0.2;} }
-.power-btn {
-  position: absolute; bottom: 4px; right: 32px;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: linear-gradient(140deg, #ccc 0%, #999 55%, #777 100%);
-  border: 1.5px solid #666;
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 1px 1px 0 #333;
-}
-
-/* Screen */
-.screen-glass {
-  width: 204px; height: 164px;
-  background: #000608;
-  border-radius: 4px;
-  border: 3px solid #1a1a1a;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.9), inset 0 0 4px rgba(255,255,255,0.02);
-  overflow: hidden;
-  position: relative;
-}
-.screen-glass::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
-  pointer-events: none; z-index: 300; border-radius: 3px;
-}
-.screen-glass::before {
-  content: '';
-  position: absolute; top:5px; left:5px; right:45%; height:28%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 100%);
-  pointer-events: none; z-index: 301; border-radius: 4px 0 0 0;
-}
-
-.monitor-neck {
-  width: 32px; height: 11px;
-  background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
-  box-shadow: 2px 0 0 #777, -2px 0 0 #777;
-  margin-top: -2px;
-}
-.monitor-base {
-  width: 88px; height: 10px;
-  background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
-  border-radius: 6px 6px 10px 10px;
-  border: 2px solid #888; border-top: none;
-  box-shadow: 0 5px 12px rgba(0,0,0,0.6), inset 0 -2px 4px rgba(0,0,0,0.3);
-}
+#char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
+.plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
+.char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
+.char2-body::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid #e8b060; }
+.char2-arm-l { position:absolute;top:8px;left:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(15deg);transform-origin:top center; }
+.char2-arm-r { position:absolute;top:8px;right:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(-15deg);transform-origin:top center; }
+.speech-bubble2 { position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #222;border-radius:10px;padding:4px 9px;font-family:Arial,sans-serif;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s;box-shadow:2px 2px 5px rgba(0,0,0,.25);z-index:200; }
+.speech-bubble2::after { content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #222; }
+.speech-bubble2.show { opacity:1; }
+#char2Group.waving2 .char2-arm-l { animation:waveArm .9s ease-in-out 2; }
+#char2Group.looking2 .char-head  { animation:lookAround 1.4s ease-in-out; }
 
 /* ═══════════════════════════════════════════
    WIN98 NAME DIALOG
 ═══════════════════════════════════════════ */
 .name-dialog-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute; inset: 0; z-index: 600;
+  display: flex; align-items: center; justify-content: center;
   background: transparent;
 }
 .name-dialog {
   background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
+  border: 2px solid; border-color: #fff #808080 #808080 #fff;
   box-shadow: 4px 4px 0 #000;
   width: 300px;
   animation: dlgPop .18s ease-out;
@@ -779,79 +558,43 @@ html, body {
 }
 .dlg-titlebar {
   background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
-  color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 4px 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  user-select: none;
+  color: #fff; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold;
+  padding: 4px 5px; display: flex; align-items: center; gap: 5px; user-select: none;
 }
 .dlg-title-icon { font-size: 13px; }
 .dlg-title-text { flex: 1; }
 .dlg-close {
-  width: 16px; height: 14px;
-  background: #c0c0c0;
+  width: 16px; height: 14px; background: #c0c0c0;
   border: 2px solid; border-color: #fff #808080 #808080 #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 9px; font-weight: bold; color: #000; line-height: 1;
 }
 .dlg-body {
   padding: 14px 14px 10px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  display: flex; gap: 12px; align-items: flex-start;
 }
 .dlg-bigicon { font-size: 36px; line-height: 1; flex-shrink: 0; }
 .dlg-text {
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  color: #000;
-  flex: 1;
-  line-height: 1.45;
+  font-family: Arial, sans-serif; font-size: 11px; color: #000; flex: 1; line-height: 1.45;
 }
 .dlg-text b { display: block; margin-bottom: 5px; font-size: 12px; }
-.dlg-label {
-  display: block;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  color: #000;
-  margin: 10px 0 3px;
-}
+.dlg-label { display: block; font-family: Arial, sans-serif; font-size: 11px; color: #000; margin: 10px 0 3px; }
 .dlg-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: #fff;
-  border: 2px solid; border-color: #808080 #fff #fff #808080;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  padding: 3px 5px;
-  outline: none;
-  color: #000;
-  letter-spacing: 1px;
+  width: 100%; box-sizing: border-box;
+  background: #fff; border: 2px solid; border-color: #808080 #fff #fff #808080;
+  font-family: 'Courier New', monospace; font-size: 12px; padding: 3px 5px;
+  outline: none; color: #000; letter-spacing: 1px;
 }
 .dlg-input:focus { border-color: #000080 #fff #fff #000080; }
 .dlg-footer {
-  padding: 8px 14px 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
+  padding: 8px 14px 12px; display: flex; justify-content: flex-end; gap: 6px;
   border-top: 1px solid #dfdfdf;
 }
 .dlg-btn {
-  min-width: 72px;
-  padding: 4px 10px;
-  background: #c0c0c0;
+  min-width: 72px; padding: 4px 10px; background: #c0c0c0;
   border: 2px solid; border-color: #fff #808080 #808080 #fff;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  font-weight: bold;
-  color: #000;
-  cursor: pointer;
-  user-select: none;
-  text-align: center;
+  font-family: Arial, sans-serif; font-size: 11px; font-weight: bold;
+  color: #000; cursor: pointer; user-select: none; text-align: center;
 }
 .dlg-btn:active { border-color: #808080 #fff #fff #808080; }
 .dlg-btn.primary { border-color: #000 #fff #fff #000; box-shadow: inset 1px 1px 0 #dfdfdf; }
@@ -859,204 +602,8 @@ html, body {
 .dlg-divider { border: none; border-top: 1px solid #808080; margin: 0 0 10px; }
 
 /* ═══════════════════════════════════════════
-   WIN98 DESKTOP
+   SCREENSAVER
 ═══════════════════════════════════════════ */
-.win98-desktop {
-  width: 100%; height: 100%;
-  background: #008080;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Taskbar */
-.taskbar {
-  position: absolute; bottom:0; left:0; right:0; height:24px;
-  background: #c0c0c0;
-  border-top: 2px solid #fff;
-  box-shadow: inset 0 1px 0 #e0e0e0;
-  display: flex; align-items: center;
-  padding: 0 3px; gap: 2px; z-index: 500;
-}
-.start-btn {
-  display:flex; align-items:center; gap:3px;
-  padding: 1px 6px 1px 4px;
-  background: #c0c0c0;
-  border: 2px solid; border-color: #fff #808080 #808080 #fff;
-  font-family: Arial, sans-serif; font-size: 10px; font-weight: bold;
-  user-select: none; white-space: nowrap;
-}
-.start-btn:active { border-color: #808080 #fff #fff #808080; }
-.taskbar-sep { width:2px; height:16px; background:#808080; box-shadow:1px 0 0 #fff; }
-.taskbar-items { display:flex; gap:2px; flex:1; padding:0 2px; }
-.taskbar-item {
-  display:none; align-items:center; gap:2px;
-  padding:1px 6px;
-  background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:9px; user-select:none;
-  max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-.taskbar-item.visible { display:flex; }
-.taskbar-clock {
-  margin-left:auto; padding:1px 6px;
-  background:#c0c0c0; border:1px solid; border-color:#808080 #fff #fff #808080;
-  font-family:Arial,sans-serif; font-size:10px; user-select:none;
-}
-
-/* Desktop icons */
-.desktop-icons {
-  position:absolute; top:6px; left:5px;
-  display:flex; flex-direction:column; gap:6px;
-}
-.desktop-icon-tr {
-  position:absolute; top:6px; right:5px;
-}
-.icon {
-  display:flex; flex-direction:column; align-items:center;
-  width:46px; padding:2px; border-radius:1px; user-select:none;
-}
-.icon .icon-img { font-size:20px; line-height:1; margin-bottom:2px; display:block; }
-.icon .icon-label {
-  font-family:Arial,sans-serif; font-size:8px; color:#fff;
-  text-align:center; text-shadow:1px 1px 2px #000, -1px -1px 2px rgba(0,0,0,0.5);
-  padding:1px 2px; line-height:1.2; max-width:46px; word-break:break-word;
-}
-.icon:hover .icon-label, .icon.selected .icon-label { background:#000080; color:#fff; }
-.icon:hover .icon-img, .icon.selected .icon-img { filter:brightness(0.6) sepia(1) hue-rotate(200deg) saturate(4); }
-
-/* Win windows */
-.win-window {
-  position:absolute; background:#c0c0c0;
-  border:2px solid; border-color:#fff #808080 #808080 #fff;
-  box-shadow:3px 3px 0 #000; display:none; min-width:60px; z-index:20;
-}
-.win-window.open { display:block; }
-
-.win-titlebar {
-  background:linear-gradient(90deg,#000080 0%,#1084d0 100%);
-  color:#fff; font-family:Arial,sans-serif; font-size:11px; font-weight:bold;
-  padding:3px 3px; display:flex; align-items:center; gap:4px;
-  cursor:move; user-select:none; height:18px;
-}
-.win-titlebar.inactive { background:linear-gradient(90deg,#7f7f7f 0%,#b0b0b0 100%); }
-.win-title-icon { font-size:12px; }
-.win-title-text { flex:1; }
-.win-controls { display:flex; gap:1px; }
-.win-btn {
-  width:16px; height:14px;
-  background:#c0c0c0; border:2px solid; border-color:#fff #808080 #808080 #fff;
-  display:flex; align-items:center; justify-content:center;
-  font-size:8px; font-family:Arial,sans-serif; font-weight:bold;
-  line-height:1; color:#000; padding:0;
-}
-.win-btn:hover { background:#d0d0d0; }
-.win-btn:active { border-color:#808080 #fff #fff #808080; }
-
-.win-menubar {
-  background:#c0c0c0; border-bottom:1px solid #808080;
-  padding:1px 3px; display:flex; gap:0;
-}
-.win-menu-item { font-family:Arial,sans-serif; font-size:11px; padding:2px 6px; user-select:none; }
-.win-menu-item:hover { background:#000080; color:#fff; }
-
-.win-toolbar {
-  background:#c0c0c0; border-bottom:1px solid #808080;
-  padding:2px 4px; display:flex; align-items:center; gap:2px;
-}
-.win-tb-btn {
-  width:20px; height:18px; background:#c0c0c0;
-  border:2px solid transparent; font-size:10px;
-  display:flex; align-items:center; justify-content:center; user-select:none;
-}
-.win-tb-btn:hover { border-color:#fff #808080 #808080 #fff; }
-.win-tb-sep { width:2px; height:14px; background:#808080; box-shadow:1px 0 0 #fff; margin:0 2px; }
-
-.win-statusbar {
-  background:#c0c0c0; border-top:1px solid #808080;
-  padding:2px 6px; font-family:Arial,sans-serif; font-size:10px;
-}
-.win-resize {
-  position:absolute; bottom:2px; right:2px;
-  width:10px; height:10px; font-size:9px; color:#808080;
-  display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none;
-}
-
-/* ── Documents window ── */
-.doc-nav {
-  background:#fff; border-right:2px solid #808080;
-  width:54px; overflow-y:auto; flex-shrink:0;
-}
-.doc-nav-item {
-  font-family:Arial,sans-serif; font-size:9px;
-  padding:4px 5px; border-bottom:1px solid #e0e0e0;
-  user-select:none; line-height:1.3;
-}
-.doc-nav-item:hover { background:#000080; color:#fff; }
-.doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:90px; }
-.doc-page {
-  background:#fff; padding:6px 8px;
-  flex:1; overflow-y:auto;
-  font-family:'Times New Roman',serif; font-size:10px; line-height:1.5; color:#000;
-}
-.doc-story { display:none; }
-.doc-story.active { display:block; }
-.doc-story h2 { font-size:10px; text-align:center; margin:0 0 6px; text-decoration:underline; }
-.doc-story .verse { margin:0 0 7px; white-space:pre-line; }
-.story-end { text-align:center; font-style:italic; margin-top:10px; font-size:9px; }
-
-/* ── Trash window ── */
-.trash-path {
-  flex:1; background:#fff; border:2px solid; border-color:#808080 #fff #fff #808080;
-  padding:1px 5px; font-family:Arial,sans-serif; font-size:10px; margin-left:3px;
-}
-.trash-grid {
-  display:grid; grid-template-columns:repeat(2,1fr); gap:5px;
-  padding:8px; background:#fff; margin:4px; min-height:120px;
-}
-.trash-item {
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-}
-.trash-item img {
-  width:58px; height:44px; object-fit:cover;
-  border:2px solid #808080; display:block;
-}
-.trash-item:hover img { border-color:#000080; outline:1px solid #000080; }
-.trash-item span {
-  font-family:Arial,sans-serif; font-size:8px;
-  text-align:center; max-width:72px; word-break:break-all; line-height:1.2;
-}
-
-/* ── DAY / NIGHT CYCLE ── */
-.scene.dusk  .wall { background:#e0c890; }
-.scene.night .wall { background:#2a2a3e; background-image:repeating-linear-gradient(90deg,transparent 0,transparent 39px,rgba(80,80,120,.18) 39px,rgba(80,80,120,.18) 40px),repeating-linear-gradient(0deg,transparent 0,transparent 39px,rgba(80,80,120,.12) 39px,rgba(80,80,120,.12) 40px); }
-.scene.night .baseboard { background:linear-gradient(180deg,#5a5030 0%,#3a3010 100%); border-top-color:#786840; }
-.scene.night .ceiling { background:linear-gradient(180deg,#2a2832 0%,#221e2a 100%); border-bottom-color:#18141e; }
-.scene.night .floor-inner { background:repeating-linear-gradient(90deg,#7a5820 0,#7a5820 118px,#5a3c0e 118px,#5a3c0e 122px,#8a6428 122px,#8a6428 238px,#5a3c0e 238px,#5a3c0e 242px); filter:brightness(.6); }
-.scene.dusk  .wall-window-decor { background:linear-gradient(180deg,#e06018 0%,#f0a040 50%,#f8c870 100%); }
-.scene.night .wall-window-decor { background:linear-gradient(180deg,#060814 0%,#0e1628 55%,#1a2640 100%); }
-.scene.night .wsun  { display:none; }
-.scene.night .wcloud { background:rgba(40,50,80,.55); }
-.scene.dusk  .wcloud { background:rgba(255,160,60,.7); }
-.wmoon { position:absolute; width:22px;height:22px;background:#f8f0a0;border-radius:50%;top:8px;right:14px;box-shadow:0 0 14px #f8f0a0,0 0 30px rgba(248,240,160,.4);display:none; }
-.scene.night .wmoon { display:block; }
-.scene.night .wsun  { display:none; }
-.wstar { position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:starTwinkle 2s ease-in-out infinite; }
-@keyframes starTwinkle { 0%,100%{opacity:.9;} 50%{opacity:.1;} }
-/* dim the whole scene at night */
-.scene.night .bookshelf,.scene.night .wall-art { filter:brightness(.55); }
-.scene.night .desk-group { filter:brightness(.7); }
-.scene.night .monitor-wrap { filter:none; }
-
-/* ── RIGHT-CLICK CONTEXT MENU ── */
-.ctx-menu { position:absolute;background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;box-shadow:3px 3px 0 #000;min-width:140px;z-index:800;display:none;padding:2px 0; }
-.ctx-menu.open { display:block; }
-.ctx-item { font-family:Arial,sans-serif;font-size:11px;padding:4px 20px 4px 28px;user-select:none;color:#000;cursor:default;white-space:nowrap; }
-.ctx-item:hover { background:#000080;color:#fff; }
-.ctx-item.disabled { color:#808080; }
-.ctx-item.disabled:hover { background:transparent;color:#808080; }
-.ctx-sep { border:none;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:2px 0; }
-
-/* ── SCREENSAVER ── */
 #screensaver { position:fixed;inset:0;z-index:9000;display:none;background:#000; }
 #screensaver.active { display:block; }
 #saver-canvas { position:absolute;inset:0;width:100%;height:100%; }
@@ -1067,95 +614,119 @@ html, body {
 .unlock-overlay.open { display:flex; }
 .unlock-dialog { background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;box-shadow:4px 4px 0 #000;width:260px; }
 .unlock-dialog .dlg-body { flex-direction:column;gap:6px; }
-
-/* ── DESK PHONE ── */
-.desk-phone { display:flex;flex-direction:column;align-items:center;margin-right:18px;cursor:pointer;position:relative; }
-.phone-body { width:34px;height:26px;background:linear-gradient(160deg,#444 0%,#222 100%);border-radius:3px 3px 5px 5px;border:2px solid #333;box-shadow:1px 2px 5px rgba(0,0,0,.5);position:relative; }
-.phone-handset { position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:30px;height:11px;background:linear-gradient(160deg,#555 0%,#2a2a2a 100%);border-radius:8px 8px 0 0;border:2px solid #333;border-bottom:none; }
-.phone-dial { position:absolute;bottom:3px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,5px);gap:2px; }
-.phone-key { width:5px;height:3px;background:#555;border-radius:1px; }
-@keyframes phoneRing { 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
-.desk-phone.ringing .phone-body { animation:phoneRing .12s ease-in-out infinite; }
-.phone-ring-label { position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:11px;pointer-events:none;opacity:0;white-space:nowrap; }
-.desk-phone.ringing .phone-ring-label { opacity:1;animation:ringBounce .4s ease-in-out infinite; }
-@keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
-
-/* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:31%;right:8%;z-index:12;display:flex;flex-direction:column;align-items:center; }
-#char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
-.plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
-.char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
-.char2-body::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid #e8b060; }
-.char2-arm-l { position:absolute;top:8px;left:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(15deg);transform-origin:top center; }
-.char2-arm-r { position:absolute;top:8px;right:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(-15deg);transform-origin:top center; }
-.speech-bubble2 { position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #222;border-radius:10px;padding:4px 9px;font-family:Arial,sans-serif;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s;box-shadow:2px 2px 5px rgba(0,0,0,.25);z-index:200; }
-.speech-bubble2::after { content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #222; }
-.speech-bubble2.show { opacity:1; }
-#char2Group.waving2 .char2-arm-l { animation:waveArm .9s ease-in-out 2; }
-#char2Group.looking2 .char-head  { animation:lookAround 1.4s ease-in-out; }
 </style>
 </head>
 <body>
 
-<div class="scene">
+<div class="scene" id="scene">
 
-  <!-- ── CEILING ── -->
-  <div class="ceiling"><div class="ceiling-light"></div></div>
-
-  <!-- ── BACK WALL ── -->
-  <div class="wall"></div>
-  <div class="baseboard"></div>
-
-  <!-- Wall window (outside) -->
-  <div class="wall-window-decor">
-    <div class="wcloud c1"></div>
-    <div class="wcloud c2"></div>
-    <div class="wcloud c3"></div>
-    <div class="wsun"></div>
-    <div class="wmoon"></div>
-    <div class="wbuilding b1"></div>
-    <div class="wbuilding b2"></div>
-    <div class="wbuilding b3"></div>
-    <div class="win-pane"></div>
+  <!-- Ceiling -->
+  <div class="arcade-ceiling">
+    <div class="ceiling-neon"></div>
+    <div class="pendant" style="left:25%"><div class="pend-wire"></div><div class="pend-shade"></div></div>
+    <div class="pendant" style="left:50%"><div class="pend-wire"></div><div class="pend-shade"></div></div>
+    <div class="pendant" style="left:75%"><div class="pend-wire"></div><div class="pend-shade"></div></div>
   </div>
 
-  <!-- Bookshelf -->
-  <div class="bookshelf">
-    <div class="shelf-unit">
-      <div class="shelf-row" style="height:36px;align-items:flex-end;padding-bottom:4px;">
-        <div class="book" style="width:14px;height:32px;background:#cc4444;"></div>
-        <div class="book" style="width:12px;height:28px;background:#4488cc;"></div>
-        <div class="book" style="width:16px;height:34px;background:#44aa44;"></div>
-        <div class="book" style="width:10px;height:24px;background:#ddaa22;"></div>
-        <div class="book" style="width:14px;height:30px;background:#aa44aa;"></div>
-        <div class="book" style="width:12px;height:26px;background:#cc6622;"></div>
+  <!-- Back wall -->
+  <div class="arcade-wall"></div>
+
+  <!-- ROSE ARCADE sign -->
+  <div class="arcade-sign">
+    <div class="sign-bulbs" id="signBulbs"></div>
+    <div class="sign-title">🕹️ ROSE ARCADE</div>
+    <div class="sign-sub">INSERT COIN &bull; PRESS START &bull; PLAY</div>
+    <div class="sign-bulbs" id="signBulbs2"></div>
+  </div>
+
+  <!-- Arcade cabinets row -->
+  <div class="cabinet-row">
+    <div class="arcade-cabinet" style="--cab-color:#39ff14" title="Play games!">
+      <div class="cab-body">
+        <div class="cab-marquee" style="background:linear-gradient(180deg,#0a2a0a,#051405);">
+          <span style="color:#39ff14;text-shadow:0 0 8px #39ff14">🐍 SNAKE</span>
+        </div>
+        <div class="cab-screen-bezel"><div class="cab-screen" style="background:#003800">🐍</div></div>
+        <div class="cab-panel">
+          <div class="cab-stick"></div>
+          <div class="cab-btn" style="background:#39ff14;box-shadow:0 0 6px #39ff14"></div>
+          <div class="cab-btn" style="background:#ffe100;box-shadow:0 0 6px #ffe100"></div>
+        </div>
       </div>
-      <div style="height:4px;"></div>
-      <div class="shelf-row" style="height:34px;align-items:flex-end;padding-bottom:4px;">
-        <div class="book" style="width:13px;height:28px;background:#2288aa;"></div>
-        <div class="book" style="width:15px;height:32px;background:#cc8822;"></div>
-        <div style="font-size:18px;margin-bottom:0;">🏆</div>
-        <div class="book" style="width:11px;height:26px;background:#aa2244;"></div>
-        <div class="book" style="width:14px;height:30px;background:#228844;"></div>
+      <div class="cab-base"></div>
+    </div>
+    <div class="arcade-cabinet" style="--cab-color:#ffe14d" title="Play games!">
+      <div class="cab-body">
+        <div class="cab-marquee" style="background:linear-gradient(180deg,#2a2a00,#141400);">
+          <span style="color:#ffe14d;text-shadow:0 0 8px #ffe14d">🟡 PAC-MAN</span>
+        </div>
+        <div class="cab-screen-bezel"><div class="cab-screen" style="background:#000820">🟡</div></div>
+        <div class="cab-panel">
+          <div class="cab-stick"></div>
+          <div class="cab-btn" style="background:#ffe14d;box-shadow:0 0 6px #ffe14d"></div>
+          <div class="cab-btn" style="background:#ff3068;box-shadow:0 0 6px #ff3068"></div>
+        </div>
       </div>
+      <div class="cab-base"></div>
+    </div>
+    <div class="arcade-cabinet" style="--cab-color:#4df0ff" title="Play games!">
+      <div class="cab-body">
+        <div class="cab-marquee" style="background:linear-gradient(180deg,#001a2a,#000d14);">
+          <span style="color:#4df0ff;text-shadow:0 0 8px #4df0ff">🟦 TETRIS</span>
+        </div>
+        <div class="cab-screen-bezel"><div class="cab-screen" style="background:#001828">🟦</div></div>
+        <div class="cab-panel">
+          <div class="cab-stick"></div>
+          <div class="cab-btn" style="background:#4df0ff;box-shadow:0 0 6px #4df0ff"></div>
+          <div class="cab-btn" style="background:#c46dff;box-shadow:0 0 6px #c46dff"></div>
+        </div>
+      </div>
+      <div class="cab-base"></div>
+    </div>
+    <div class="arcade-cabinet" style="--cab-color:#c46dff" title="Play games!">
+      <div class="cab-body">
+        <div class="cab-marquee" style="background:linear-gradient(180deg,#1a0028,#0d0014);">
+          <span style="color:#c46dff;text-shadow:0 0 8px #c46dff">👾 INVADERS</span>
+        </div>
+        <div class="cab-screen-bezel"><div class="cab-screen" style="background:#0a001a">👾</div></div>
+        <div class="cab-panel">
+          <div class="cab-stick"></div>
+          <div class="cab-btn" style="background:#c46dff;box-shadow:0 0 6px #c46dff"></div>
+          <div class="cab-btn" style="background:#ff3068;box-shadow:0 0 6px #ff3068"></div>
+        </div>
+      </div>
+      <div class="cab-base"></div>
+    </div>
+    <div class="arcade-cabinet" style="--cab-color:#ff3068" title="Play games!">
+      <div class="cab-body">
+        <div class="cab-marquee" style="background:linear-gradient(180deg,#2a000a,#140005);">
+          <span style="color:#ff3068;text-shadow:0 0 8px #ff3068">🐦 FLAPPY</span>
+        </div>
+        <div class="cab-screen-bezel"><div class="cab-screen" style="background:#001420">🐦</div></div>
+        <div class="cab-panel">
+          <div class="cab-stick"></div>
+          <div class="cab-btn" style="background:#ff3068;box-shadow:0 0 6px #ff3068"></div>
+          <div class="cab-btn" style="background:#39ff14;box-shadow:0 0 6px #39ff14"></div>
+        </div>
+      </div>
+      <div class="cab-base"></div>
     </div>
   </div>
 
-  <!-- Wall art -->
-  <div class="wall-art">🏙️</div>
+  <!-- Floor elements -->
+  <div class="arcade-baseboard"></div>
+  <div class="arcade-floor"></div>
 
-  <!-- ── FLOOR ── -->
-  <div class="floor"><div class="floor-inner"></div><div class="floor-sheen"></div></div>
+  <!-- Coin display -->
+  <div class="coin-display" id="coinDisplay">🪙 0</div>
 
-  <!-- ── CHAIR ── -->
-  <div class="chair-group">
-    <div class="chair-back"></div>
-    <div class="chair-seat"></div>
-    <div class="chair-pole"></div>
-    <div class="chair-base"></div>
+  <!-- PRESS START -->
+  <div class="press-start-wrap">
+    <button class="press-start-btn" onclick="goArcade()">&#9654; PRESS START</button>
+    <div class="insert-coin-text">— INSERT COIN TO PLAY —</div>
   </div>
 
-  <!-- ── SIMS CHARACTER ── -->
+  <!-- Characters -->
   <div class="char-group" id="charGroup">
     <div class="speech-bubble" id="speechBubble"></div>
     <div class="plumbob"></div>
@@ -1187,10 +758,9 @@ html, body {
     </div>
   </div>
 
-  <!-- Wandering office cat -->
   <div class="office-cat" id="officeCat">🐱</div>
 
-  <!-- ── SECOND COWORKER ── -->
+  <!-- Second coworker -->
   <div class="char2-group" id="char2Group">
     <div class="speech-bubble2" id="speechBubble2"></div>
     <div class="plumbob2"></div>
@@ -1222,222 +792,38 @@ html, body {
     </div>
   </div>
 
-  <!-- ── DESK ── -->
-  <div class="desk-group">
-    <!-- Items sitting on top of desk surface -->
-    <div style="position:relative;">
-      <div class="desk-items">
-        <div style="position:relative;margin-right:10px;">
-          <div class="desk-papers">
-            <div class="paper"><div class="paper2"></div></div>
-          </div>
-        </div>
-        <!-- spacer for monitor -->
-        <div style="flex:1;"></div>
-        <div class="desk-plant">
-          <div class="plant-leaves">🌿</div>
-          <div class="plant-pot"></div>
-        </div>
-        <!-- Phone -->
-        <div class="desk-phone" id="deskPhone">
-          <div class="phone-ring-label">📞 RING!</div>
-          <div class="phone-body">
-            <div class="phone-handset"></div>
-            <div class="phone-dial">
-              <div class="phone-key"></div><div class="phone-key"></div><div class="phone-key"></div>
-              <div class="phone-key"></div><div class="phone-key"></div><div class="phone-key"></div>
-            </div>
-          </div>
-        </div>
-        <div class="desk-mouse"></div>
-        <div class="coffee-mug">
-          <div class="mug-steam">
-            <div class="steam-line"></div>
-            <div class="steam-line"></div>
-            <div class="steam-line"></div>
-          </div>
-          <div class="mug-body">
-            <div class="mug-handle"></div>
-            <div class="mug-liquid"></div>
-          </div>
+  <!-- Name dialog (modal, shown by goArcade) -->
+  <div class="name-dialog-overlay" id="nameDialogOverlay" style="display:none;">
+    <div class="name-dialog">
+      <div class="dlg-titlebar">
+        <span class="dlg-title-icon">🕹️</span>
+        <span class="dlg-title-text">Rose Arcade — Welcome</span>
+        <div class="dlg-close">✕</div>
+      </div>
+      <div class="dlg-body">
+        <div class="dlg-bigicon">🕹️</div>
+        <div class="dlg-text">
+          <b>Welcome to Rose Arcade!</b>
+          Enter your name to appear on the global high score leaderboard when you beat a record.
+          <label class="dlg-label" for="nameDialogInput">Your name:</label>
+          <input class="dlg-input" id="nameDialogInput" type="text" maxlength="16" placeholder="PLAYER ONE" autocomplete="off" spellcheck="false">
         </div>
       </div>
-    </div>
-    <div class="desk-top"></div>
-    <div class="desk-face">
-      <div class="desk-drawer"></div>
-    </div>
-    <div class="desk-legs">
-      <div class="desk-leg"></div>
-      <div class="desk-leg"></div>
+      <hr class="dlg-divider" style="margin:0 14px;">
+      <div class="dlg-footer">
+        <button class="dlg-btn" id="nameDialogSkip">Skip</button>
+        <button class="dlg-btn primary" id="nameDialogOk">OK</button>
+      </div>
     </div>
   </div>
 
-  <!-- ── MONITOR (on desk) ── -->
-  <div class="monitor-wrap">
-    <div class="monitor-tilt">
-      <div class="bezel">
-        <div class="power-led"></div>
-        <div class="power-btn"></div>
-
-        <!-- Screen -->
-        <div class="screen-glass">
-          <div class="win98-desktop" id="desktop">
-
-            <!-- ICONS — left column -->
-            <div class="desktop-icons">
-              <div class="icon" id="icon-docs" onclick="selectIcon(this)" ondblclick="openWin('docs-win')">
-                <span class="icon-img">📁</span>
-                <span class="icon-label">My Documents</span>
-              </div>
-              <div class="icon" id="icon-trash" onclick="selectIcon(this)" ondblclick="openWin('trash-win')">
-                <span class="icon-img">🗑️</span>
-                <span class="icon-label">Recycle Bin</span>
-              </div>
-            </div>
-            <!-- Rose Arcade icon — top right -->
-            <div class="icon desktop-icon-tr" id="icon-arcade" onclick="selectIcon(this)" ondblclick="goArcade()">
-              <span class="icon-img">🕹️</span>
-              <span class="icon-label">Rose Arcade</span>
-            </div>
-
-            <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:10px;left:8px;width:184px;">
-              <div class="win-titlebar">
-                <span class="win-title-icon">📄</span>
-                <span class="win-title-text">Nursery Rhymes — WordPad</span>
-                <div class="win-controls">
-                  <div class="win-btn" onclick="closeWin('docs-win')">&#x2014;</div>
-                  <div class="win-btn">&#9633;</div>
-                  <div class="win-btn" onclick="closeWin('docs-win')">&#x2715;</div>
-                </div>
-              </div>
-              <div class="win-menubar">
-                <span class="win-menu-item">File</span>
-                <span class="win-menu-item">Edit</span>
-                <span class="win-menu-item">View</span>
-                <span class="win-menu-item">Insert</span>
-                <span class="win-menu-item">Format</span>
-                <span class="win-menu-item">Help</span>
-              </div>
-              <div class="win-toolbar">
-                <div class="win-tb-btn">📄</div>
-                <div class="win-tb-btn">📂</div>
-                <div class="win-tb-btn">💾</div>
-                <div class="win-tb-sep"></div>
-                <div class="win-tb-btn">🖨️</div>
-                <div class="win-tb-sep"></div>
-                <div class="win-tb-btn"><b style="font-size:9px">B</b></div>
-                <div class="win-tb-btn"><i style="font-size:9px">I</i></div>
-                <div class="win-tb-btn"><u style="font-size:9px">U</u></div>
-              </div>
-              <div class="doc-content-wrap">
-                <!-- Nav sidebar -->
-                <div class="doc-nav" id="doc-nav"></div>
-                <!-- Content area -->
-                <div class="doc-page" id="doc-page"></div>
-              </div>
-              <div class="win-statusbar" id="doc-status">10 rhymes | Times New Roman | 12pt</div>
-              <div class="win-resize">◢</div>
-            </div>
-
-            <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:12px;left:8px;width:184px;">
-              <div class="win-titlebar">
-                <span class="win-title-icon">🗑️</span>
-                <span class="win-title-text">Recycle Bin</span>
-                <div class="win-controls">
-                  <div class="win-btn" onclick="closeWin('trash-win')">&#x2014;</div>
-                  <div class="win-btn">&#9633;</div>
-                  <div class="win-btn" onclick="closeWin('trash-win')">&#x2715;</div>
-                </div>
-              </div>
-              <div class="win-menubar">
-                <span class="win-menu-item">File</span>
-                <span class="win-menu-item">Edit</span>
-                <span class="win-menu-item">View</span>
-                <span class="win-menu-item">Help</span>
-              </div>
-              <div class="win-toolbar">
-                <div class="win-tb-btn">&#9664;</div>
-                <div class="win-tb-btn">&#9654;</div>
-                <div class="win-tb-btn">&#9650;</div>
-                <div class="win-tb-sep"></div>
-                <div class="win-tb-btn" onclick="emptyBin()" style="width:auto;padding:0 4px;font-size:9px;">Empty</div>
-                <div class="win-tb-sep"></div>
-                <span class="trash-path">C:\RECYCLED\</span>
-              </div>
-              <div class="trash-grid" id="trash-grid"></div>
-              <div class="win-statusbar" id="trash-status">10 object(s)</div>
-              <div class="win-resize">◢</div>
-            </div>
-
-            <!-- ═══ NAME PROMPT DIALOG ═══ -->
-            <div class="name-dialog-overlay" id="nameDialogOverlay" style="display:none;">
-              <div class="name-dialog">
-                <div class="dlg-titlebar">
-                  <span class="dlg-title-icon">🖥️</span>
-                  <span class="dlg-title-text">Rose Arcade — Welcome</span>
-                  <div class="dlg-close">✕</div>
-                </div>
-                <div class="dlg-body">
-                  <div class="dlg-bigicon">🕹️</div>
-                  <div class="dlg-text">
-                    <b>Welcome to Rose Arcade!</b>
-                    Enter your name to appear on the global high score leaderboard when you beat a record.
-                    <label class="dlg-label" for="nameDialogInput">Your name:</label>
-                    <input class="dlg-input" id="nameDialogInput" type="text" maxlength="16" placeholder="PLAYER ONE" autocomplete="off" spellcheck="false">
-                  </div>
-                </div>
-                <hr class="dlg-divider" style="margin:0 14px;">
-                <div class="dlg-footer">
-                  <button class="dlg-btn" id="nameDialogSkip">Skip</button>
-                  <button class="dlg-btn primary" id="nameDialogOk">OK</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- RIGHT-CLICK CONTEXT MENU -->
-            <div class="ctx-menu" id="ctxMenu">
-              <div class="ctx-item" onclick="ctxArrange()">Arrange Icons</div>
-              <div class="ctx-item" onclick="ctxRefresh()">Refresh</div>
-              <div class="ctx-sep"></div>
-              <div class="ctx-item" onclick="openWin('docs-win');closeCtx()">Open My Documents</div>
-              <div class="ctx-item" onclick="openWin('trash-win');closeCtx()">Open Recycle Bin</div>
-              <div class="ctx-sep"></div>
-              <div class="ctx-item" onclick="goArcade();closeCtx()">▶ Rose Arcade</div>
-              <div class="ctx-sep"></div>
-              <div class="ctx-item disabled">Properties</div>
-            </div>
-
-            <!-- TASKBAR -->
-            <div class="taskbar">
-              <div class="start-btn">🪟 <b>Start</b></div>
-              <div class="taskbar-sep"></div>
-              <div class="taskbar-items">
-                <div class="taskbar-item" id="tb-docs">📄 Nursery Rhymes</div>
-                <div class="taskbar-item" id="tb-trash">🗑️ Recycle Bin</div>
-              </div>
-              <div class="taskbar-clock" id="taskbar-clock">12:00 PM</div>
-            </div>
-
-          </div><!-- /win98-desktop -->
-        </div><!-- /screen-glass -->
-      </div><!-- /bezel -->
-      <div class="monitor-neck"></div>
-      <div class="monitor-base"></div>
-    </div><!-- /monitor-tilt -->
-  </div><!-- /monitor-wrap -->
-
-  <!-- Keyboard at scene level so it renders above monitor stacking context -->
-  <div class="desk-keyboard"></div>
-
+  <!-- Walk marker container (JS appends these) -->
 </div><!-- /scene -->
 
 <!-- ── SCREENSAVER OVERLAY ── -->
 <div id="screensaver">
   <canvas id="saver-canvas"></canvas>
-  <div id="saver-label">ROSE PC — Click or press any key to wake</div>
+  <div id="saver-label">ROSE ARCADE — Click or press any key to wake</div>
 </div>
 
 <!-- ── SCREENSAVER UNLOCK DIALOG ── -->
@@ -1445,7 +831,7 @@ html, body {
   <div class="unlock-dialog">
     <div class="dlg-titlebar">
       <span class="dlg-title-icon">🔒</span>
-      <span class="dlg-title-text">Computer Locked</span>
+      <span class="dlg-title-text">Arcade Locked</span>
     </div>
     <div class="dlg-body" style="padding:14px;">
       <div style="font-family:Arial,sans-serif;font-size:11px;margin-bottom:8px;">Enter password to unlock:</div>
@@ -1461,300 +847,64 @@ html, body {
 </div>
 
 <script>
-/* ════ CLOCK + DAY/NIGHT ════ */
-function tick(){
-  var d=new Date(), h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM';
-  h=h%12||12;
-  document.getElementById('taskbar-clock').textContent=h+':'+(m<10?'0'+m:m)+' '+ap;
-  updateDayNight(d.getHours());
-}
-tick(); setInterval(tick,60000);
-
-function updateDayNight(h){
-  var s=document.querySelector('.scene');
-  s.classList.remove('dusk','night');
-  if(h>=18||h<6)  s.classList.add('night');
-  else if(h>=16)  s.classList.add('dusk');
-  // Populate night stars in window once
-  var win=document.querySelector('.wall-window-decor');
-  if(!win._starsBuilt){
-    win._starsBuilt=true;
-    for(var i=0;i<14;i++){
-      var st=document.createElement('div');
-      st.className='wstar';
-      st.style.left=(8+Math.random()*160)+'px';
-      st.style.top=(5+Math.random()*80)+'px';
-      st.style.animationDelay=(Math.random()*3)+'s';
-      win.appendChild(st);
+/* ════ SIGN BULBS ════ */
+(function(){
+  ['signBulbs','signBulbs2'].forEach(function(id){
+    var el = document.getElementById(id);
+    for(var i=0;i<16;i++){
+      var b=document.createElement('div');
+      b.className='sign-bulb '+(i%2===0?'g':'w');
+      el.appendChild(b);
     }
-  }
-}
+  });
+})();
 
-/* ════ ICON SELECTION ════ */
-var selIcon=null;
-function selectIcon(el){
-  if(selIcon&&selIcon!==el) selIcon.classList.remove('selected');
-  selIcon=el; el.classList.add('selected');
-}
-document.getElementById('desktop').addEventListener('mousedown',function(e){
-  if(!e.target.closest('.icon')&&!e.target.closest('.win-window')&&!e.target.closest('.taskbar')){
-    if(selIcon){selIcon.classList.remove('selected');selIcon=null;}
+/* ════ COIN DISPLAY ════ */
+(function(){
+  function updateCoins(){
+    var coins = 0;
+    try { if(window.gamelib && gamelib.getCoins) coins = gamelib.getCoins(); } catch(e){}
+    document.getElementById('coinDisplay').textContent = '🪙 ' + coins;
   }
-});
+  // Try immediately and after a short delay (in case gamelib loads after)
+  updateCoins();
+  window.addEventListener('load', updateCoins);
+})();
 
 /* ════ ARCADE ════ */
-// goArcade is overridden by the character script below (walks to monitor first)
-// _launchArcade is the final navigation step
 function goArcade(){
-  // Stub — overridden after character script loads
   _launchArcade();
 }
 function _launchArcade(){
-  var ic=document.getElementById('icon-arcade');
-  ic.style.opacity='0.5';
-  setTimeout(function(){window.location.href='hub.html';},220);
-}
-
-/* ════ WINDOW MANAGEMENT ════ */
-var zTop=30;
-var TB={'docs-win':'tb-docs','trash-win':'tb-trash'};
-
-function openWin(id){
-  var w=document.getElementById(id);
-  w.classList.add('open');
-  bringFront(w);
-  var tb=document.getElementById(TB[id]);
-  if(tb) tb.classList.add('visible');
-}
-function closeWin(id){
-  var w=document.getElementById(id);
-  w.classList.remove('open');
-  var tb=document.getElementById(TB[id]);
-  if(tb) tb.classList.remove('visible');
-}
-function bringFront(w){
-  zTop++;
-  w.style.zIndex=zTop;
-  document.querySelectorAll('.win-window').forEach(function(x){
-    x.querySelector('.win-titlebar').classList.add('inactive');
-  });
-  w.querySelector('.win-titlebar').classList.remove('inactive');
-}
-
-/* ════ DRAG ════ */
-document.querySelectorAll('.win-window').forEach(function(w){
-  var tb=w.querySelector('.win-titlebar'), drag=false, ox=0, oy=0;
-  tb.addEventListener('mousedown',function(e){
-    if(e.target.closest('.win-controls')) return;
-    drag=true; bringFront(w);
-    var r=w.getBoundingClientRect(), p=document.getElementById('desktop').getBoundingClientRect();
-    ox=e.clientX-r.left; oy=e.clientY-r.top; e.preventDefault();
-  });
-  document.addEventListener('mousemove',function(e){
-    if(!drag) return;
-    var p=document.getElementById('desktop').getBoundingClientRect();
-    var nx=Math.max(0,Math.min(e.clientX-p.left-ox,p.width-w.offsetWidth));
-    var ny=Math.max(0,Math.min(e.clientY-p.top-oy,p.height-w.offsetHeight-28));
-    w.style.left=nx+'px'; w.style.top=ny+'px';
-  });
-  document.addEventListener('mouseup',function(){drag=false;});
-  w.addEventListener('mousedown',function(){bringFront(w);});
-});
-
-/* ════ NURSERY RHYMES ════ */
-var RHYMES=[
-  {
-    title:'Humpty Dumpty',
-    text:`Humpty Dumpty sat on a wall,
-Humpty Dumpty had a great fall.
-All the king's horses and all the king's men
-Couldn't put Humpty together again.`
-  },
-  {
-    title:'Jack and Jill',
-    text:`Jack and Jill went up the hill
-To fetch a pail of water.
-Jack fell down and broke his crown,
-And Jill came tumbling after.
-
-Up Jack got, and home did trot,
-As fast as he could caper;
-He went to bed to mend his head
-With vinegar and brown paper.`
-  },
-  {
-    title:'Twinkle, Twinkle',
-    text:`Twinkle, twinkle, little star,
-How I wonder what you are!
-Up above the world so high,
-Like a diamond in the sky.
-
-When the blazing sun is gone,
-When he nothing shines upon,
-Then you show your little light,
-Twinkle, twinkle, through the night.
-
-Then the traveller in the dark
-Thanks you for your tiny spark;
-He could not see which way to go,
-If you did not twinkle so.`
-  },
-  {
-    title:'Mary Had a Little Lamb',
-    text:`Mary had a little lamb,
-Its fleece was white as snow;
-And everywhere that Mary went,
-The lamb was sure to go.
-
-It followed her to school one day,
-Which was against the rule;
-It made the children laugh and play
-To see a lamb at school.
-
-And so the teacher turned it out,
-But still it lingered near,
-And waited patiently about
-Till Mary did appear.`
-  },
-  {
-    title:'Little Miss Muffet',
-    text:`Little Miss Muffet
-Sat on a tuffet,
-Eating her curds and whey;
-There came a big spider,
-Who sat down beside her,
-And frightened Miss Muffet away.`
-  },
-  {
-    title:'Baa Baa Black Sheep',
-    text:`Baa, baa, black sheep,
-Have you any wool?
-Yes, sir, yes, sir,
-Three bags full!
-
-One for the master,
-And one for the dame,
-And one for the little boy
-Who lives down the lane.`
-  },
-  {
-    title:'Little Bo Peep',
-    text:`Little Bo Peep has lost her sheep,
-And doesn't know where to find them;
-Leave them alone, and they'll come home,
-Wagging their tails behind them.
-
-Little Bo Peep fell fast asleep,
-And dreamt she heard them bleating;
-But when she awoke, she found it a joke,
-For they were still all fleeting.`
-  },
-  {
-    title:'Hey Diddle Diddle',
-    text:`Hey diddle diddle,
-The cat and the fiddle,
-The cow jumped over the moon;
-The little dog laughed
-To see such sport,
-And the dish ran away with the spoon!`
-  },
-  {
-    title:'Hickory Dickory Dock',
-    text:`Hickory, dickory, dock,
-The mouse ran up the clock.
-The clock struck one,
-The mouse ran down,
-Hickory, dickory, dock.
-
-Hickory, dickory, dock,
-The mouse ran up the clock.
-The clock struck two,
-The mouse said "Boo!"
-Hickory, dickory, dock.
-
-Hickory, dickory, dock,
-The mouse ran up the clock.
-The clock struck three,
-The mouse said "Wheee!"
-Hickory, dickory, dock.`
-  },
-  {
-    title:'Ring Around the Rosie',
-    text:`Ring around the rosie,
-A pocket full of posies,
-Ashes! Ashes!
-We all fall down!
-
-The cows are in the meadow
-Eating buttercups,
-Ashes! Ashes!
-We all stand up!`
-  }
-];
-
-var currentRhyme=0;
-
-function buildDocs(){
-  var nav=document.getElementById('doc-nav');
-  var page=document.getElementById('doc-page');
-  nav.innerHTML='';
-  page.innerHTML='';
-  RHYMES.forEach(function(r,i){
-    var item=document.createElement('div');
-    item.className='doc-nav-item'+(i===0?' active':'');
-    item.textContent=(i+1)+'. '+r.title;
-    item.onclick=function(){
-      document.querySelectorAll('.doc-nav-item').forEach(function(x){x.classList.remove('active');});
-      item.classList.add('active');
-      showRhyme(i);
+  // Check if name needed
+  var STORAGE_KEY = 'arcade_global_name';
+  var existing = localStorage.getItem(STORAGE_KEY);
+  if(!existing || !existing.trim()){
+    var overlay = document.getElementById('nameDialogOverlay');
+    overlay.style.display = 'flex';
+    document.getElementById('nameDialogInput').focus();
+    document.getElementById('nameDialogOk').onclick = function(){
+      var val = document.getElementById('nameDialogInput').value.trim().slice(0,16);
+      if(!val){
+        document.getElementById('nameDialogInput').focus();
+        document.getElementById('nameDialogInput').style.borderColor = '#cc0000';
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, val);
+      overlay.style.display = 'none';
+      window.location.href = 'hub.html';
     };
-    nav.appendChild(item);
-    var story=document.createElement('div');
-    story.className='doc-story'+(i===0?' active':'');
-    story.id='story-'+i;
-    story.innerHTML='<h2>'+r.title+'</h2><div class="verse">'+r.text+'</div><div class="story-end">~ Traditional ~</div>';
-    page.appendChild(story);
-  });
-}
-
-function showRhyme(i){
-  document.querySelectorAll('.doc-story').forEach(function(s,j){s.classList.toggle('active',j===i);});
-  document.getElementById('doc-status').textContent='Rhyme '+(i+1)+' of '+RHYMES.length+' | Times New Roman | 12pt';
-}
-
-buildDocs();
-
-/* ════ TRASH – CELEBRITY PHOTOS ════ */
-var TRASH=[
-  { name:'jordan_GOAT_confirmed.jpg',    url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Michael_Jordan_in_2014.jpg/200px-Michael_Jordan_in_2014.jpg',       label:'Michael Jordan' },
-  { name:'lebron_my_mvp_pick.jpg',       url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/LeBron_James_crop2.jpg/200px-LeBron_James_crop2.jpg',               label:'LeBron James' },
-  { name:'taylor_swift_era_tour_tix.png',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png/200px-191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png', label:'Taylor Swift' },
-  { name:'serena_ace_stats.xls',         url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Serena_Williams_2013_US_Open.jpg/200px-Serena_Williams_2013_US_Open.jpg', label:'Serena Williams' },
-  { name:'messi_better_than_ronaldo.doc',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg/200px-Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg', label:'Lionel Messi' },
-  { name:'ronaldo_better_than_messi.doc',url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/200px-Cristiano_Ronaldo_2018.jpg',        label:'Cristiano Ronaldo' },
-  { name:'the_rock_leg_day.jpg',         url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Dwayne_Johnson_2014_%28cropped%29.jpg/200px-Dwayne_Johnson_2014_%28cropped%29.jpg', label:'Dwayne Johnson' },
-  { name:'tiger_woods_Sunday_red.jpg',   url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Tiger_Woods_2012.jpg/200px-Tiger_Woods_2012.jpg',                   label:'Tiger Woods' },
-  { name:'bolt_100m_WR_analysis.pdf',    url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Usain_Bolt_2012_Olympics_2.jpg/200px-Usain_Bolt_2012_Olympics_2.jpg', label:'Usain Bolt' },
-  { name:'brady_ANOTHER_ring.png',       url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Tom_Brady_2017.jpg/200px-Tom_Brady_2017.jpg',                        label:'Tom Brady' }
-];
-
-function renderTrash(){
-  var g=document.getElementById('trash-grid');
-  g.innerHTML='';
-  TRASH.forEach(function(item){
-    var d=document.createElement('div');
-    d.className='trash-item';
-    d.innerHTML='<img src="'+item.url+'" alt="'+item.label+'" loading="lazy" title="'+item.label+'"><span>'+item.name+'</span>';
-    g.appendChild(d);
-  });
-  document.getElementById('trash-status').textContent=TRASH.length+' object(s)';
-}
-renderTrash();
-
-function emptyBin(){
-  TRASH=[];
-  document.getElementById('trash-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Arial,sans-serif;font-size:11px;color:#808080;padding:40px 0;">Recycle Bin is empty.</div>';
-  document.getElementById('trash-status').textContent='0 object(s)';
+    document.getElementById('nameDialogSkip').onclick = function(){
+      localStorage.setItem(STORAGE_KEY, 'Anonymous');
+      overlay.style.display = 'none';
+      window.location.href = 'hub.html';
+    };
+    document.getElementById('nameDialogInput').onkeydown = function(e2){
+      if(e2.key === 'Enter') document.getElementById('nameDialogOk').click();
+    };
+  } else {
+    window.location.href = 'hub.html';
+  }
 }
 
 /* ════ CHARACTER + INTERACTIVITY ════ */
@@ -1814,7 +964,7 @@ function emptyBin(){
     onArrived  = cb   || null;
     charGroup.classList.add('walking');
   }
-  window.charWalkTo = walkTo; // expose for goArcade
+  window.charWalkTo = walkTo; // expose globally
 
   /* ── speech bubble ── */
   function say(txt){
@@ -1826,7 +976,7 @@ function emptyBin(){
   function hideBubble(){ bubble.classList.remove('show'); }
 
   /* ── idle behaviours ── */
-  var IDLE = ['...', '🥱', 'Hmm.', '👀', 'La la la~', '🤔', '*yawns*', 'Is anyone there?'];
+  var IDLE = ['...', '🥱', 'Nice high score!', '👀', 'One more game!', '🤔', '*drops quarter*', 'Is that a new record?'];
   function startIdleTimer(){
     clearTimeout(idleTimer);
     idleTimer = setTimeout(doIdle, 4000 + Math.random()*5000);
@@ -1861,7 +1011,7 @@ function emptyBin(){
   /* ── click on scene → walk ── */
   var WALK_MSGS = ['On it!', 'Sure thing.', 'Roger that!', '🚶', 'Walking...', 'Yep!'];
   scene.addEventListener('click', function(e){
-    var skip = '.monitor-wrap,.bookshelf,.wall-art,.wall-window-decor,.coffee-mug,.desk-plant,.win-window,.taskbar,.name-dialog-overlay';
+    var skip = '.arcade-cabinet,.press-start-btn,.win-window,.name-dialog-overlay';
     if(e.target.closest(skip)) return;
     var rect = scene.getBoundingClientRect();
     var cx   = e.clientX - rect.left;
@@ -1871,50 +1021,16 @@ function emptyBin(){
     walkTo(cx, WALK_MSGS[Math.floor(Math.random()*WALK_MSGS.length)]);
   });
 
-  /* ── special element interactions ── */
-  // Coffee mug → character walks over and drinks
-  var mugEl = document.querySelector('.coffee-mug');
-  if(mugEl) mugEl.addEventListener('click', function(e){
-    e.stopPropagation();
-    var r = scene.getBoundingClientRect();
-    var mr = mugEl.getBoundingClientRect();
-    walkTo(mr.left - r.left, '☕ Mmmm, coffee!');
-  });
-
-  // Bookshelf → reads a book
-  var shelfEl = document.querySelector('.bookshelf');
-  if(shelfEl) shelfEl.addEventListener('click', function(e){
-    e.stopPropagation();
-    var r = scene.getBoundingClientRect();
-    var sr = shelfEl.getBoundingClientRect();
-    var msgs = ['📚 So many books!','I love reading.','This one looks good.','Classic literature!'];
-    walkTo(sr.right - r.left + 10, msgs[Math.floor(Math.random()*msgs.length)]);
-  });
-
-  // Wall art → character admires it
-  var artEl = document.querySelector('.wall-art');
-  if(artEl) artEl.addEventListener('click', function(e){
-    e.stopPropagation();
-    var msgs = ['🎨 Stunning.','Very avant-garde.','I made that.','Art!'];
-    say(msgs[Math.floor(Math.random()*msgs.length)]);
-  });
-
-  // Window → bird flies past
-  var winEl = document.querySelector('.wall-window-decor');
-  if(winEl) winEl.addEventListener('click', function(e){
-    e.stopPropagation();
-    say('🌤️ Nice view!');
-    spawnBird();
-  });
-
-  // Monitor → walk to desk, then launch if it was the arcade icon
-  var monEl = document.querySelector('.monitor-wrap');
-  if(monEl) monEl.addEventListener('click', function(e){
-    if(e.target.closest('.win-window')) return;
-    e.stopPropagation();
-    var r  = scene.getBoundingClientRect();
-    var mr = monEl.getBoundingClientRect();
-    walkTo(mr.left - r.left - 10, '🕹️ Let\'s game!');
+  // Cabinets → walk there, then launch arcade
+  document.querySelectorAll('.arcade-cabinet').forEach(function(cab) {
+    cab.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var r = scene.getBoundingClientRect();
+      var cr = cab.getBoundingClientRect();
+      walkTo(cr.left - r.left + cr.width/2, '🕹️ Let\'s PLAY!', function() {
+        goArcade();
+      });
+    });
   });
 
   // Cat click → meow
@@ -1924,19 +1040,6 @@ function emptyBin(){
     var meows = ['Meow!','Purrr~','Mrow?','😾 leave me alone','🐾'];
     say(meows[Math.floor(Math.random()*meows.length)]);
   });
-
-  /* ── bird flyby ── */
-  function spawnBird(){
-    if(!winEl) return;
-    var b = document.createElement('div');
-    b.textContent = '🐦';
-    b.style.cssText = 'position:absolute;font-size:13px;top:15px;left:-24px;pointer-events:none;z-index:10;transition:left 1.4s linear;';
-    winEl.appendChild(b);
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      b.style.left = '160px';
-      setTimeout(function(){ b.remove(); }, 1500);
-    }); });
-  }
 
   /* ── wandering cat ── */
   var catX = scene.offsetWidth * 0.6;
@@ -1950,75 +1053,18 @@ function emptyBin(){
     var dur = 3000 + Math.random() * 6000; // sit time
     setTimeout(moveCat, dur + 4500);
   }
-  catEl.style.left = (scene.offsetWidth * 0.6) + 'px';
+  if(catEl) catEl.style.left = (scene.offsetWidth * 0.6) + 'px';
   setTimeout(moveCat, 2500);
-
-  /* ── override goArcade to walk to monitor first ── */
-  var _origGoArcade = window.goArcade;
-  window.goArcade = function(){
-    // Check if name needed
-    var STORAGE_KEY = 'arcade_global_name';
-    var existing = localStorage.getItem(STORAGE_KEY);
-    var r  = scene.getBoundingClientRect();
-    var mr = document.querySelector('.monitor-wrap').getBoundingClientRect();
-    var destX = mr.left - r.left + mr.width/2;
-
-    function launch(){
-      if(!existing || !existing.trim()){
-        var overlay = document.getElementById('nameDialogOverlay');
-        overlay.style.display='flex';
-        document.getElementById('nameDialogInput').focus();
-        document.getElementById('nameDialogOk').onclick=function(){
-          var val=document.getElementById('nameDialogInput').value.trim().slice(0,16);
-          if(!val){document.getElementById('nameDialogInput').focus();document.getElementById('nameDialogInput').style.borderColor='#cc0000';return;}
-          localStorage.setItem(STORAGE_KEY,val);
-          overlay.style.display='none';
-          _launchArcade();
-        };
-        document.getElementById('nameDialogSkip').onclick=function(){
-          localStorage.setItem(STORAGE_KEY,'Anonymous');
-          overlay.style.display='none';
-          _launchArcade();
-        };
-        document.getElementById('nameDialogInput').onkeydown=function(e2){
-          if(e2.key==='Enter') document.getElementById('nameDialogOk').click();
-        };
-      } else {
-        _launchArcade();
-      }
-    }
-    walkTo(destX, '🕹️ Let\'s PLAY!', launch);
-  };
 
   window.addEventListener('load', init);
 })();
-
-/* ════ RIGHT-CLICK CONTEXT MENU ════ */
-(function(){
-  var menu=document.getElementById('ctxMenu');
-  var desktop=document.getElementById('desktop');
-  desktop.addEventListener('contextmenu',function(e){
-    if(e.target.closest('.win-window')||e.target.closest('.taskbar')) return;
-    e.preventDefault();
-    var p=desktop.getBoundingClientRect();
-    var x=Math.min(e.clientX-p.left, p.width-menu.offsetWidth-4);
-    var y=Math.min(e.clientY-p.top,  p.height-menu.offsetHeight-4);
-    menu.style.left=x+'px'; menu.style.top=y+'px';
-    menu.classList.add('open');
-  });
-  document.addEventListener('mousedown',function(e){ if(!e.target.closest('.ctx-menu')) closeCtx(); });
-  document.addEventListener('scroll',closeCtx);
-})();
-function closeCtx(){ document.getElementById('ctxMenu').classList.remove('open'); }
-function ctxRefresh(){ closeCtx(); document.querySelectorAll('.icon').forEach(function(ic){ ic.classList.remove('selected'); }); }
-function ctxArrange(){ closeCtx(); }
 
 /* ════ SCREENSAVER ════ */
 (function(){
   var ss=document.getElementById('screensaver');
   var canvas=document.getElementById('saver-canvas');
   var ctx=canvas.getContext('2d');
-  var stars=[], raf=null, idleTimer=null, IDLE_MS=45000;
+  var stars=[], rafId=null, idleTimer=null, IDLE_MS=45000;
   var PASS='ROSE';
 
   function resetIdle(){
@@ -2041,7 +1087,7 @@ function ctxArrange(){ closeCtx(); }
       z:Math.random()*canvas.width,pz:0
     });
     ss.classList.add('active');
-    raf=requestAnimationFrame(drawSaver);
+    rafId=requestAnimationFrame(drawSaver);
   }
   function drawSaver(){
     if(!ss.classList.contains('active')) return;
@@ -2057,10 +1103,10 @@ function ctxArrange(){ closeCtx(); }
       ctx.lineWidth=r*1.4;
       ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(sx,sy); ctx.stroke();
     }
-    raf=requestAnimationFrame(drawSaver);
+    rafId=requestAnimationFrame(drawSaver);
   }
   function wakeFromSaver(){
-    cancelAnimationFrame(raf);
+    cancelAnimationFrame(rafId);
     ss.classList.remove('active');
     showUnlock();
     resetIdle();
@@ -2092,43 +1138,6 @@ function ctxArrange(){ closeCtx(); }
   unlockInput.addEventListener('keydown',function(e){ if(e.key==='Enter') tryUnlock(); });
 })();
 
-/* ════ DESK PHONE ════ */
-(function(){
-  var phone=document.getElementById('deskPhone');
-  var ringTimer=null, stopTimer=null;
-  var CALLS=['📞 It\'s the boss!','Your mom is calling!','📞 Order\'s ready!','Wrong number?','📞 It\'s IT support.','Another meeting...'];
-
-  function startRinging(){
-    phone.classList.add('ringing');
-    phone.querySelector('.phone-ring-label').textContent=CALLS[Math.floor(Math.random()*CALLS.length)];
-    stopTimer=setTimeout(stopRinging,8000);
-  }
-  function stopRinging(){
-    phone.classList.remove('ringing');
-    clearTimeout(stopTimer);
-    scheduleNextCall();
-  }
-
-  phone.addEventListener('click',function(e){
-    e.stopPropagation();
-    if(phone.classList.contains('ringing')){
-      stopRinging();
-      // walk char to phone and answer
-      if(window.charWalkTo){
-        var sc=document.querySelector('.scene').getBoundingClientRect();
-        var pr=phone.getBoundingClientRect();
-        charWalkTo(pr.left-sc.left+10,'📞 Hello?');
-      }
-    }
-  });
-
-  function scheduleNextCall(){
-    var delay=35000+Math.random()*60000;
-    ringTimer=setTimeout(startRinging,delay);
-  }
-  scheduleNextCall();
-})();
-
 /* ════ SECOND CHARACTER (coworker) ════ */
 (function(){
   var g2   =document.getElementById('char2Group');
@@ -2136,7 +1145,7 @@ function ctxArrange(){ closeCtx(); }
   var bub2 =document.getElementById('speechBubble2');
   var idleT=null, bubT=null;
 
-  var PHRASES=['☕ Need coffee.','TPS reports...','😴 Zzz...','Almost Friday!','Git push done!','Any snacks?','🤔 Hmm...','On a call.','BRB lunch.','Deploy again?'];
+  var PHRASES=['High score!','GG!','Let\'s race!','🕹️ My turn!','Insert coin!','1UP!','🔥 On fire!','Nice combo!','Beat that!','Rematch?'];
 
   function say2(txt){
     clearTimeout(bubT);
@@ -2165,7 +1174,7 @@ function ctxArrange(){ closeCtx(); }
   // Click on char2 to chat
   g2.addEventListener('click',function(e){
     e.stopPropagation();
-    var chats=['Hey there!','What\'s up?','Did you see that deploy?','Lunch time?','Need help?'];
+    var chats=['Hey there!','Want to race?','Did you beat it?','High score!','Need a rematch?'];
     say2(chats[Math.floor(Math.random()*chats.length)]);
     // char1 responds
     if(window.charWalkTo){
@@ -2190,11 +1199,13 @@ function ctxArrange(){ closeCtx(); }
     if(!val){ inp.focus(); inp.style.borderColor='#cc0000'; return; }
     localStorage.setItem(STORAGE_KEY, val);
     overlay.style.display = 'none';
+    window.location.href = 'hub.html';
   }
 
   function skipName(){
     localStorage.setItem(STORAGE_KEY, 'Anonymous');
     overlay.style.display = 'none';
+    window.location.href = 'hub.html';
   }
 
   document.getElementById('nameDialogOk').addEventListener('click', saveName);
@@ -2202,10 +1213,9 @@ function ctxArrange(){ closeCtx(); }
   inp.addEventListener('keydown', function(e){ if(e.key==='Enter') saveName(); });
   inp.addEventListener('input', function(){ inp.style.borderColor=''; });
 
-  // Clicking outside the dialog on the overlay does nothing (it's modal)
+  // Clicking outside the dialog on the overlay shakes it
   overlay.addEventListener('mousedown', function(e){
     if(e.target === overlay){
-      // Shake the dialog to indicate it's required
       var dlg = overlay.querySelector('.name-dialog');
       dlg.style.animation='none';
       dlg.offsetWidth; // reflow
