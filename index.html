@@ -170,8 +170,8 @@ html, body {
   position: absolute;
   bottom: 22%; left: 50%;
   transform: translateX(-50%);
-  width: 64%;
-  max-width: 760px;
+  width: 52%;
+  max-width: 620px;
   z-index: 10;
 }
 .desk-top {
@@ -357,7 +357,7 @@ html, body {
 .char-group {
   position: absolute;
   bottom: 31%;
-  left: 24%;
+  left: 28%;
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -442,10 +442,10 @@ html, body {
 /* ── Desk keyboard ── */
 .desk-keyboard {
   position: absolute;
-  bottom: -8px;
-  left: 52%;
-  transform: translateX(-50%);
-  width: 110px; height: 24px;
+  bottom: 142px; /* same as desk surface from desk-group bottom */
+  left: 50%;
+  transform: translateX(-30%);
+  width: 88px; height: 18px;
   background: linear-gradient(160deg, #d8d4d0 0%, #c4c0bc 50%, #b8b4b0 100%);
   border-radius: 3px 3px 5px 5px;
   border: 2px solid #a8a4a0;
@@ -600,7 +600,7 @@ html, body {
 .chair-group {
   position: absolute;
   bottom: calc(22% - 28px);
-  left: calc(24% - 30px);
+  left: calc(28% - 32px);
   z-index: 9;
   display: flex;
   flex-direction: column;
@@ -654,10 +654,10 @@ html, body {
 ═══════════════════════════════════════════ */
 .monitor-wrap {
   position: absolute;
-  bottom: calc(22% + 22px); /* sits on desk top */
+  bottom: calc(22% + 142px); /* 22% desk-base + 40px legs + 80px face + 22px top = desk surface */
   left: 55%;
   transform: translateX(-50%);
-  z-index: 13;
+  z-index: 14;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -674,8 +674,8 @@ html, body {
 
 .bezel {
   background: linear-gradient(160deg, #d4d0cc 0%, #b8b4b0 35%, #a4a09c 65%, #909090 100%);
-  border-radius: 7px 7px 4px 4px;
-  padding: 8px 8px 22px 8px;
+  border-radius: 6px 6px 4px 4px;
+  padding: 7px 7px 20px 7px;
   border: 3px solid #aaa;
   border-bottom: 5px solid #888;
   box-shadow:
@@ -708,7 +708,7 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 240px; height: 180px;
+  width: 220px; height: 165px;
   background: #000608;
   border-radius: 4px;
   border: 4px solid #1a1a1a;
@@ -730,13 +730,13 @@ html, body {
 }
 
 .monitor-neck {
-  width: 40px; height: 14px;
+  width: 36px; height: 12px;
   background: linear-gradient(90deg, #888 0%, #c0c0c0 35%, #b4b4b4 65%, #888 100%);
   box-shadow: 2px 0 0 #777, -2px 0 0 #777;
   margin-top: -2px;
 }
 .monitor-base {
-  width: 110px; height: 11px;
+  width: 96px; height: 10px;
   background: linear-gradient(160deg, #ccc 0%, #aaa 40%, #999 100%);
   border-radius: 6px 6px 10px 10px;
   border: 2px solid #888; border-top: none;
@@ -978,7 +978,7 @@ html, body {
 /* ── Documents window ── */
 .doc-nav {
   background:#fff; border-right:2px solid #808080;
-  width:62px; overflow-y:auto; flex-shrink:0;
+  width:54px; overflow-y:auto; flex-shrink:0;
 }
 .doc-nav-item {
   font-family:Arial,sans-serif; font-size:10px;
@@ -987,7 +987,7 @@ html, body {
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:108px; }
+.doc-content-wrap { display:flex; height:90px; }
 .doc-page {
   background:#fff; padding:20px 24px;
   flex:1; overflow-y:auto;
@@ -1076,7 +1076,7 @@ html, body {
 @keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
 
 /* ── SECOND CHARACTER ── */
-.char2-group { position:absolute;bottom:31%;right:22%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+.char2-group { position:absolute;bottom:31%;right:26%;z-index:12;display:flex;flex-direction:column;align-items:center; }
 #char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
 .plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
 .char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
@@ -1298,7 +1298,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:18px;left:22px;width:200px;">
+            <div class="win-window" id="docs-win" style="top:14px;left:14px;width:186px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1338,7 +1338,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:20px;left:16px;width:210px;">
+            <div class="win-window" id="trash-win" style="top:16px;left:12px;width:192px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
@@ -1768,7 +1768,7 @@ function emptyBin(){
 
   /* ── init ── */
   function init(){
-    charX   = scene.offsetWidth * 0.24;
+    charX   = scene.offsetWidth * 0.28;
     targetX = charX;
     charGroup.style.left = charX + 'px';
     startIdleTimer();
