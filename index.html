@@ -439,31 +439,33 @@ html, body {
   100% { opacity:0; transform:translate(-50%,-50%) scale(1.6); }
 }
 
-/* ── Desk keyboard ── */
+/* ── Desk keyboard (scene-level so it's above monitor stacking context) ── */
 .desk-keyboard {
   position: absolute;
-  bottom: 126px; /* slightly below desk surface = appears "in front" of monitor */
-  left: 54%; /* centered under monitor */
+  /* desk surface = 22% + 142px, then -12px forward perspective */
+  bottom: calc(22% + 130px);
+  left: 54%;
   transform: translateX(-50%);
-  width: 96px; height: 18px;
-  background: linear-gradient(180deg, #c8c4be 0%, #aaa8a2 100%);
+  width: 100px; height: 20px;
+  background: linear-gradient(180deg, #e0dbd4 0%, #c0bcb6 100%);
   border-radius: 3px 3px 5px 5px;
-  border: 1.5px solid #808078;
-  border-top-color: #d8d4ce;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
-  z-index: 16;
+  border: 2px solid #9a9690;
+  border-top-color: #e8e4de;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5);
+  z-index: 15;
 }
 .desk-keyboard::before {
   content: '';
-  position: absolute; inset: 2px 4px 5px 4px;
-  background: repeating-linear-gradient(90deg, #787470 0px, #787470 3px, #b0aca6 3px, #b0aca6 5px);
-  border-radius: 1px; opacity: 1;
+  position: absolute; inset: 3px 5px 6px 5px;
+  background: repeating-linear-gradient(90deg, #706c68 0px, #706c68 3px, #c0bcb6 3px, #c0bcb6 5px);
+  border-radius: 1px;
 }
 .desk-keyboard::after {
   content: '';
-  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 44px; height: 4px;
-  background: #868280; border-radius: 2px;
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 48px; height: 4px;
+  background: #909090; border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3);
 }
 
 /* ── Cat ── */
@@ -599,9 +601,10 @@ html, body {
 /* ── Office Chair ── */
 .chair-group {
   position: absolute;
-  bottom: calc(22% - 28px);
-  left: calc(40% - 32px);
-  z-index: 9;
+  bottom: 31%;              /* same floor level as character */
+  left: 20%;                /* centered on char1 */
+  transform: translateX(-50%);
+  z-index: 9;               /* behind character (char is z-index 12) */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -708,7 +711,7 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 204px; height: 154px;
+  width: 204px; height: 164px;
   background: #000608;
   border-radius: 4px;
   border: 3px solid #1a1a1a;
@@ -902,8 +905,8 @@ html, body {
 
 /* Desktop icons */
 .desktop-icons {
-  position:absolute; top:5px; left:5px;
-  display:flex; flex-direction:column; gap:5px;
+  position:absolute; top:6px; left:5px;
+  display:flex; flex-direction:column; gap:6px;
 }
 .icon {
   display:flex; flex-direction:column; align-items:center;
@@ -1258,8 +1261,6 @@ html, body {
         </div>
       </div>
     </div>
-    <!-- Keyboard sits on desk surface in front of monitor -->
-    <div class="desk-keyboard"></div>
     <div class="desk-top"></div>
     <div class="desk-face">
       <div class="desk-drawer"></div>
@@ -1424,6 +1425,9 @@ html, body {
       <div class="monitor-base"></div>
     </div><!-- /monitor-tilt -->
   </div><!-- /monitor-wrap -->
+
+  <!-- Keyboard at scene level so it renders above monitor stacking context -->
+  <div class="desk-keyboard"></div>
 
 </div><!-- /scene -->
 
