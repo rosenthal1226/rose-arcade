@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ROAD RACER - ROSE ARCADE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="crt game-shell-host">
+<div class="scanlines"></div>
+<div class="game-shell">
+  <header class="top-bar">
+    <a class="back-btn" href="../hub.html">◄ EXIT</a>
+    <div class="game-title">🏎️ ROAD RACER</div>
+    <div id="hdrRight"></div>
+  </header>
+  <div class="hud">
+    <div class="score-chip">DIST: <b id="score">0</b></div>
+    <div class="score-chip">BEST: <b id="best">0</b></div>
+    <div class="score-chip">SPEED: <b id="speedDisplay">0</b></div>
+  </div>
+  <div class="play-area" id="playArea">
+    <canvas id="game" class="game-canvas"></canvas>
+  </div>
+  <footer class="bottom-bar">
+    <div class="message" id="msg">PRESS SPACE TO START</div>
+    <div class="controls-hint kbd-only">← → TO STEER · SPACE START</div>
+    <div class="touch-pad" id="pad" style="display:flex;justify-content:center;gap:20px;padding:8px;">
+      <button class="left" id="tLeft" style="width:60px;height:44px;">◄</button>
+      <button class="right" id="tRight" style="width:60px;height:44px;">►</button>
+    </div>
+  </footer>
+</div>
+<script src="../audio.js"></script>
+<script src="../themes.js"></script>
+<script src="../avatars.js"></script>
+<script src="../gamelib.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── Canvas & layout ──────────────────────────────────────────────────────
+  const canvas  = document.getElementById('game');
+  const ctx     = canvas.getContext('2d');
+  const playArea = document.getElementById('playArea');
+  const scoreEl  = document.getElementById('score');
+  const bestEl   = document.getElementById('best');
+  const speedEl  = document.getElementById('speedDisplay');
+  const msgEl    = document.getElementById('msg');
+
+  function resize() {
+    gamelib.fitCanvasToBox(canvas, playArea);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  const STATE = { IDLE: 0, PLAYING: 1, DEAD: 2 };
+  let state       = STATE.IDLE;
+  let score       = 0;
+  let best        = gamelib.bestScore('racing') || 0;
+  let scrollY     = 0;         // lane-marker offset (0–segH cycles)
+  let speed       = 3;         // scroll speed px/frame (road markers)
+  let topSpeed    = 0;
+  let tracked     = false;
+  let raf         = null;
+
+  // tree scroll positions (independent of lane markers)
+  let treeOffset  = 0;
+
+  // ── NPC management ────────────────────────────────────────────────────────
+  const NPC_COLORS = ['#4df0ff', '#ffd166', '#5dff8a', '#ff8a65', '#c46dff'];
+  let npcs        = [];
+  let spawnTimer  = 0;
+  let spawnInterval = 120; // frames between spawns (decreases with speed)
+
+  // ── Player ────────────────────────────────────────────────────────────────
+  const PLAYER_COLOR = '#ff3068';
+  let playerX     = 0;   // set on start
+  let playerVX    = 0;   // velocity for smooth movement
+  let leanAngle   = 0;   // visual lean
+
+  // ── Input ─────────────────────────────────────────────────────────────────
+  const keys = { left: false, right: false };
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'ArrowLeft')  { keys.left  = true; e.preventDefault(); }
+    if (e.code === 'ArrowRight') { keys.right = true; e.preventDefault(); }
+    if (e.code === 'Space') { e.preventDefault(); onSpace(); }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.code === 'ArrowLeft')  keys.left  = false;
+    if (e.code === 'ArrowRight') keys.right = false;
+  });
+
+  const tLeft  = document.getElementById('tLeft');
+  const tRight = document.getElementById('tRight');
+  tLeft.addEventListener('touchstart',  e => { keys.left  = true;  e.preventDefault(); }, { passive: false });
+  tLeft.addEventListener('touchend',    e => { keys.left  = false; e.preventDefault(); }, { passive: false });
+  tLeft.addEventListener('mousedown',   () => keys.left  = true);
+  tLeft.addEventListener('mouseup',     () => keys.left  = false);
+  tLeft.addEventListener('mouseleave',  () => keys.left  = false);
+  tRight.addEventListener('touchstart', e => { keys.right = true;  e.preventDefault(); }, { passive: false });
+  tRight.addEventListener('touchend',   e => { keys.right = false; e.preventDefault(); }, { passive: false });
+  tRight.addEventListener('mousedown',  () => keys.right = true);
+  tRight.addEventListener('mouseup',    () => keys.right = false);
+  tRight.addEventListener('mouseleave', () => keys.right = false);
+
+  // ── Pause button ──────────────────────────────────────────────────────────
+  gamelib.mountPauseButton(document.getElementById('hdrRight'), {
+    onPause:  () => {},
+    onResume: () => {}
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function roadBounds(w) {
+    const roadW = w * 0.60;
+    const roadL = (w - roadW) / 2;
+    return { roadL, roadW, roadR: roadL + roadW };
+  }
+
+  function carDims(w) {
+    // car size relative to canvas width
+    const cw = Math.max(18, w * 0.055);
+    const ch = cw * 1.8;
+    return { cw, ch };
+  }
+
+  function playerY(h) { return h * 0.80; }
+
+  // ── Start / Restart ───────────────────────────────────────────────────────
+  function startGame() {
+    const w = canvas.width;
+    const { roadL, roadW } = roadBounds(w);
+    playerX   = roadL + roadW / 2;
+    playerVX  = 0;
+    leanAngle = 0;
+    speed     = 3;
+    topSpeed  = 0;
+    score     = 0;
+    scrollY   = 0;
+    treeOffset = 0;
+    npcs      = [];
+    spawnTimer = 0;
+    state     = STATE.PLAYING;
+    msgEl.textContent = '';
+
+    if (!tracked) {
+      gamelib.trackPlayed('racing');
+      tracked = true;
+    }
+
+    bestEl.textContent = best;
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(loop);
+  }
+
+  function onSpace() {
+    if (state === STATE.IDLE || state === STATE.DEAD) startGame();
+  }
+
+  // ── NPC spawning ──────────────────────────────────────────────────────────
+  function spawnNPC() {
+    const w = canvas.width;
+    const { roadL, roadW } = roadBounds(w);
+    const { cw, ch } = carDims(w);
+    // pick a random x within the road, keep car fully inside
+    const margin = cw * 0.6;
+    const x = roadL + margin + Math.random() * (roadW - margin * 2);
+    const colorIdx = Math.floor(Math.random() * NPC_COLORS.length);
+    npcs.push({
+      x,
+      y: -ch,
+      color: NPC_COLORS[colorIdx],
+      passed: false,   // for near-miss detection
+      nearMissed: false
+    });
+  }
+
+  // ── Drawing helpers ───────────────────────────────────────────────────────
+  function drawRoad(w, h) {
+    const { roadL, roadW, roadR } = roadBounds(w);
+
+    // grass shoulders
+    ctx.fillStyle = '#1a3a1a';
+    ctx.fillRect(0, 0, roadL, h);
+    ctx.fillRect(roadR, 0, w - roadR, h);
+
+    // road surface
+    ctx.fillStyle = '#2a2a2a';
+    ctx.fillRect(roadL, 0, roadW, h);
+
+    // road edge lines
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = Math.max(2, w * 0.004);
+    ctx.beginPath();
+    ctx.moveTo(roadL, 0); ctx.lineTo(roadL, h);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(roadR, 0); ctx.lineTo(roadR, h);
+    ctx.stroke();
+
+    // lane dividers — 3 dashed lines at 25%, 50%, 75% of road width
+    const segH = 60;
+    const dashH = 32;
+    const dashW = Math.max(2, w * 0.003);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    for (let lane = 1; lane <= 3; lane++) {
+      const lx = roadL + roadW * (lane / 4);
+      // start slightly above canvas to avoid pop-in
+      let dy = (scrollY % segH) - segH;
+      while (dy < h + segH) {
+        ctx.fillRect(lx - dashW / 2, dy, dashW, dashH);
+        dy += segH;
+      }
+    }
+  }
+
+  function drawTrees(w, h) {
+    // simple green triangles on both grass shoulders
+    const { roadL, roadR } = roadBounds(w);
+    const treeSpacing = 80;
+    const treeW = Math.max(12, w * 0.028);
+    const treeH = treeW * 1.6;
+    const trunkH = treeH * 0.3;
+    const trunkW = treeW * 0.25;
+
+    // left side positions
+    const leftPositions  = [roadL * 0.25, roadL * 0.65];
+    const rightPositions = [roadR + (w - roadR) * 0.30, roadR + (w - roadR) * 0.72];
+
+    const allX = [...leftPositions, ...rightPositions];
+
+    for (const tx of allX) {
+      let ty = (treeOffset % treeSpacing) - treeSpacing;
+      while (ty < h + treeSpacing) {
+        // trunk
+        ctx.fillStyle = '#5c3d1e';
+        ctx.fillRect(tx - trunkW / 2, ty, trunkW, trunkH);
+        // foliage triangle
+        ctx.fillStyle = '#2d6a2d';
+        ctx.beginPath();
+        ctx.moveTo(tx, ty - treeH);
+        ctx.lineTo(tx - treeW / 2, ty);
+        ctx.lineTo(tx + treeW / 2, ty);
+        ctx.closePath();
+        ctx.fill();
+        ty += treeSpacing;
+      }
+    }
+  }
+
+  function drawCar(x, y, color, cw, ch, lean, isPlayer) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(lean);
+
+    if (isPlayer) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur  = 16;
+    }
+
+    // body
+    ctx.fillStyle = color;
+    ctx.fillRect(-cw / 2, -ch / 2, cw, ch);
+
+    // windshield
+    ctx.fillStyle = 'rgba(0,200,255,0.55)';
+    const wsW = cw * 0.6;
+    const wsH = ch * 0.22;
+    ctx.fillRect(-wsW / 2, -ch / 2 + ch * 0.08, wsW, wsH);
+
+    // rear window
+    ctx.fillRect(-wsW / 2, ch / 2 - ch * 0.08 - wsH, wsW, wsH);
+
+    // wheels (4 corners)
+    ctx.fillStyle = '#111';
+    const ww = cw * 0.22;
+    const wh = ch * 0.20;
+    const wx = cw / 2 - ww * 0.3;
+    const wy = ch / 2 - wh * 0.5;
+    ctx.fillRect(-wx - ww, -wy - wh, ww, wh);  // front-left
+    ctx.fillRect( wx,      -wy - wh, ww, wh);  // front-right
+    ctx.fillRect(-wx - ww,  wy,      ww, wh);  // rear-left
+    ctx.fillRect( wx,       wy,      ww, wh);  // rear-right
+
+    ctx.restore();
+  }
+
+  function drawPlayerTrail(x, y, cw, ch) {
+    // fading speed-trail rectangles behind player
+    for (let i = 1; i <= 5; i++) {
+      ctx.fillStyle = `rgba(255, 48, 104, ${0.12 - i * 0.02})`;
+      ctx.fillRect(x - cw / 2, y + ch / 2 + i * ch * 0.35, cw, ch * 0.9);
+    }
+  }
+
+  function drawNPC(npc, cw, ch) {
+    drawCar(npc.x, npc.y, npc.color, cw, ch, 0, false);
+  }
+
+  // ── Collision ─────────────────────────────────────────────────────────────
+  function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+    return ax - aw / 2 < bx + bw / 2 &&
+           ax + aw / 2 > bx - bw / 2 &&
+           ay - ah / 2 < by + bh / 2 &&
+           ay + ah / 2 > by - bh / 2;
+  }
+
+  // ── Game over ─────────────────────────────────────────────────────────────
+  function endGame() {
+    state = STATE.DEAD;
+    sfx.explode();
+    gamelib.shake(canvas, 16, 400);
+
+    const finalScore = Math.floor(score);
+    const finalSpeed = Math.floor(topSpeed * 10);
+
+    best = gamelib.setBestIfHigher('racing', finalScore);
+    bestEl.textContent = best;
+
+    const coins = Math.max(1, Math.floor(finalScore / 50));
+    gamelib.addCoins(coins, 'racing');
+
+    gamelib.gameOver({
+      title: 'CRASH!',
+      subtitle: `+${coins} coins`,
+      stats: [
+        { label: 'DISTANCE', value: finalScore },
+        { label: 'BEST',     value: best },
+        { label: 'TOP SPEED', value: finalSpeed + ' km/h' }
+      ],
+      onRestart: () => {
+        msgEl.textContent = '';
+        startGame();
+      }
+    });
+  }
+
+  // ── Main loop ─────────────────────────────────────────────────────────────
+  let lastNearMissFlash = 0;
+
+  function loop(ts) {
+    if (state !== STATE.PLAYING) return;
+    if (gamelib.isPaused()) {
+      raf = requestAnimationFrame(loop);
+      return;
+    }
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const { roadL, roadW, roadR } = roadBounds(w);
+    const { cw, ch } = carDims(w);
+    const py = playerY(h);
+
+    // ── Speed & score update ──────────────────────────────────────
+    speed = Math.min(12, speed + 0.001);
+    if (speed > topSpeed) topSpeed = speed;
+    score += speed * 0.5;
+
+    const displaySpeed = Math.round(speed * 10);
+    scoreEl.textContent  = Math.floor(score);
+    speedEl.textContent  = displaySpeed + ' km/h';
+
+    // ── Scroll ────────────────────────────────────────────────────
+    scrollY  += speed;
+    treeOffset += speed * 0.8;
+
+    // ── Player movement ───────────────────────────────────────────
+    const accel = 3.5;
+    const friction = 0.75;
+    if (keys.left)  playerVX -= accel;
+    if (keys.right) playerVX += accel;
+    if (!keys.left && !keys.right) playerVX *= friction;
+    playerVX = Math.max(-8, Math.min(8, playerVX));
+
+    playerX += playerVX;
+
+    // clamp to road (keep car body inside)
+    const halfCar = cw / 2;
+    playerX = Math.max(roadL + halfCar, Math.min(roadR - halfCar, playerX));
+
+    // lean
+    const targetLean = (playerVX / 8) * 0.18;
+    leanAngle += (targetLean - leanAngle) * 0.2;
+
+    // ── NPC spawning ──────────────────────────────────────────────
+    spawnTimer++;
+    // spawn interval shrinks as speed rises (more frequent at high speed)
+    spawnInterval = Math.max(45, 120 - (speed - 3) * 8);
+    if (spawnTimer >= spawnInterval) {
+      spawnNPC();
+      spawnTimer = 0;
+    }
+
+    // ── NPC movement & logic ──────────────────────────────────────
+    const npcSpeed = speed * 1.4;
+    for (let i = npcs.length - 1; i >= 0; i--) {
+      const npc = npcs[i];
+      npc.y += npcSpeed;
+
+      // near-miss check (passed player without collision)
+      if (!npc.passed && npc.y > py + ch) {
+        npc.passed = true;
+        // check if it was close
+        const dx = Math.abs(npc.x - playerX);
+        if (dx < cw * 2 && !npc.nearMissed) {
+          npc.nearMissed = true;
+          score += 5;
+          sfx.coin();
+          lastNearMissFlash = ts;
+        }
+      }
+
+      // collision check
+      if (rectsOverlap(playerX, py, cw * 0.85, ch * 0.85,
+                       npc.x,  npc.y, cw * 0.85, ch * 0.85)) {
+        endGame();
+        return;
+      }
+
+      // remove off-screen
+      if (npc.y > h + ch * 2) {
+        npcs.splice(i, 1);
+      }
+    }
+
+    // ── Draw ──────────────────────────────────────────────────────
+    ctx.clearRect(0, 0, w, h);
+
+    drawTrees(w, h);
+    drawRoad(w, h);
+
+    // near-miss flash overlay
+    if (ts - lastNearMissFlash < 200) {
+      ctx.fillStyle = `rgba(93,255,138,${0.15 * (1 - (ts - lastNearMissFlash) / 200)})`;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // draw NPCs
+    for (const npc of npcs) {
+      drawNPC(npc, cw, ch);
+    }
+
+    // speed trail
+    drawPlayerTrail(playerX, py, cw, ch);
+
+    // player car
+    drawCar(playerX, py, PLAYER_COLOR, cw, ch, leanAngle, true);
+
+    raf = requestAnimationFrame(loop);
+  }
+
+  // ── Idle screen ───────────────────────────────────────────────────────────
+  function drawIdle() {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    drawTrees(w, h);
+    drawRoad(w, h);
+    const { cw, ch } = carDims(w);
+    const py = playerY(h);
+    // draw a static player car in the centre
+    const { roadL, roadW } = roadBounds(w);
+    const cx = roadL + roadW / 2;
+    drawCar(cx, py, PLAYER_COLOR, cw, ch, 0, true);
+  }
+
+  // Draw idle once so the canvas isn't blank
+  // Wait until canvas is properly sized
+  requestAnimationFrame(() => {
+    resize();
+    drawIdle();
+    bestEl.textContent = best;
+  });
+
+  // ── Hub page back-link guard ───────────────────────────────────────────────
+  // The CLAUDE.md says main hub is index.html; the template used hub.html.
+  // Already patched in the href above.
+
+})();
+</script>
+</body>
+</html>

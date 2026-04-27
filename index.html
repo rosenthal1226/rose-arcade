@@ -663,7 +663,7 @@ html, body {
 
 /* Screen */
 .screen-glass {
-  width: 480px; height: 360px;
+  width: 400px; height: 300px;
   background: #000608;
   border-radius: 4px;
   border: 4px solid #1a1a1a;
@@ -942,7 +942,7 @@ html, body {
 }
 .doc-nav-item:hover { background:#000080; color:#fff; }
 .doc-nav-item.active { background:#000080; color:#fff; }
-.doc-content-wrap { display:flex; height:300px; }
+.doc-content-wrap { display:flex; height:200px; }
 .doc-page {
   background:#fff; padding:20px 24px;
   flex:1; overflow-y:auto;
@@ -960,7 +960,7 @@ html, body {
   padding:1px 5px; font-family:Arial,sans-serif; font-size:11px; margin-left:3px;
 }
 .trash-grid {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
   padding:10px; background:#fff; margin:4px; min-height:200px;
 }
 .trash-item {
@@ -975,6 +975,73 @@ html, body {
   font-family:Arial,sans-serif; font-size:9px;
   text-align:center; max-width:78px; word-break:break-all; line-height:1.2;
 }
+
+/* ── DAY / NIGHT CYCLE ── */
+.scene.dusk  .wall { background:#e0c890; }
+.scene.night .wall { background:#2a2a3e; background-image:repeating-linear-gradient(90deg,transparent 0,transparent 39px,rgba(80,80,120,.18) 39px,rgba(80,80,120,.18) 40px),repeating-linear-gradient(0deg,transparent 0,transparent 39px,rgba(80,80,120,.12) 39px,rgba(80,80,120,.12) 40px); }
+.scene.night .baseboard { background:linear-gradient(180deg,#5a5030 0%,#3a3010 100%); border-top-color:#786840; }
+.scene.night .floor-inner { background:repeating-linear-gradient(90deg,#7a5820 0,#7a5820 118px,#5a3c0e 118px,#5a3c0e 122px,#8a6428 122px,#8a6428 238px,#5a3c0e 238px,#5a3c0e 242px); filter:brightness(.6); }
+.scene.dusk  .wall-window-decor { background:linear-gradient(180deg,#e06018 0%,#f0a040 50%,#f8c870 100%); }
+.scene.night .wall-window-decor { background:linear-gradient(180deg,#060814 0%,#0e1628 55%,#1a2640 100%); }
+.scene.night .wsun  { display:none; }
+.scene.night .wcloud { background:rgba(40,50,80,.55); }
+.scene.dusk  .wcloud { background:rgba(255,160,60,.7); }
+.wmoon { position:absolute; width:22px;height:22px;background:#f8f0a0;border-radius:50%;top:8px;right:14px;box-shadow:0 0 14px #f8f0a0,0 0 30px rgba(248,240,160,.4);display:none; }
+.scene.night .wmoon { display:block; }
+.scene.night .wsun  { display:none; }
+.wstar { position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:starTwinkle 2s ease-in-out infinite; }
+@keyframes starTwinkle { 0%,100%{opacity:.9;} 50%{opacity:.1;} }
+/* dim the whole scene at night */
+.scene.night .bookshelf,.scene.night .wall-art { filter:brightness(.55); }
+.scene.night .desk-group { filter:brightness(.7); }
+.scene.night .monitor-wrap { filter:none; }
+
+/* ── RIGHT-CLICK CONTEXT MENU ── */
+.ctx-menu { position:absolute;background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;box-shadow:3px 3px 0 #000;min-width:140px;z-index:800;display:none;padding:2px 0; }
+.ctx-menu.open { display:block; }
+.ctx-item { font-family:Arial,sans-serif;font-size:11px;padding:4px 20px 4px 28px;user-select:none;color:#000;cursor:default;white-space:nowrap; }
+.ctx-item:hover { background:#000080;color:#fff; }
+.ctx-item.disabled { color:#808080; }
+.ctx-item.disabled:hover { background:transparent;color:#808080; }
+.ctx-sep { border:none;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:2px 0; }
+
+/* ── SCREENSAVER ── */
+#screensaver { position:fixed;inset:0;z-index:9000;display:none;background:#000; }
+#screensaver.active { display:block; }
+#saver-canvas { position:absolute;inset:0;width:100%;height:100%; }
+#saver-label { position:absolute;bottom:12%;left:50%;transform:translateX(-50%);font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:2px;text-align:center;pointer-events:none;white-space:nowrap; }
+
+/* ── SCREENSAVER UNLOCK DIALOG ── */
+.unlock-overlay { position:fixed;inset:0;z-index:9100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75); }
+.unlock-overlay.open { display:flex; }
+.unlock-dialog { background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;box-shadow:4px 4px 0 #000;width:260px; }
+.unlock-dialog .dlg-body { flex-direction:column;gap:6px; }
+
+/* ── DESK PHONE ── */
+.desk-phone { display:flex;flex-direction:column;align-items:center;margin-right:18px;cursor:pointer;position:relative; }
+.phone-body { width:34px;height:26px;background:linear-gradient(160deg,#444 0%,#222 100%);border-radius:3px 3px 5px 5px;border:2px solid #333;box-shadow:1px 2px 5px rgba(0,0,0,.5);position:relative; }
+.phone-handset { position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:30px;height:11px;background:linear-gradient(160deg,#555 0%,#2a2a2a 100%);border-radius:8px 8px 0 0;border:2px solid #333;border-bottom:none; }
+.phone-dial { position:absolute;bottom:3px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,5px);gap:2px; }
+.phone-key { width:5px;height:3px;background:#555;border-radius:1px; }
+@keyframes phoneRing { 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
+.desk-phone.ringing .phone-body { animation:phoneRing .12s ease-in-out infinite; }
+.phone-ring-label { position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:11px;pointer-events:none;opacity:0;white-space:nowrap; }
+.desk-phone.ringing .phone-ring-label { opacity:1;animation:ringBounce .4s ease-in-out infinite; }
+@keyframes ringBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-3px);} }
+
+/* ── SECOND CHARACTER ── */
+.char2-group { position:absolute;bottom:29%;right:10%;z-index:12;display:flex;flex-direction:column;align-items:center; }
+#char2Visual { display:flex;flex-direction:column;align-items:center;transition:transform .15s; }
+.plumbob2 { width:16px;height:16px;background:linear-gradient(135deg,#88aaff 0%,#4466ee 50%,#2244cc 100%);transform:rotate(45deg);box-shadow:0 0 8px #6688ff,0 0 20px rgba(100,120,255,.5);margin-bottom:6px;animation:plumbFloat 2.5s ease-in-out infinite;animation-delay:1.3s; }
+.char2-body { width:46px;height:50px;background:linear-gradient(160deg,#44aa66 0%,#228844 60%,#116633 100%);border-radius:10px 10px 6px 6px;position:relative;box-shadow:0 3px 8px rgba(0,0,0,.25); }
+.char2-body::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid #e8b060; }
+.char2-arm-l { position:absolute;top:8px;left:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(15deg);transform-origin:top center; }
+.char2-arm-r { position:absolute;top:8px;right:-14px;width:14px;height:36px;background:linear-gradient(180deg,#44aa66 0%,#228844 60%,#e8b060 85%,#e8b060 100%);border-radius:6px 6px 8px 8px;transform:rotate(-15deg);transform-origin:top center; }
+.speech-bubble2 { position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #222;border-radius:10px;padding:4px 9px;font-family:Arial,sans-serif;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s;box-shadow:2px 2px 5px rgba(0,0,0,.25);z-index:200; }
+.speech-bubble2::after { content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #222; }
+.speech-bubble2.show { opacity:1; }
+#char2Group.waving2 .char2-arm-l { animation:waveArm .9s ease-in-out 2; }
+#char2Group.looking2 .char-head  { animation:lookAround 1.4s ease-in-out; }
 </style>
 </head>
 <body>
@@ -991,6 +1058,7 @@ html, body {
     <div class="wcloud c2"></div>
     <div class="wcloud c3"></div>
     <div class="wsun"></div>
+    <div class="wmoon"></div>
     <div class="wbuilding b1"></div>
     <div class="wbuilding b2"></div>
     <div class="wbuilding b3"></div>
@@ -1068,6 +1136,38 @@ html, body {
   <!-- Wandering office cat -->
   <div class="office-cat" id="officeCat">🐱</div>
 
+  <!-- ── SECOND COWORKER ── -->
+  <div class="char2-group" id="char2Group">
+    <div class="speech-bubble2" id="speechBubble2"></div>
+    <div class="plumbob2"></div>
+    <div id="char2Visual">
+      <div class="char-head">
+        <div class="char-hair" style="background:linear-gradient(180deg,#1a1a1a 0%,#333 70%,transparent 100%);"></div>
+        <div class="char-brow l"></div>
+        <div class="char-brow r"></div>
+        <div class="char-eye l"></div>
+        <div class="char-eye r"></div>
+        <div class="char-nose"></div>
+        <div class="char-mouth"></div>
+      </div>
+      <div class="char-neck"></div>
+      <div class="char2-body">
+        <div class="char2-arm-l"></div>
+        <div class="char2-arm-r"></div>
+      </div>
+      <div class="char-lap">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="char-leg"></div>
+          <div class="char-shoe"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="char-leg"></div>
+          <div class="char-shoe"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── DESK ── -->
   <div class="desk-group">
     <!-- Items sitting on top of desk surface -->
@@ -1083,6 +1183,17 @@ html, body {
         <div class="desk-plant">
           <div class="plant-leaves">🌿</div>
           <div class="plant-pot"></div>
+        </div>
+        <!-- Phone -->
+        <div class="desk-phone" id="deskPhone">
+          <div class="phone-ring-label">📞 RING!</div>
+          <div class="phone-body">
+            <div class="phone-handset"></div>
+            <div class="phone-dial">
+              <div class="phone-key"></div><div class="phone-key"></div><div class="phone-key"></div>
+              <div class="phone-key"></div><div class="phone-key"></div><div class="phone-key"></div>
+            </div>
+          </div>
         </div>
         <div class="desk-mouse"></div>
         <div class="coffee-mug">
@@ -1136,7 +1247,7 @@ html, body {
             </div>
 
             <!-- ═══ DOCUMENTS WINDOW ═══ -->
-            <div class="win-window" id="docs-win" style="top:32px;left:70px;width:370px;">
+            <div class="win-window" id="docs-win" style="top:26px;left:46px;width:310px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">📄</span>
                 <span class="win-title-text">Nursery Rhymes — WordPad</span>
@@ -1176,7 +1287,7 @@ html, body {
             </div>
 
             <!-- ═══ RECYCLE BIN WINDOW ═══ -->
-            <div class="win-window" id="trash-win" style="top:45px;left:55px;width:380px;">
+            <div class="win-window" id="trash-win" style="top:36px;left:36px;width:326px;">
               <div class="win-titlebar">
                 <span class="win-title-icon">🗑️</span>
                 <span class="win-title-text">Recycle Bin</span>
@@ -1231,6 +1342,19 @@ html, body {
               </div>
             </div>
 
+            <!-- RIGHT-CLICK CONTEXT MENU -->
+            <div class="ctx-menu" id="ctxMenu">
+              <div class="ctx-item" onclick="ctxArrange()">Arrange Icons</div>
+              <div class="ctx-item" onclick="ctxRefresh()">Refresh</div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item" onclick="openWin('docs-win');closeCtx()">Open My Documents</div>
+              <div class="ctx-item" onclick="openWin('trash-win');closeCtx()">Open Recycle Bin</div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item" onclick="goArcade();closeCtx()">▶ Rose Arcade</div>
+              <div class="ctx-sep"></div>
+              <div class="ctx-item disabled">Properties</div>
+            </div>
+
             <!-- TASKBAR -->
             <div class="taskbar">
               <div class="start-btn">🪟 <b>Start</b></div>
@@ -1252,14 +1376,61 @@ html, body {
 
 </div><!-- /scene -->
 
+<!-- ── SCREENSAVER OVERLAY ── -->
+<div id="screensaver">
+  <canvas id="saver-canvas"></canvas>
+  <div id="saver-label">ROSE PC — Click or press any key to wake</div>
+</div>
+
+<!-- ── SCREENSAVER UNLOCK DIALOG ── -->
+<div class="unlock-overlay" id="unlockOverlay">
+  <div class="unlock-dialog">
+    <div class="dlg-titlebar">
+      <span class="dlg-title-icon">🔒</span>
+      <span class="dlg-title-text">Computer Locked</span>
+    </div>
+    <div class="dlg-body" style="padding:14px;">
+      <div style="font-family:Arial,sans-serif;font-size:11px;margin-bottom:8px;">Enter password to unlock:</div>
+      <input class="dlg-input" id="unlockInput" type="password" placeholder="Password" autocomplete="off" style="margin-bottom:10px;">
+      <div style="font-family:Arial,sans-serif;font-size:9px;color:#808080;margin-bottom:10px;">Hint: the arcade name (all caps)</div>
+    </div>
+    <hr class="dlg-divider" style="margin:0 14px;">
+    <div class="dlg-footer">
+      <button class="dlg-btn" id="unlockCancel">Cancel</button>
+      <button class="dlg-btn primary" id="unlockOk">Unlock</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ════ CLOCK ════ */
+/* ════ CLOCK + DAY/NIGHT ════ */
 function tick(){
   var d=new Date(), h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM';
   h=h%12||12;
   document.getElementById('taskbar-clock').textContent=h+':'+(m<10?'0'+m:m)+' '+ap;
+  updateDayNight(d.getHours());
 }
-tick(); setInterval(tick,10000);
+tick(); setInterval(tick,60000);
+
+function updateDayNight(h){
+  var s=document.querySelector('.scene');
+  s.classList.remove('dusk','night');
+  if(h>=18||h<6)  s.classList.add('night');
+  else if(h>=16)  s.classList.add('dusk');
+  // Populate night stars in window once
+  var win=document.querySelector('.wall-window-decor');
+  if(!win._starsBuilt){
+    win._starsBuilt=true;
+    for(var i=0;i<14;i++){
+      var st=document.createElement('div');
+      st.className='wstar';
+      st.style.left=(8+Math.random()*160)+'px';
+      st.style.top=(5+Math.random()*80)+'px';
+      st.style.animationDelay=(Math.random()*3)+'s';
+      win.appendChild(st);
+    }
+  }
+}
 
 /* ════ ICON SELECTION ════ */
 var selIcon=null;
@@ -1762,6 +1933,189 @@ function emptyBin(){
   };
 
   window.addEventListener('load', init);
+})();
+
+/* ════ RIGHT-CLICK CONTEXT MENU ════ */
+(function(){
+  var menu=document.getElementById('ctxMenu');
+  var desktop=document.getElementById('desktop');
+  desktop.addEventListener('contextmenu',function(e){
+    if(e.target.closest('.win-window')||e.target.closest('.taskbar')) return;
+    e.preventDefault();
+    var p=desktop.getBoundingClientRect();
+    var x=Math.min(e.clientX-p.left, p.width-menu.offsetWidth-4);
+    var y=Math.min(e.clientY-p.top,  p.height-menu.offsetHeight-4);
+    menu.style.left=x+'px'; menu.style.top=y+'px';
+    menu.classList.add('open');
+  });
+  document.addEventListener('mousedown',function(e){ if(!e.target.closest('.ctx-menu')) closeCtx(); });
+  document.addEventListener('scroll',closeCtx);
+})();
+function closeCtx(){ document.getElementById('ctxMenu').classList.remove('open'); }
+function ctxRefresh(){ closeCtx(); document.querySelectorAll('.icon').forEach(function(ic){ ic.classList.remove('selected'); }); }
+function ctxArrange(){ closeCtx(); }
+
+/* ════ SCREENSAVER ════ */
+(function(){
+  var ss=document.getElementById('screensaver');
+  var canvas=document.getElementById('saver-canvas');
+  var ctx=canvas.getContext('2d');
+  var stars=[], raf=null, idleTimer=null, IDLE_MS=45000;
+  var PASS='ROSE';
+
+  function resetIdle(){
+    clearTimeout(idleTimer);
+    idleTimer=setTimeout(activateSaver,IDLE_MS);
+  }
+  ['mousemove','mousedown','keydown','touchstart','wheel'].forEach(function(ev){
+    document.addEventListener(ev,function(){
+      if(ss.classList.contains('active')) return;
+      resetIdle();
+    },{passive:true});
+  });
+  resetIdle();
+
+  function activateSaver(){
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    stars=[];
+    for(var i=0;i<220;i++) stars.push({
+      x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+      z:Math.random()*canvas.width,pz:0
+    });
+    ss.classList.add('active');
+    raf=requestAnimationFrame(drawSaver);
+  }
+  function drawSaver(){
+    if(!ss.classList.contains('active')) return;
+    var W=canvas.width,H=canvas.height,CX=W/2,CY=H/2;
+    ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i]; s.pz=s.z; s.z-=3;
+      if(s.z<=0){ s.x=Math.random()*W; s.y=Math.random()*H; s.z=W; s.pz=W; }
+      var sx=(s.x-CX)*(W/s.z)+CX, sy=(s.y-CY)*(W/s.z)+CY;
+      var px=(s.x-CX)*(W/s.pz)+CX, py=(s.y-CY)*(W/s.pz)+CY;
+      var r=Math.max(0.5,1.5*(1-s.z/W));
+      ctx.strokeStyle='rgba(255,255,255,'+(0.4+0.6*(1-s.z/W))+')';
+      ctx.lineWidth=r*1.4;
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(sx,sy); ctx.stroke();
+    }
+    raf=requestAnimationFrame(drawSaver);
+  }
+  function wakeFromSaver(){
+    cancelAnimationFrame(raf);
+    ss.classList.remove('active');
+    showUnlock();
+    resetIdle();
+  }
+  ss.addEventListener('click',wakeFromSaver);
+  ss.addEventListener('keydown',wakeFromSaver);
+  document.addEventListener('keydown',function(){ if(ss.classList.contains('active')) wakeFromSaver(); });
+
+  // Unlock dialog
+  var unlockOverlay=document.getElementById('unlockOverlay');
+  var unlockInput=document.getElementById('unlockInput');
+  function showUnlock(){
+    unlockOverlay.classList.add('open');
+    unlockInput.value='';
+    setTimeout(function(){ unlockInput.focus(); },80);
+  }
+  function tryUnlock(){
+    if(unlockInput.value.toUpperCase()===PASS||unlockInput.value===''){
+      unlockOverlay.classList.remove('open');
+    } else {
+      unlockInput.style.borderColor='#cc0000';
+      unlockInput.value='';
+      unlockInput.focus();
+      setTimeout(function(){ unlockInput.style.borderColor=''; },900);
+    }
+  }
+  document.getElementById('unlockOk').onclick=tryUnlock;
+  document.getElementById('unlockCancel').onclick=function(){ unlockOverlay.classList.remove('open'); };
+  unlockInput.addEventListener('keydown',function(e){ if(e.key==='Enter') tryUnlock(); });
+})();
+
+/* ════ DESK PHONE ════ */
+(function(){
+  var phone=document.getElementById('deskPhone');
+  var ringTimer=null, stopTimer=null;
+  var CALLS=['📞 It\'s the boss!','Your mom is calling!','📞 Order\'s ready!','Wrong number?','📞 It\'s IT support.','Another meeting...'];
+
+  function startRinging(){
+    phone.classList.add('ringing');
+    phone.querySelector('.phone-ring-label').textContent=CALLS[Math.floor(Math.random()*CALLS.length)];
+    stopTimer=setTimeout(stopRinging,8000);
+  }
+  function stopRinging(){
+    phone.classList.remove('ringing');
+    clearTimeout(stopTimer);
+    scheduleNextCall();
+  }
+
+  phone.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(phone.classList.contains('ringing')){
+      stopRinging();
+      // walk char to phone and answer
+      if(window.charWalkTo){
+        var sc=document.querySelector('.scene').getBoundingClientRect();
+        var pr=phone.getBoundingClientRect();
+        charWalkTo(pr.left-sc.left+10,'📞 Hello?');
+      }
+    }
+  });
+
+  function scheduleNextCall(){
+    var delay=35000+Math.random()*60000;
+    ringTimer=setTimeout(startRinging,delay);
+  }
+  scheduleNextCall();
+})();
+
+/* ════ SECOND CHARACTER (coworker) ════ */
+(function(){
+  var g2   =document.getElementById('char2Group');
+  var vis2 =document.getElementById('char2Visual');
+  var bub2 =document.getElementById('speechBubble2');
+  var idleT=null, bubT=null;
+
+  var PHRASES=['☕ Need coffee.','TPS reports...','😴 Zzz...','Almost Friday!','Git push done!','Any snacks?','🤔 Hmm...','On a call.','BRB lunch.','Deploy again?'];
+
+  function say2(txt){
+    clearTimeout(bubT);
+    bub2.textContent=txt; bub2.classList.add('show');
+    bubT=setTimeout(function(){ bub2.classList.remove('show'); },2800);
+  }
+
+  function doIdle2(){
+    var r=Math.random();
+    if(r<0.35){
+      g2.classList.add('waving2'); say2('👋');
+      setTimeout(function(){ g2.classList.remove('waving2'); },1800);
+    } else if(r<0.65){
+      g2.classList.add('looking2');
+      setTimeout(function(){ g2.classList.remove('looking2'); },1400);
+    } else {
+      say2(PHRASES[Math.floor(Math.random()*PHRASES.length)]);
+    }
+    idleT=setTimeout(doIdle2, 5000+Math.random()*7000);
+  }
+  idleT=setTimeout(doIdle2, 3000+Math.random()*4000);
+
+  // Flip char2 to face left (toward center)
+  vis2.style.transform='scaleX(-1)';
+
+  // Click on char2 to chat
+  g2.addEventListener('click',function(e){
+    e.stopPropagation();
+    var chats=['Hey there!','What\'s up?','Did you see that deploy?','Lunch time?','Need help?'];
+    say2(chats[Math.floor(Math.random()*chats.length)]);
+    // char1 responds
+    if(window.charWalkTo){
+      var sc=document.querySelector('.scene').getBoundingClientRect();
+      var gr=g2.getBoundingClientRect();
+      charWalkTo(gr.left-sc.left-60,'😄 Hey!');
+    }
+  });
 })();
 
 /* ════ NAME PROMPT ════ */

@@ -29,7 +29,10 @@
 
   var GAME_NAMES = {
     'snake':       '🐍 Snake',
-    'snake-duel':  '🐍 Snake Duel',
+    'pacman':      '🟡 Pac-Man',
+    'asteroids':   '☄️ Asteroids',
+    'racing':      '🏎️ Road Racer',
+    'pinball':     '🎱 Pinball',
     'tictactoe':   '❌ Tic-Tac-Toe',
     'pong':        '🏓 Pong',
     'memory':      '🧠 Memory',

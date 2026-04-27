@@ -290,8 +290,8 @@
     set.add(gameId);
     localStorage.setItem(k, JSON.stringify([...set]));
     unlock('first_play');
-    // EXPLORER if all 13 games played
-    const allGames = ['snake','snake-duel','tictactoe','pong','memory','2048','whackamole','rps','minesweeper','tetris','breakout','invaders','flappy'];
+    // EXPLORER if all 16 games played
+    const allGames = ['snake','pacman','asteroids','racing','pinball','tictactoe','pong','memory','2048','whackamole','rps','minesweeper','tetris','breakout','invaders','flappy'];
     if(allGames.every(g => set.has(g))) unlock('play_all');
   }
 
